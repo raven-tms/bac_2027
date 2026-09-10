@@ -2557,6 +2557,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
   // ===== AUTH STATE HANDLER =====
   let _authStateFired = 0;
+  // نتتبع إذا كنا في انتظار نتيجة redirect — لمنع إظهار شاشة الدخول قبل الأوان
+  let _redirectPending = false;
 
   async function _onAuthReady(user){
     _authStateFired++;
@@ -2564,11 +2566,13 @@ setTimeout(()=>{ _appInitializing=false; },0);
     updateCloudUI();
 
     if(!user){
+      // إذا كنا لا نزال في انتظار نتيجة redirect — لا تُظهر شاشة الدخول أبداً
+      if(_redirectPending) return;
       // أول استدعاء قد يكون null مؤقتاً — ننتظر 700ms قبل إظهار شاشة الدخول
       if(_authStateFired === 1){
         const fired = _authStateFired;
         setTimeout(()=>{
-          if(_authStateFired === fired) showLogin();
+          if(_authStateFired === fired && !_redirectPending) showLogin();
         }, 700);
         return;
       }
@@ -2576,6 +2580,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
       showLogin();
       return;
     }
+
+    // وصل مستخدم حقيقي — نُصفّر علامة redirect لأننا لم نعد بحاجتها
+    _redirectPending = false;
 
     const email = user.email ? user.email.toLowerCase() : null;
     const cached = email ? _getAccessCache(email) : null;
@@ -2613,9 +2620,31 @@ setTimeout(()=>{ _appInitializing=false; },0);
   }
 
   // Handle redirect result then start listener
-  fbAuth.getRedirectResult().then(()=>{
+  // نضع علامة "انتظار redirect" فوراً — قبل أي استدعاء آخر
+  // هذا يمنع onAuthStateChanged من إظهار شاشة الدخول أثناء معالجة نتيجة الـ redirect
+  _redirectPending = true;
+  lgBtn.disabled = true;
+  lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
+
+  fbAuth.getRedirectResult().then(result=>{
+    if(result && result.user){
+      // جاء مستخدم من redirect — نبقي _redirectPending=true
+      // حتى يستلمه onAuthStateChanged ويُدخله، لمنع user=null المؤقت من إظهار شاشة الدخول
+      // _redirectPending سيُصفَّر داخل _onAuthReady بعد التحقق من الـ access
+    } else {
+      // لا redirect نشط — أعد الزر للوضع الطبيعي
+      _redirectPending = false;
+      lgBtn.disabled = false;
+      lgBtn.innerHTML = googleLogoHTML;
+    }
     fbAuth.onAuthStateChanged(_onAuthReady);
-  }).catch(()=>{
+  }).catch(err=>{
+    _redirectPending = false;
+    lgBtn.disabled = false;
+    lgBtn.innerHTML = googleLogoHTML;
+    if(err && err.code && err.code !== 'auth/no-current-user'){
+      showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
+    }
     fbAuth.onAuthStateChanged(_onAuthReady);
   });
 
@@ -2632,16 +2661,19 @@ setTimeout(()=>{ _appInitializing=false; },0);
     fbAuth.signInWithPopup(googleProvider)
       .catch(err=>{
         // إذا منع المتصفح الـ popup — انتقل لـ redirect
+        // نضع علامة redirect قبل التحويل
         const code = err.code||"";
         if(code==='auth/popup-blocked'||
            code==='auth/popup-closed-by-user'||
            code==='auth/cancelled-popup-request'||
            code==='auth/operation-not-supported-in-this-environment'){
+          _redirectPending = true;
           return fbAuth.signInWithRedirect(googleProvider);
         }
         throw err;
       })
       .catch(err=>{
+        _redirectPending = false;
         showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
         lgBtn.disabled = false;
         lgBtn.innerHTML = googleLogoHTML;
