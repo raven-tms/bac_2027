@@ -2562,8 +2562,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
   // ===== AUTH STATE HANDLER =====
   let _authStateFired = 0;
-  // نتتبع إذا كنا في انتظار نتيجة redirect
-  let _redirectPending = true; // نبدأ بـ true دائماً — نصفّرها بعد getRedirectResult
+  // نتتبع إذا كنا في انتظار نتيجة redirect (تُستخدم فقط كخطة بديلة عند حجب popup)
+  let _redirectPending = false;
 
   async function _onAuthReady(user){
     _authStateFired++;
@@ -2624,35 +2624,23 @@ setTimeout(()=>{ _appInitializing=false; },0);
     }
   }
 
-  // ===== STARTUP: معالجة redirect result أولاً ثم تسجيل المستمع =====
-  // نعرض spinner ريثما نعرف هل هناك redirect قيد المعالجة أم لا
-  lgBtn.disabled = true;
-  lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
+  // ===== STARTUP =====
+  // ملاحظة هامة: signInWithRedirect معطوب على GitHub Pages بسبب Storage Partitioning
+  // في Chrome 115+، لأن bac2027t.firebaseapp.com (نطاق الـ redirect) و
+  // raven-tms.github.io (نطاق الموقع) نطاقان مختلفان، والمتصفح يعزل sessionStorage
+  // بينهما فيضيع "initial state" الخاص بـ redirect. الحل: الاعتماد على signInWithPopup
+  // كطريقة أساسية (تعمل ضمن نفس النطاق نافذيًا ولا تحتاج مشاركة storage بين نطاقين).
+  _redirectPending = false;
+  lgBtn.disabled = false;
+  lgBtn.innerHTML = googleLogoHTML;
 
-  fbAuth.getRedirectResult()
-    .then(result => {
-      console.log('[BAC-AUTH] getRedirectResult:', result ? 'has user: ' + !!(result.user) : 'null');
-      // إذا لا يوجد مستخدم من redirect → أظهر شاشة الدخول العادية
-      if(!result || !result.user){
-        _redirectPending = false;
-        lgBtn.disabled = false;
-        lgBtn.innerHTML = googleLogoHTML;
-      }
-      // إذا يوجد مستخدم → _redirectPending تبقى true حتى يصل لـ _onAuthReady
-      fbAuth.onAuthStateChanged(_onAuthReady);
-    })
-    .catch(err => {
-      console.error('[BAC-AUTH] getRedirectResult error:', err && err.code, err && err.message);
-      _redirectPending = false;
-      lgBtn.disabled = false;
-      lgBtn.innerHTML = googleLogoHTML;
-      if(err && err.code && err.code !== 'auth/no-current-user'){
-        showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
-      }
-      fbAuth.onAuthStateChanged(_onAuthReady);
-    });
+  // نتحقق فقط إن كان هناك مستخدم مسجل دخوله مسبقًا (session قائمة)
+  fbAuth.onAuthStateChanged(_onAuthReady);
 
-  // ===== زر تسجيل الدخول — redirect مباشرة (أضمن على GitHub Pages) =====
+  // ===== زر تسجيل الدخول =====
+  // نستخدم popup كطريقة أساسية. عند فشلها لسبب متعلق بحجب النوافذ فعليًا
+  // (popup-blocked) أو بيئة لا تدعمها، نلجأ لـ redirect كخطة بديلة فقط،
+  // مع العلم أن redirect قد لا يعمل بشكل موثوق في بعض المتصفحات كما شرحنا أعلاه.
   let lgLoading = false;
   lgBtn.addEventListener("click", ()=>{
     if(lgLoading) return;
@@ -2661,17 +2649,55 @@ setTimeout(()=>{ _appInitializing=false; },0);
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     hideError();
 
-    // GitHub Pages يحجب الـ popup بسبب COOP headers — نستخدم redirect مباشرة
-    _redirectPending = true;
-    fbAuth.signInWithRedirect(googleProvider)
+    fbAuth.signInWithPopup(googleProvider)
+      .then(()=>{
+        lgLoading = false;
+      })
       .catch(err=>{
-        _redirectPending = false;
-        showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+        console.error('[BAC-AUTH] signInWithPopup error:', err && err.code, err && err.message);
+        lgLoading = false;
+
+        // إذا المستخدم أغلق النافذة بنفسه، لا نعرض خطأ ولا نجرب redirect
+        if(err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')){
+          lgBtn.disabled = false;
+          lgBtn.innerHTML = googleLogoHTML;
+          return;
+        }
+
+        // إذا كان السبب فعليًا حجب النافذة المنبثقة، نجرب redirect كخطة بديلة
+        if(err && err.code === 'auth/popup-blocked'){
+          console.log('[BAC-AUTH] popup blocked, falling back to redirect');
+          _redirectPending = true;
+          fbAuth.signInWithRedirect(googleProvider).catch(err2=>{
+            _redirectPending = false;
+            showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+            lgBtn.disabled = false;
+            lgBtn.innerHTML = googleLogoHTML;
+          });
+          return;
+        }
+
+        showError("تعذر تسجيل الدخول: " + (err && err.message ? err.message : "خطأ غير معروف"));
         lgBtn.disabled = false;
         lgBtn.innerHTML = googleLogoHTML;
-        lgLoading = false;
       });
   });
+
+  // في حال عاد المستخدم من redirect (الخطة البديلة أعلاه)، نتحقق من النتيجة
+  fbAuth.getRedirectResult()
+    .then(result => {
+      if(result && result.user){
+        console.log('[BAC-AUTH] getRedirectResult: has user');
+      }
+      _redirectPending = false;
+    })
+    .catch(err => {
+      console.error('[BAC-AUTH] getRedirectResult error:', err && err.code, err && err.message);
+      _redirectPending = false;
+      if(err && err.code && err.code !== 'auth/no-current-user'){
+        showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
+      }
+    });
 
   blBack.addEventListener("click", ()=>{
     _clearAccessCache(fbAuth.currentUser&&fbAuth.currentUser.email);
