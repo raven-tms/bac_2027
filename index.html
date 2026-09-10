@@ -2404,6 +2404,17 @@ saveState=function(){
     hideError();
   }
 
+  // Handle redirect result on page load
+  fbAuth.getRedirectResult().then(result => {
+    // onAuthStateChanged will handle the user session
+  }).catch(err => {
+    const msg = err.message||"";
+    if(msg && !msg.includes("no-redirect")){
+      showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+      showLogin();
+    }
+  });
+
   let lgLoading = false;
   lgBtn.addEventListener("click", async ()=>{
     if(lgLoading) return;
@@ -2412,17 +2423,10 @@ saveState=function(){
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     hideError();
     try {
-      await fbAuth.signInWithPopup(googleProvider);
-      // onAuthStateChanged will handle the rest
+      await fbAuth.signInWithRedirect(googleProvider);
     } catch(err){
-      const msg = err.message||"";
-      if(msg.includes("popup-closed-by-user")){
-        showError("تم إغلاق نافذة تسجيل الدخول. حاول مرة أخرى.");
-      } else if(!msg.includes("cancelled-popup-request")){
-        showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
-      }
+      showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
       showLogin();
-    } finally {
       lgLoading = false;
     }
   });
