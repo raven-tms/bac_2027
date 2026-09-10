@@ -267,16 +267,21 @@ table td,table th{white-space:nowrap}
 <!-- ===== BLOCKED GATE ===== -->
 <div id="blockedGate" class="hidden">
   <div class="bl-card">
-    <div class="bl-icon">⚠️</div>
-    <h1>البريد الإلكتروني غير مفعّل</h1>
-    <p>عنوان البريد الإلكتروني التالي غير مفعّل في نظامنا ولا يمكنه الوصول إلى المنصة.</p>
+    <div class="bl-icon">🔒</div>
+    <h1>الحساب غير مفعّل</h1>
+    <p>البريد الإلكتروني التالي غير مسموح له بالوصول إلى المنصة:</p>
     <p class="bl-email" id="blEmail"></p>
-    <p style="margin-top:16px;font-size:0.88rem;color:#94a3b8;">إذا كنت تعتقد أن هذا خطأ، يرجى التواصل معنا لتفعيل حسابك.</p>
-    <div class="bl-contact">
-      <div class="bl-contact-label">تواصل معنا</div>
-      <div class="bl-contact-email">support@bac2027t.com</div>
+    <p style="margin-top:12px;font-size:0.88rem;color:#94a3b8;">إذا تم تفعيل حسابك مؤخراً، اضغط على زر التحديث أدناه.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;">
+      <button class="bl-back" id="blRefreshBtn" style="background:var(--accent,#3b82f6);color:#fff;border:none;">🔄 تحديث وإعادة المحاولة</button>
+      <button class="bl-back" id="blBackBtn">← تسجيل الدخول بحساب آخر</button>
     </div>
-    <button class="bl-back" id="blBackBtn">← العودة لتسجيل الدخول</button>
+    <div class="bl-contact" style="margin-top:20px;">
+      <div class="bl-contact-label">للتفعيل تواصل معنا</div>
+      <a class="bl-contact-email" href="https://t.me/Tacky_menim" target="_blank" rel="noopener" style="display:block;color:var(--accent,#3b82f6);text-decoration:none;margin-top:6px;">✈️ تيليغرام — tacky_menim</a>
+      <a class="bl-contact-email" href="https://www.instagram.com/tacky_menim" target="_blank" rel="noopener" style="display:block;color:var(--accent,#3b82f6);text-decoration:none;margin-top:4px;">📸 إنستغرام — tacky_menim</a>
+    </div>
+    <div id="blCheckingMsg" style="display:none;margin-top:12px;font-size:0.85rem;color:#94a3b8;">⏳ جارٍ التحقق من الحساب...</div>
   </div>
 </div>
 
@@ -2241,7 +2246,14 @@ const firebaseConfig={
 firebase.initializeApp(firebaseConfig);
 const fbAuth=firebase.auth();
 const fbDb=firebase.firestore();
-try{fbDb.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
+try{
+  fbDb.settings({cacheSizeBytes:firebase.firestore.CACHE_SIZE_UNLIMITED});
+  fbDb.enableMultiTabIndexedDbPersistence().catch(e=>{
+    if(e.code==='failed-precondition'){
+      fbDb.enablePersistence({synchronizeTabs:false}).catch(()=>{});
+    }
+  });
+}catch(e){}
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
 let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
@@ -2251,7 +2263,10 @@ function signInGoogle(){
   toast(LANG==="ar"?"فشل تسجيل الدخول: "+e.message:"Sign-in failed: "+e.message,"warn")});
 }
 function signOutCloud(){
- if(cloudUnsub){cloudUnsub();cloudUnsub=null}
+ clearTimeout(_saveDebounceTimer);
+ _saveDebounceTimer=null;
+ _pendingLocalEdit=false;
+ if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
  fbAuth.signOut();
 }
 function updateCloudUI(){
@@ -2303,53 +2318,136 @@ function applyRemoteState(remote){
  setCloudStatus("synced");
  applyingRemote=false;
 }
-function pushToCloud(){
- if(!cloudUser)return;
- if(!navigator.onLine){setCloudStatus("offline");return}
+// ══════════════════════════════════════════════════════════════════
+// نظام حفظ ذكي — queue + debounce + retry + session-ID + online/offline
+// ══════════════════════════════════════════════════════════════════
+const _sessionId='sess_'+Date.now()+'_'+Math.random().toString(36).slice(2,9);
+let _saveQueue=Promise.resolve();
+let _saveDebounceTimer=null;
+let _pendingLocalEdit=false;
+let _appInitializing=true;
+let _lastLocalWriteTime=0;
+const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','internal'];
+
+async function _doCloudWrite(uid,retryCount){
+ retryCount=retryCount||0;
+ if(!cloudUser||cloudUser.uid!==uid)return;
  setCloudStatus("syncing");
  const payload=JSON.parse(JSON.stringify(state));
- fbDb.collection("users").doc(cloudUser.uid).set(payload).then(()=>{
+ payload._savedAt=Date.now();
+ payload._writerId=_sessionId;
+ try{
+  await fbDb.collection("users").doc(uid).set(payload);
   setCloudStatus("synced");
- }).catch(e=>{
-  setCloudStatus("error");
-  toast(LANG==="ar"?"تم الحفظ محلياً فقط، فشلت المزامنة السحابية":"Saved locally only — cloud sync failed","warn");
- });
+  _pendingLocalEdit=false;
+  _lastLocalWriteTime=Date.now();
+ }catch(e){
+  if(_TRANSIENT.includes(e&&e.code)&&retryCount<3&&cloudUser&&cloudUser.uid===uid){
+   setTimeout(()=>{ _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,retryCount+1)); },1000*(retryCount+1));
+  }else{
+   setCloudStatus("error");
+   toast(LANG==="ar"?"⚠️ فشل الحفظ السحابي — تم الحفظ محلياً":"⚠️ Cloud save failed — saved locally","warn");
+  }
+ }
 }
+
+function pushToCloud(){
+ if(!cloudUser)return;
+ const uid=cloudUser.uid;
+ _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,0));
+}
+
 function queueCloudSync(){
  if(applyingRemote||!cloudUser)return;
+ if(_appInitializing)return;
+ _pendingLocalEdit=true;
  setCloudStatus("pending");
- clearTimeout(cloudSyncTimer);
- cloudSyncTimer=setTimeout(pushToCloud,1200);
+ clearTimeout(_saveDebounceTimer);
+ _saveDebounceTimer=setTimeout(pushToCloud,800);
 }
+
+// عند العودة للإنترنت — أرسل التعديلات المعلّقة فقط
+window.addEventListener('online',()=>{
+ toast(LANG==="ar"?"✅ عاد الاتصال بالإنترنت":"✅ Back online");
+ if(_saveDebounceTimer&&cloudUser){
+  clearTimeout(_saveDebounceTimer);
+  _saveDebounceTimer=null;
+  pushToCloud();
+ }
+});
+window.addEventListener('offline',()=>{
+ toast(LANG==="ar"?"📴 انقطع الاتصال — سيُحفظ عند العودة":"📴 Offline — will sync when back","warn");
+ setCloudStatus("offline");
+});
+
+// ── مستمع Firestore الكامل: server-first + real-time sync + session guard ──
 function attachCloudListener(uid){
- if(cloudUnsub){cloudUnsub();cloudUnsub=null}
- cloudFirstSync=true;
- cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(doc=>{
-  if(!doc.exists){
+ if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
+
+ // STEP 1: فحص الخادم مباشرة (بدون cache) لتحديد حالة المستخدم بدقة
+ // هذا يمنع: تطبيق بيانات stale من الـ cache على مستخدم عائد بجهاز جديد
+ let serverCheckDone=false;
+ let serverConfirmedNew=false;
+
+ fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
+  serverCheckDone=true;
+  if(!serverSnap.exists){
+   // مستخدم جديد تماماً — ارفع بياناته الحالية للسحابة
+   serverConfirmedNew=true;
    state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
    pushToCloud();
-   return;
+  } else if(!_pendingLocalEdit){
+   // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
+   applyRemoteState(serverSnap.data());
   }
-  const remote=doc.data();
-  const remoteTime=(remote.meta&&remote.meta.updatedAt)||0;
-  const localTime=(state.meta&&state.meta.updatedAt)||0;
-  if(cloudFirstSync&&remoteTime<=localTime&&localTime>0){
-   cloudFirstSync=false;
-   pushToCloud();
-   return;
-  }
-  cloudFirstSync=false;
-  if(remoteTime>localTime){
-   applyRemoteState(remote);
-  }else if(localTime>remoteTime){
-   pushToCloud();
-  }else{
-   setCloudStatus("synced");
-  }
+ }).catch(e=>{
+  serverCheckDone=true;
+  // offline أو خطأ مؤقت — المستمع أدناه سيتكفل بالباقي من الـ cache
+  console.warn('Server check failed, using cache:',e&&e.code);
+ });
+
+ // STEP 2: المستمع اللحظي — يبدأ فوراً للتزامن بين الأجهزة
+ let isFirstSnapshot=true;
+
+ cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
+  try{
+   if(!snap.exists){isFirstSnapshot=false;return;}
+   const d=snap.data();
+
+   // تجاهل snapshot كتبه هذا الجهاز نفسه منذ أقل من 4 ثوانٍ
+   // (لمنع إعادة رسم غير ضرورية تُعطّل الكتابة النشطة)
+   const fromThisDevice=(d._writerId===_sessionId);
+   const timeSinceWrite=Date.now()-_lastLocalWriteTime;
+   if(!isFirstSnapshot&&fromThisDevice&&timeSinceWrite<4000){
+    isFirstSnapshot=false;return;
+   }
+
+   const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
+   const localTime=(state.meta&&state.meta.updatedAt)||0;
+
+   if(isFirstSnapshot){
+    isFirstSnapshot=false;
+    // أول snapshot: إذا انتهى فحص الخادم وطبّق البيانات — لا نكرر
+    // إذا لم ينته بعد أو كان offline — نطبّق من الـ cache
+    if(!serverCheckDone&&!_pendingLocalEdit&&remoteTime>localTime){
+     applyRemoteState(d);
+    } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
+     pushToCloud();
+    }
+   } else {
+    // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
+    if(!_pendingLocalEdit&&remoteTime>localTime){
+     applyRemoteState(d);
+     toast(LANG==="ar"?"🔄 تم تحديث البيانات من جهاز آخر":"🔄 Data updated from another device");
+    }
+   }
+  }catch(e){console.error('Snapshot apply error:',e);}
  },err=>{
   setCloudStatus("error");
+  console.error('Firestore listener error:',err&&err.code);
  });
 }
+
 const _origSaveState=saveState;
 saveState=function(){
  state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
@@ -2357,6 +2455,9 @@ saveState=function(){
  queueCloudSync();
  return ok;
 };
+
+// انتهت تهيئة التطبيق — أي save() بعد هذا هو تعديل حقيقي
+setTimeout(()=>{ _appInitializing=false; },0);
 /* ============ LOGIN GATE LOGIC ============ */
 (function(){
   const EMOJIS = ["📚","✏️","🎓","📖","💡","🧮","🔬","🌍"];
@@ -2372,12 +2473,14 @@ saveState=function(){
     bgEl.appendChild(s);
   });
 
-  const loginGate   = document.getElementById("loginGate");
-  const blockedGate = document.getElementById("blockedGate");
-  const lgBtn       = document.getElementById("lgGoogleBtn");
-  const lgError     = document.getElementById("lgError");
-  const blEmail     = document.getElementById("blEmail");
-  const blBack      = document.getElementById("blBackBtn");
+  const loginGate    = document.getElementById("loginGate");
+  const blockedGate  = document.getElementById("blockedGate");
+  const lgBtn        = document.getElementById("lgGoogleBtn");
+  const lgError      = document.getElementById("lgError");
+  const blEmail      = document.getElementById("blEmail");
+  const blBack       = document.getElementById("blBackBtn");
+  const blRefresh    = document.getElementById("blRefreshBtn");
+  const blChecking   = document.getElementById("blCheckingMsg");
 
   function showError(msg){
     lgError.textContent = msg;
@@ -2404,72 +2507,173 @@ saveState=function(){
     hideError();
   }
 
-  // Handle redirect result on page load
-  fbAuth.getRedirectResult().then(result => {
-    // onAuthStateChanged will handle the user session
-  }).catch(err => {
-    const msg = err.message||"";
-    if(msg && !msg.includes("no-redirect")){
-      showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+  // ===== ACCESS CACHE (localStorage) =====
+  const ACCESS_CACHE_KEY = 'bac2027_access_cache';
+  const ACCESS_CACHE_TTL = 30 * 60 * 1000; // 30 دقيقة
+
+  function _getAccessCache(email){
+    try {
+      const raw = localStorage.getItem(ACCESS_CACHE_KEY);
+      if(!raw) return null;
+      const cache = JSON.parse(raw);
+      const entry = cache[(email||"").toLowerCase()];
+      if(!entry) return null;
+      if(Date.now() - entry.ts > ACCESS_CACHE_TTL) return null;
+      return entry.allowed;
+    } catch(e){ return null; }
+  }
+  function _setAccessCache(email, allowed){
+    try {
+      const raw = localStorage.getItem(ACCESS_CACHE_KEY);
+      const cache = raw ? JSON.parse(raw) : {};
+      cache[(email||"").toLowerCase()] = { allowed, ts: Date.now() };
+      localStorage.setItem(ACCESS_CACHE_KEY, JSON.stringify(cache));
+    } catch(e){}
+  }
+  function _clearAccessCache(email){
+    try {
+      const raw = localStorage.getItem(ACCESS_CACHE_KEY);
+      if(!raw) return;
+      const cache = JSON.parse(raw);
+      delete cache[(email||"").toLowerCase()];
+      localStorage.setItem(ACCESS_CACHE_KEY, JSON.stringify(cache));
+    } catch(e){}
+  }
+
+  // ===== FIRESTORE ACCESS CHECK =====
+  async function _checkUserAccess(user){
+    if(!user || !user.email) return false;
+    try {
+      const email = user.email.toLowerCase();
+      const doc = await fbDb.collection("allowed_emails_tacky").doc(email).get();
+      if(!doc.exists){ _clearAccessCache(email); return false; }
+      const allowed = doc.data().active === true;
+      _setAccessCache(email, allowed);
+      return allowed;
+    } catch(e){ return false; }
+  }
+
+  const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+
+  // ===== AUTH STATE HANDLER =====
+  let _authStateFired = 0;
+
+  async function _onAuthReady(user){
+    _authStateFired++;
+    cloudUser = user;
+    updateCloudUI();
+
+    if(!user){
+      // أول استدعاء قد يكون null مؤقتاً — ننتظر 700ms قبل إظهار شاشة الدخول
+      if(_authStateFired === 1){
+        const fired = _authStateFired;
+        setTimeout(()=>{
+          if(_authStateFired === fired) showLogin();
+        }, 700);
+        return;
+      }
+      if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
       showLogin();
+      return;
     }
+
+    const email = user.email ? user.email.toLowerCase() : null;
+    const cached = email ? _getAccessCache(email) : null;
+
+    if(cached === true){
+      // Fast path: دخل مباشرة من الكاش
+      hideGates();
+      attachCloudListener(user.uid);
+      // تحقق في الخلفية
+      _checkUserAccess(user).then(still=>{
+        if(!still){ _clearAccessCache(email); fbAuth.signOut(); }
+      }).catch(()=>{});
+      return;
+    }
+
+    if(cached === false){
+      showBlocked(user.email);
+      fbAuth.signOut();
+      return;
+    }
+
+    // Slow path: أول مرة — تحقق من Firestore
+    lgBtn.disabled = true;
+    lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
+    const allowed = await _checkUserAccess(user);
+    if(allowed){
+      hideGates();
+      attachCloudListener(user.uid);
+    } else {
+      showBlocked(user.email);
+      await fbAuth.signOut();
+      lgBtn.disabled = false;
+      lgBtn.innerHTML = googleLogoHTML;
+    }
+  }
+
+  // Handle redirect result then start listener
+  fbAuth.getRedirectResult().then(()=>{
+    fbAuth.onAuthStateChanged(_onAuthReady);
+  }).catch(()=>{
+    fbAuth.onAuthStateChanged(_onAuthReady);
   });
 
+  // ===== LOGIN BUTTON — popup أولاً، redirect كـfallback =====
+  const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+
   let lgLoading = false;
-  lgBtn.addEventListener("click", async ()=>{
+  lgBtn.addEventListener("click", ()=>{
     if(lgLoading) return;
     lgLoading = true;
     lgBtn.disabled = true;
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     hideError();
-    try {
-      await fbAuth.signInWithRedirect(googleProvider);
-    } catch(err){
-      showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
-      showLogin();
-      lgLoading = false;
-    }
+
+    // جرّب Popup أولاً — أسرع وأفضل تجربة
+    fbAuth.signInWithPopup(googleProvider)
+      .catch(err=>{
+        // إذا منع المتصفح الـ popup — انتقل لـ redirect
+        const code = err.code||"";
+        if(code==='auth/popup-blocked'||
+           code==='auth/popup-closed-by-user'||
+           code==='auth/cancelled-popup-request'||
+           code==='auth/operation-not-supported-in-this-environment'){
+          return fbAuth.signInWithRedirect(googleProvider);
+        }
+        throw err;
+      })
+      .catch(err=>{
+        showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+        lgBtn.disabled = false;
+        lgBtn.innerHTML = googleLogoHTML;
+        lgLoading = false;
+      });
   });
 
   blBack.addEventListener("click", ()=>{
+    _clearAccessCache(fbAuth.currentUser&&fbAuth.currentUser.email);
     fbAuth.signOut();
     showLogin();
   });
 
-  // ===== ALLOWED EMAILS — Firestore Dynamic Check =====
-  // Add emails in Firebase Console → Firestore → allowed_emails_tacky
-  // Document ID = the email, field: active (boolean) = true
-
-  async function isAllowedFirestore(email){
-    try {
-      const doc = await fbDb.collection("allowed_emails_tacky").doc((email||"").toLowerCase()).get();
-      if(!doc.exists) return false;
-      const data = doc.data();
-      return data.active === true;
-    } catch(e) {
-      return false;
-    }
-  }
-
-  fbAuth.onAuthStateChanged(async user=>{
-    cloudUser = user;
-    updateCloudUI();
-    if(user){
-      lgBtn.disabled = true;
-      lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
-      const allowed = await isAllowedFirestore(user.email);
-      if(!allowed){
-        showBlocked(user.email);
-        fbAuth.signOut();
-        lgBtn.disabled = false;
-        lgBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
-        return;
-      }
+  blRefresh.addEventListener("click", async ()=>{
+    const user = fbAuth.currentUser;
+    if(!user){ showLogin(); return; }
+    blRefresh.disabled=true;
+    blRefresh.textContent="⏳ جارٍ التحقق...";
+    if(blChecking) blChecking.style.display="block";
+    _clearAccessCache(user.email);
+    const allowed = await _checkUserAccess(user);
+    if(blChecking) blChecking.style.display="none";
+    blRefresh.disabled=false;
+    blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة";
+    if(allowed){
       hideGates();
       attachCloudListener(user.uid);
     } else {
-      if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
-      showLogin();
+      blRefresh.textContent="⛔ لا يزال الحساب غير مفعّل";
+      setTimeout(()=>{ blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة"; },2500);
     }
   });
 })();
