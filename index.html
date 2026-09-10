@@ -2499,11 +2499,13 @@ setTimeout(()=>{ _appInitializing=false; },0);
     blockedGate.classList.add("hidden");
   }
 
+  const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+
   function showLogin(){
     blockedGate.classList.add("hidden");
     loginGate.classList.remove("hidden");
     lgBtn.disabled = false;
-    lgBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+    lgBtn.innerHTML = googleLogoHTML;
     hideError();
   }
 
@@ -2553,12 +2555,10 @@ setTimeout(()=>{ _appInitializing=false; },0);
     } catch(e){ return false; }
   }
 
-  const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
-
   // ===== AUTH STATE HANDLER =====
   let _authStateFired = 0;
-  // نتتبع إذا كنا في انتظار نتيجة redirect — لمنع إظهار شاشة الدخول قبل الأوان
-  let _redirectPending = false;
+  // نتتبع إذا كنا في انتظار نتيجة redirect
+  let _redirectPending = true; // نبدأ بـ true دائماً — نصفّرها بعد getRedirectResult
 
   async function _onAuthReady(user){
     _authStateFired++;
@@ -2566,9 +2566,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
     updateCloudUI();
 
     if(!user){
-      // إذا كنا لا نزال في انتظار نتيجة redirect — لا تُظهر شاشة الدخول أبداً
+      // لا تُظهر شاشة الدخول إذا كنا لا نزال في انتظار redirect result
       if(_redirectPending) return;
-      // أول استدعاء قد يكون null مؤقتاً — ننتظر 700ms قبل إظهار شاشة الدخول
+      // أول استدعاء null قد يكون مؤقتاً — ننتظر 700ms
       if(_authStateFired === 1){
         const fired = _authStateFired;
         setTimeout(()=>{
@@ -2581,17 +2581,15 @@ setTimeout(()=>{ _appInitializing=false; },0);
       return;
     }
 
-    // وصل مستخدم حقيقي — نُصفّر علامة redirect لأننا لم نعد بحاجتها
+    // وصل مستخدم حقيقي — redirect انتهى
     _redirectPending = false;
 
     const email = user.email ? user.email.toLowerCase() : null;
     const cached = email ? _getAccessCache(email) : null;
 
     if(cached === true){
-      // Fast path: دخل مباشرة من الكاش
       hideGates();
       attachCloudListener(user.uid);
-      // تحقق في الخلفية
       _checkUserAccess(user).then(still=>{
         if(!still){ _clearAccessCache(email); fbAuth.signOut(); }
       }).catch(()=>{});
@@ -2604,7 +2602,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       return;
     }
 
-    // Slow path: أول مرة — تحقق من Firestore
+    // Slow path: تحقق من Firestore
     lgBtn.disabled = true;
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     const allowed = await _checkUserAccess(user);
@@ -2619,36 +2617,33 @@ setTimeout(()=>{ _appInitializing=false; },0);
     }
   }
 
-  // Handle redirect result then start listener
-  // نضع علامة "انتظار redirect" فوراً — قبل أي استدعاء آخر
-  // هذا يمنع onAuthStateChanged من إظهار شاشة الدخول أثناء معالجة نتيجة الـ redirect
-  _redirectPending = true;
+  // ===== STARTUP: معالجة redirect result أولاً ثم تسجيل المستمع =====
+  // نعرض spinner ريثما نعرف هل هناك redirect قيد المعالجة أم لا
   lgBtn.disabled = true;
   lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
 
-  fbAuth.getRedirectResult().then(result=>{
-    if(result && result.user){
-      // جاء مستخدم من redirect — نبقي _redirectPending=true
-      // حتى يستلمه onAuthStateChanged ويُدخله، لمنع user=null المؤقت من إظهار شاشة الدخول
-      // _redirectPending سيُصفَّر داخل _onAuthReady بعد التحقق من الـ access
-    } else {
-      // لا redirect نشط — أعد الزر للوضع الطبيعي
+  fbAuth.getRedirectResult()
+    .then(result => {
+      // إذا لا يوجد مستخدم من redirect → أظهر شاشة الدخول العادية
+      if(!result || !result.user){
+        _redirectPending = false;
+        lgBtn.disabled = false;
+        lgBtn.innerHTML = googleLogoHTML;
+      }
+      // إذا يوجد مستخدم → _redirectPending تبقى true حتى يصل لـ _onAuthReady
+      fbAuth.onAuthStateChanged(_onAuthReady);
+    })
+    .catch(err => {
       _redirectPending = false;
       lgBtn.disabled = false;
       lgBtn.innerHTML = googleLogoHTML;
-    }
-    fbAuth.onAuthStateChanged(_onAuthReady);
-  }).catch(err=>{
-    _redirectPending = false;
-    lgBtn.disabled = false;
-    lgBtn.innerHTML = googleLogoHTML;
-    if(err && err.code && err.code !== 'auth/no-current-user'){
-      showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
-    }
-    fbAuth.onAuthStateChanged(_onAuthReady);
-  });
+      if(err && err.code && err.code !== 'auth/no-current-user'){
+        showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
+      }
+      fbAuth.onAuthStateChanged(_onAuthReady);
+    });
 
-  // ===== LOGIN BUTTON — popup أولاً، redirect كـfallback =====
+  // ===== زر تسجيل الدخول — redirect مباشرة (أضمن على GitHub Pages) =====
   let lgLoading = false;
   lgBtn.addEventListener("click", ()=>{
     if(lgLoading) return;
@@ -2657,21 +2652,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     hideError();
 
-    // جرّب Popup أولاً — أسرع وأفضل تجربة
-    fbAuth.signInWithPopup(googleProvider)
-      .catch(err=>{
-        // إذا منع المتصفح الـ popup — انتقل لـ redirect
-        // نضع علامة redirect قبل التحويل
-        const code = err.code||"";
-        if(code==='auth/popup-blocked'||
-           code==='auth/popup-closed-by-user'||
-           code==='auth/cancelled-popup-request'||
-           code==='auth/operation-not-supported-in-this-environment'){
-          _redirectPending = true;
-          return fbAuth.signInWithRedirect(googleProvider);
-        }
-        throw err;
-      })
+    // GitHub Pages يحجب الـ popup بسبب COOP headers — نستخدم redirect مباشرة
+    _redirectPending = true;
+    fbAuth.signInWithRedirect(googleProvider)
       .catch(err=>{
         _redirectPending = false;
         showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
