@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BAC 2027 — My Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script>
+  // Suppress Tailwind CDN production warning for standalone HTML usage
+  const _warn = console.warn;
+  console.warn = (...args) => {
+    if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
+    _warn.apply(console, args);
+  };
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}</script>
+<style>
+:root{
+--bg:#f6f8fc;--bg-soft:#eef2f8;--card:#ffffff;--card-hover:#f8fafc;
+--text:#0b1220;--text-muted:#5b6b85;--text-faint:#94a3b8;
+--border:#e4e9f2;--border-strong:#cbd5e1;
+--primary:#6366f1;--primary-hover:#4f46e5;--primary-soft:#eef2ff;
+--accent:#10b981;--accent-soft:#ecfdf5;--warn:#f59e0b;--danger:#ef4444;
+--shadow:0 1px 2px rgba(15,23,42,.04),0 10px 30px rgba(15,23,42,.05);
+--shadow-lg:0 20px 60px rgba(15,23,42,.10);
+--glow:radial-gradient(1200px 500px at 10% -10%, rgba(99,102,241,.12), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(16,185,129,.10), transparent 55%);
+}
+.dark{
+--bg:#070b14;--bg-soft:#0f1626;--card:#101828;--card-hover:#141d31;
+--text:#f1f5f9;--text-muted:#93a3ba;--text-faint:#64748b;
+--border:#1b2740;--border-strong:#26375a;
+--primary:#818cf8;--primary-hover:#6366f1;--primary-soft:#1a2143;
+--accent:#34d399;--accent-soft:#0f2a22;
+--shadow:0 1px 3px rgba(0,0,0,.35),0 20px 60px rgba(0,0,0,.45);
+--shadow-lg:0 24px 80px rgba(0,0,0,.55);
+--glow:radial-gradient(1200px 500px at 10% -10%, rgba(99,102,241,.20), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(16,185,129,.12), transparent 55%);
+}
+/* ===== THEME PALETTES (light) ===== */
+:root[data-theme="ocean"]{--primary:#0ea5e9;--primary-hover:#0284c7;--primary-soft:#e7f6ff;--accent:#22d3ee;--accent-soft:#ecfeff;--bg:#f2f9ff;--bg-soft:#e4f3fd;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(14,165,233,.16), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(34,211,238,.14), transparent 55%);}
+:root[data-theme="volt"]{--primary:#16a34a;--primary-hover:#15803d;--primary-soft:#e8fbf0;--accent:#06b6d4;--accent-soft:#ecfeff;--bg:#f3fbf5;--bg-soft:#e3f8ea;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(22,163,74,.18), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(6,182,212,.16), transparent 55%);}
+:root[data-theme="cyber"]{--primary:#7c3aed;--primary-hover:#6d28d9;--primary-soft:#f2ecfe;--accent:#06b6d4;--accent-soft:#e9fdff;--bg:#f7f4fe;--bg-soft:#ede6fc;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(124,58,237,.18), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(6,182,212,.16), transparent 55%);}
+:root[data-theme="fire"]{--primary:#ef4444;--primary-hover:#dc2626;--primary-soft:#fef0ef;--accent:#f59e0b;--accent-soft:#fff7e8;--bg:#fdf6f4;--bg-soft:#fae9e6;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(239,68,68,.18), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(245,158,11,.16), transparent 55%);}
+:root[data-theme="rose"]{--primary:#ec4899;--primary-hover:#db2777;--primary-soft:#fdf0f8;--accent:#f43f5e;--accent-soft:#fff0f2;--bg:#fdf6fa;--bg-soft:#fbe9f3;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(236,72,153,.16), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(244,63,94,.13), transparent 55%);}
+:root[data-theme="lavender"]{--primary:#a855f7;--primary-hover:#9333ea;--primary-soft:#f6f0ff;--accent:#6366f1;--accent-soft:#eef0ff;--bg:#f8f6fd;--bg-soft:#efe7fc;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(168,85,247,.16), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(99,102,241,.14), transparent 55%);}
+:root[data-theme="sunset"]{--primary:#fb923c;--primary-hover:#f2751a;--primary-soft:#fff2e6;--accent:#fbbf24;--accent-soft:#fffaeb;--bg:#fef8f2;--bg-soft:#fdecd9;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(251,146,60,.18), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(251,191,36,.15), transparent 55%);}
+:root[data-theme="mint"]{--primary:#14b8a6;--primary-hover:#0d9488;--primary-soft:#e9fbf8;--accent:#f472b6;--accent-soft:#fef1f8;--bg:#f2fbf9;--bg-soft:#e2f7f3;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(20,184,166,.16), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(244,114,182,.14), transparent 55%);}
+/* ===== THEME PALETTES (dark) ===== */
+:root[data-theme="ocean"].dark{--primary:#38bdf8;--primary-hover:#0ea5e9;--primary-soft:#0e2334;--accent:#22d3ee;--accent-soft:#082a30;--bg:#060d15;--bg-soft:#0c1928;--card:#0e1c2e;--card-hover:#122438;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(56,189,248,.24), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(34,211,238,.16), transparent 55%);}
+:root[data-theme="volt"].dark{--primary:#4ade80;--primary-hover:#22c55e;--primary-soft:#0d2618;--accent:#22d3ee;--accent-soft:#082a30;--bg:#050f0a;--bg-soft:#0b1c13;--card:#0e2317;--card-hover:#122c1c;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(74,222,128,.26), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(34,211,238,.16), transparent 55%);}
+:root[data-theme="cyber"].dark{--primary:#a78bfa;--primary-hover:#8b5cf6;--primary-soft:#241c3b;--accent:#22d3ee;--accent-soft:#082a30;--bg:#0a0714;--bg-soft:#150f24;--card:#191230;--card-hover:#201839;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(167,139,250,.26), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(34,211,238,.18), transparent 55%);}
+:root[data-theme="fire"].dark{--primary:#f87171;--primary-hover:#ef4444;--primary-soft:#301313;--accent:#fbbf24;--accent-soft:#2e2609;--bg:#0e0808;--bg-soft:#190e0d;--card:#1e1211;--card-hover:#261715;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(248,113,113,.24), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(251,191,36,.16), transparent 55%);}
+:root[data-theme="rose"].dark{--primary:#f472b6;--primary-hover:#ec4899;--primary-soft:#331222;--accent:#fb7185;--accent-soft:#301419;--bg:#0e070c;--bg-soft:#190d15;--card:#20101a;--card-hover:#281421;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(244,114,182,.24), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(251,113,133,.15), transparent 55%);}
+:root[data-theme="lavender"].dark{--primary:#c084fc;--primary-hover:#a855f7;--primary-soft:#2b1c40;--accent:#818cf8;--accent-soft:#1a1c3b;--bg:#0a0813;--bg-soft:#130f22;--card:#181229;--card-hover:#1f1733;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(192,132,252,.24), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(129,140,248,.16), transparent 55%);}
+:root[data-theme="sunset"].dark{--primary:#fdba74;--primary-hover:#fb923c;--primary-soft:#331e0d;--accent:#fde047;--accent-soft:#2e2a09;--bg:#0e0a06;--bg-soft:#1a130c;--card:#211810;--card-hover:#291e14;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(253,186,116,.26), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(253,224,71,.16), transparent 55%);}
+:root[data-theme="mint"].dark{--primary:#2dd4bf;--primary-hover:#14b8a6;--primary-soft:#0d2b27;--accent:#f9a8d4;--accent-soft:#301b26;--bg:#050f0d;--bg-soft:#0b1c19;--card:#0e2420;--card-hover:#122d27;--glow:radial-gradient(1200px 500px at 10% -10%, rgba(45,212,191,.24), transparent 60%),radial-gradient(900px 400px at 100% 0%, rgba(249,168,212,.16), transparent 55%);}
+/* text stays fixed & bold in every theme for readability */
+:root[data-theme]{--text:#0b1220;--text-muted:#5b6b85;--text-faint:#94a3b8;--border:#e4e9f2;--border-strong:#cbd5e1;}
+:root[data-theme].dark{--text:#f8fafc;--text-muted:#a3b0c4;--text-faint:#748199;--border:#232f4a;--border-strong:#324066;}
+.theme-swatch{width:36px;height:36px;border-radius:12px;flex-shrink:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+.theme-card{transition:transform .2s ease,border-color .2s ease}
+.theme-card:hover{transform:translateY(-2px)}
+.theme-card.theme-active{border-color:var(--text)!important;box-shadow:0 0 0 2px var(--text)}
+.tabbar{padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabbtn{transition:color .2s ease,transform .15s ease}
+.tabbtn:active{transform:scale(.92)}
+.tabbtn.tab-active{color:var(--primary)}
+.tabbtn .tabdot{transition:opacity .2s ease,transform .2s ease}
+@media (max-width:400px){.tabbtn{font-size:10px}}
+#fileViewerBody{touch-action:none}
+#fileViewerBody img{max-width:100%;max-height:70vh;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform .06s linear;cursor:grab}
+#fileViewerBody img.zoomed{cursor:grab}
+#fileViewerBody img:active{cursor:grabbing}
+.paper-row{cursor:pointer}
+.paper-row:hover{background:var(--bg-soft)}
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact}
+@media print{
+ @page{margin:10mm;size:A4 portrait}
+ body *{visibility:hidden}
+ #reportSheet,#reportSheet *{visibility:visible}
+ #reportModal{
+  position:fixed!important;inset:0!important;
+  background:none!important;backdrop-filter:none!important;
+  padding:0!important;overflow:visible!important;
+  display:block!important;z-index:0!important}
+ #reportModal>div{padding:0!important;min-height:unset!important}
+ #reportModal>div>div{max-width:100%!important;width:100%!important;margin:0!important}
+ #reportSheet{
+  position:fixed;top:0;left:0;width:100%;
+  margin:0;padding:0;
+  box-shadow:none!important;
+  border-radius:0!important}
+ .no-print{display:none!important}
+ #reportImgPanel{display:none!important}
+}
+.report-ring{transform:rotate(-90deg)}
+*{font-family:'Inter',sans-serif;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{background:var(--bg);background-image:var(--glow);background-attachment:fixed;color:var(--text);transition:background-color .35s ease,color .35s ease}
+body.lang-ar,body.lang-ar *{font-family:'Cairo','Inter',sans-serif}
+.card{background:var(--card);border:1px solid var(--border);box-shadow:var(--shadow);transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease}
+.card:hover{border-color:var(--border-strong)}
+.lift:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.view{display:none;animation:fadeIn .35s ease}
+.view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:1}100%{transform:translateY(-90px) scale(1.25);opacity:0}}
+.xp-toast{position:fixed;pointer-events:none;z-index:9999;font-weight:900;font-size:15px;color:var(--primary);text-shadow:0 2px 10px rgba(99,102,241,.35);animation:floatUp 1.2s ease forwards}
+.grade-warn{animation:shake .3s ease;border-color:var(--danger)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.scrollbar-none::-webkit-scrollbar{display:none}
+.scrollbar-none{-ms-overflow-style:none;scrollbar-width:none}
+.progress-ring{transform:rotate(-90deg)}
+.confetti-canvas{position:fixed;inset:0;pointer-events:none;z-index:9998}
+.range-slider{accent-color:var(--primary);height:6px}
+.mobile-panel{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.mobile-panel.open{max-height:520px}
+.navbtn{transition:background .2s ease,color .2s ease,transform .2s ease}
+.navbtn:active{transform:scale(.98)}
+.nav-active{background:var(--text)!important;color:var(--bg)!important}
+.chip-active{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}
+.grad-text{background:linear-gradient(120deg,var(--text),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent}
+table td,table th{white-space:nowrap}
+.fade-in-up{animation:fadeIn .4s ease}
+
+/* ===== LOGIN GATE ===== */
+#loginGate {
+  position: fixed; inset: 0; z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  overflow: hidden;
+}
+#loginGate.hidden { display: none; }
+.lg-bg-emoji {
+  position: absolute; font-size: 2rem; opacity: 0.10;
+  animation: lgFloat linear infinite; user-select: none; pointer-events: none;
+}
+@keyframes lgFloat {
+  0%,100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-22px) rotate(8deg); }
+}
+.lg-card {
+  background: #1e2433; border: 1px solid #2a3352;
+  border-radius: 24px; padding: 40px 36px 36px;
+  max-width: 420px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+  animation: lgUp 0.5s ease both; position: relative; z-index: 1;
+}
+@keyframes lgUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.lg-logo { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
+.lg-logo-icon {
+  width:56px; height:56px; border-radius:16px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.8rem; box-shadow:0 8px 24px rgba(59,130,246,0.4); flex-shrink:0;
+}
+.lg-logo-text h1 { font-size:1.4rem; font-weight:900; color:#f1f5f9; margin:0; letter-spacing:-0.5px; }
+.lg-logo-text p  { font-size:0.8rem; color:#64748b; margin:4px 0 0; }
+.lg-subtitle { font-size:0.88rem; color:#94a3b8; line-height:1.6; margin-bottom:24px; }
+.lg-google-btn {
+  width:100%; padding:14px 20px; border-radius:12px;
+  background:#ffffff; color:#1e293b; font-size:0.95rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.15); cursor:pointer; border:none;
+}
+.lg-google-btn:hover  { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.25); }
+.lg-google-btn:active { transform:translateY(0); }
+.lg-google-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.lg-google-btn svg { width:22px; height:22px; flex-shrink:0; }
+.lg-error {
+  background:#2d0b0b; border:1px solid #ef4444; border-radius:10px;
+  padding:12px 16px; font-size:0.82rem; color:#f87171;
+  margin-bottom:16px; display:none;
+}
+.lg-error.show { display:block; animation:lgShake 0.4s ease; }
+@keyframes lgShake {
+  0%,100% { transform:translateX(0); }
+  25%      { transform:translateX(-6px); }
+  75%      { transform:translateX(6px); }
+}
+.lg-footer { text-align:center; margin-top:24px; font-size:0.72rem; color:#475569; }
+.lg-spinner {
+  width:22px; height:22px; border:3px solid rgba(30,36,51,0.2);
+  border-top-color:#1e293b; border-radius:50%;
+  animation:spin 0.7s linear infinite; display:inline-block;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ===== BLOCKED SCREEN ===== */
+#blockedGate {
+  position:fixed; inset:0; z-index:9999;
+  display:flex; align-items:center; justify-content:center;
+  padding:24px 16px;
+  background:linear-gradient(135deg, #0f172a 0%, #1c0f0f 100%);
+}
+#blockedGate.hidden { display:none; }
+.bl-card {
+  background:#1e2433; border:1px solid #2a3352;
+  border-radius:24px; padding:40px 36px 36px;
+  max-width:440px; width:100%;
+  box-shadow:0 24px 60px rgba(0,0,0,0.6);
+  animation:lgUp 0.5s ease both; text-align:center;
+}
+.bl-icon {
+  width:72px; height:72px; border-radius:20px;
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2.2rem; margin:0 auto 24px;
+  box-shadow:0 8px 24px rgba(239,68,68,0.4);
+}
+.bl-card h1 { font-size:1.3rem; font-weight:900; color:#f1f5f9; margin:0 0 12px; }
+.bl-card p  { font-size:0.88rem; color:#94a3b8; line-height:1.6; }
+.bl-email   { direction:ltr; color:#f87171; font-weight:700; margin-top:12px; }
+.bl-contact {
+  background:#2a3352; border-radius:12px; padding:16px;
+  margin:24px 0 0; border:1px solid #3b4f7a;
+}
+.bl-contact-label { font-size:0.75rem; color:#64748b; margin-bottom:4px; }
+.bl-contact-email { font-size:0.92rem; font-weight:700; color:#93c5fd; direction:ltr; }
+.bl-back {
+  width:100%; margin-top:16px; padding:12px;
+  border-radius:12px; background:transparent;
+  border:1px solid #2a3352; color:#94a3b8;
+  font-size:0.88rem; cursor:pointer; transition:all 0.2s;
+}
+.bl-back:hover { background:#2a3352; color:#f1f5f9; }
+</style>
+</head>
+<body class="min-h-screen antialiased overflow-x-hidden lang-en">
+
+<!-- ===== LOGIN GATE ===== -->
+<div id="loginGate">
+  <div id="lgBgEmojis" style="position:absolute;inset:0;pointer-events:none;"></div>
+  <div class="lg-card">
+    <div class="lg-logo">
+      <div class="lg-logo-icon">📚</div>
+      <div class="lg-logo-text">
+        <h1>BAC 2027</h1>
+        <p>منصة امتحانات البكالوريا</p>
+      </div>
+    </div>
+    <p class="lg-subtitle">سجّل دخولك بحساب Google للمتابعة إلى المنصة والوصول إلى جميع الامتحانات والموارد التعليمية.</p>
+    <div class="lg-error" id="lgError"></div>
+    <button class="lg-google-btn" id="lgGoogleBtn">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+      </svg>
+      <span>تسجيل الدخول بحساب Google</span>
+    </button>
+    <div class="lg-footer">بتسجيل الدخول، أنت توافق على شروط الاستخدام وسياسة الخصوصية</div>
+  </div>
+</div>
+
+<!-- ===== BLOCKED GATE ===== -->
+<div id="blockedGate" class="hidden">
+  <div class="bl-card">
+    <div class="bl-icon">⚠️</div>
+    <h1>البريد الإلكتروني غير مفعّل</h1>
+    <p>عنوان البريد الإلكتروني التالي غير مفعّل في نظامنا ولا يمكنه الوصول إلى المنصة.</p>
+    <p class="bl-email" id="blEmail"></p>
+    <p style="margin-top:16px;font-size:0.88rem;color:#94a3b8;">إذا كنت تعتقد أن هذا خطأ، يرجى التواصل معنا لتفعيل حسابك.</p>
+    <div class="bl-contact">
+      <div class="bl-contact-label">تواصل معنا</div>
+      <div class="bl-contact-email">support@bac2027t.com</div>
+    </div>
+    <button class="bl-back" id="blBackBtn">← العودة لتسجيل الدخول</button>
+  </div>
+</div>
+
+<canvas id="confetti" class="confetti-canvas"></canvas>
+<div id="toastRoot" class="fixed bottom-5 end-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
+<div id="offlineBanner" class="fixed bottom-0 inset-x-0 z-[110] flex items-center justify-center gap-2 px-4 py-3 translate-y-full opacity-0 pointer-events-none" style="background:var(--danger);color:#fff;font-weight:700;font-size:14px;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s ease;box-shadow:0 -4px 24px rgba(239,68,68,.35)">
+  <span style="font-size:18px">📡</span>
+  <span id="offlineMsg">يرجى الاتصال بالإنترنت</span>
+</div>
+<div id="xpRoot" class="fixed inset-0 pointer-events-none z-[90]"></div>
+<div id="fileViewer" class="fixed inset-0 z-[95] hidden bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onclick="if(event.target===this)closePaperFile()">
+  <div class="min-h-full w-full flex items-start justify-center py-8">
+    <div class="w-full max-w-[900px] my-auto card rounded-[22px] overflow-hidden">
+      <div class="flex items-center justify-between px-5 h-[56px] border-b border-[var(--border)]">
+        <div id="fileViewerTitle" class="font-extrabold text-sm truncate pe-3"></div>
+        <button onclick="closePaperFile()" class="w-9 h-9 shrink-0 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">✕</button>
+      </div>
+      <div class="p-5">
+        <div id="fileViewerInfo" class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4"></div>
+        <div id="fileViewerFileWrap" class="relative">
+          <div id="fileViewerZoomBar" class="hidden absolute top-3 end-3 z-10 flex gap-1.5 bg-[var(--card)]/90 backdrop-blur border border-[var(--border)] rounded-full p-1">
+            <button onclick="paperZoomOut()" class="w-8 h-8 rounded-full bg-[var(--bg-soft)] font-black">−</button>
+            <button onclick="paperZoomReset()" class="w-8 h-8 rounded-full bg-[var(--bg-soft)] font-bold text-[11px]" id="fileViewerZoomPct">100%</button>
+            <button onclick="paperZoomIn()" class="w-8 h-8 rounded-full bg-[var(--bg-soft)] font-black">+</button>
+          </div>
+          <div id="fileViewerBody" class="bg-[var(--bg-soft)] rounded-2xl flex items-center justify-center min-h-[280px] max-h-[70vh] overflow-hidden p-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GRADE REPORT MODAL -->
+<div id="reportModal" class="fixed inset-0 z-[96] hidden bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onclick="if(event.target===this)closeReportPreview()">
+  <div class="min-h-full w-full flex items-start justify-center py-8">
+    <div class="w-full max-w-[760px] my-auto">
+      <div class="no-print flex items-center justify-between mb-3 px-1 gap-2 flex-wrap">
+        <div class="text-white font-bold text-sm">📄 <span data-i18n="rep.previewTitle">معاينة الكشف</span></div>
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="printReport()" class="h-10 px-4 rounded-full bg-white text-black font-bold text-sm flex items-center gap-1.5 shadow">🖨️ <span>طباعة</span></button>
+          <button onclick="exportPDF()" class="h-10 px-4 rounded-full bg-white/20 border border-white/40 text-white font-bold text-sm flex items-center gap-1.5">📄 <span>PDF</span></button>
+          <button onclick="saveReportImage()" id="reportImgBtn" class="h-10 px-4 rounded-full bg-white/20 border border-white/40 text-white font-bold text-sm flex items-center gap-1.5">🖼️ <span data-i18n="rep.saveImage">حفظ كصورة</span></button>
+          <button onclick="closeReportPreview()" class="w-10 h-10 shrink-0 rounded-full bg-white/90 text-black font-black">✕</button>
+        </div>
+      </div>
+      <!-- save-image result panel (hidden by default) -->
+      <div id="reportImgPanel" class="no-print hidden mb-3 rounded-2xl bg-white/95 text-black p-4 shadow-xl" dir="rtl" style="font-family:'Cairo','Inter',sans-serif">
+        <div class="flex items-center justify-between mb-3">
+          <div class="font-black text-sm">🖼️ <span id="reportImgPanelTitle">الكشف جاهز — اختر طريقة الحفظ</span></div>
+          <button onclick="document.getElementById('reportImgPanel').classList.add('hidden')" class="w-8 h-8 rounded-full bg-black/10 font-black text-sm">✕</button>
+        </div>
+        <img id="reportImgPreview" src="" alt="كشف الدرجات" class="w-full rounded-xl border border-black/10 mb-3" style="max-height:260px;object-fit:contain;background:#f5f5f5">
+        <div class="flex gap-2 flex-wrap">
+          <a id="reportImgDownloadBtn" download="bac2027-report.png" class="flex-1 h-11 rounded-xl bg-black text-white font-bold text-sm flex items-center justify-center gap-1.5 cursor-pointer">⬇️ <span id="reportImgDlLabel">تحميل PNG</span></a>
+          <button onclick="openImgInTab()" class="flex-1 h-11 rounded-xl bg-gray-100 text-black font-bold text-sm flex items-center justify-center gap-1.5">🔗 <span id="reportImgOpenLabel">فتح في تبويب جديد</span></button>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-2 text-center" id="reportImgHint">على الهاتف: اضغط مطولاً على الصورة ثم اختر «حفظ الصورة»</p>
+      </div>
+      <div id="reportSheet" class="rounded-[22px] overflow-hidden" style="background:var(--bg)"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ONBOARDING -->
+<div id="onboarding" class="fixed inset-0 z-[80] bg-[var(--bg)] overflow-y-auto p-4">
+  <div class="min-h-full w-full flex items-start justify-center py-6">
+  <div class="w-full max-w-[660px] card rounded-[26px] overflow-hidden my-auto">
+    <div class="h-1.5 w-full bg-[var(--bg-soft)]"><div id="onbProgress" class="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] transition-all duration-500" style="width:33%"></div></div>
+    <div class="p-7 md:p-10">
+      <div class="flex justify-end mb-2">
+        <button onclick="toggleLang()" class="h-9 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-xs font-black"><span id="langLabelOnb">العربية</span></button>
+      </div>
+      <!-- Step 1 -->
+      <div id="onbStep1" class="onb-step">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] text-white flex items-center justify-center font-black text-xl mb-5 shadow-lg">B</div>
+        <h1 class="text-[30px] md:text-[34px] font-black leading-[1.05] tracking-tight"><span data-i18n="onb.title1">BAC 2027 —</span><br><span class="grad-text" data-i18n="onb.title2">My Study Guide</span></h1>
+        <p class="text-[15px] text-[var(--text-muted)] mt-4 leading-relaxed" data-i18n="onb.sub">The complete study OS for the Algerian Baccalaureate. Track subjects, compute your average with real coefficients, build streaks, and stay motivated until exam day.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
+          <div class="card rounded-2xl p-4 lift"><div class="text-xl">🎯</div><div class="font-bold text-sm mt-2" data-i18n="onb.f1t">Target Planner</div><div class="text-xs text-[var(--text-muted)] mt-1" data-i18n="onb.f1d">Know exactly what you need</div></div>
+          <div class="card rounded-2xl p-4 lift"><div class="text-xl">🔥</div><div class="font-bold text-sm mt-2" data-i18n="onb.f2t">Streaks & XP</div><div class="text-xs text-[var(--text-muted)] mt-1" data-i18n="onb.f2d">Gamified consistency</div></div>
+          <div class="card rounded-2xl p-4 lift"><div class="text-xl">🧠</div><div class="font-bold text-sm mt-2" data-i18n="onb.f3t">Smart Tools</div><div class="text-xs text-[var(--text-muted)] mt-1" data-i18n="onb.f3d">Pomodoro, flashcards & more</div></div>
+        </div>
+        <button onclick="onbNext()" class="mt-8 w-full h-[50px] rounded-full bg-[var(--text)] text-[var(--bg)] font-bold hover:opacity-90 transition" data-i18n="onb.cta">Get Started — It's free</button>
+        <p class="text-[11px] text-center text-[var(--text-faint)] mt-3" data-i18n="onb.note">Auto-saves locally in your browser. No account needed.</p>
+      </div>
+      <!-- Step 2 -->
+      <div id="onbStep2" class="onb-step hidden">
+        <h2 class="text-2xl font-extrabold" data-i18n="onb.profileTitle">Create your profile</h2>
+        <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="onb.profileSub">Personalize your experience</p>
+        <div class="mt-6">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]" data-i18n="onb.name">Your Name</label>
+          <input id="onbName" data-i18n-ph="onb.namePh" placeholder="e.g., Amine" class="mt-2 w-full h-[50px] rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] px-4 outline-none focus:border-[var(--primary)] font-semibold">
+        </div>
+        <div class="mt-6">
+          <label class="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]" data-i18n="onb.stream">Your Stream</label>
+          <div id="streamGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3"></div>
+        </div>
+        <button onclick="onbNext()" class="mt-6 w-full h-[50px] rounded-full bg-[var(--primary)] text-white font-bold hover:bg-[var(--primary-hover)] transition" data-i18n="common.continue">Continue</button>
+        <button onclick="onbBack()" class="mt-3 w-full h-[44px] rounded-full bg-[var(--bg-soft)] font-semibold text-sm" data-i18n="common.back">Back</button>
+      </div>
+      <!-- Step 3 -->
+      <div id="onbStep3" class="onb-step hidden">
+        <h2 class="text-2xl font-extrabold" data-i18n="onb.targetTitle">Set your target</h2>
+        <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="onb.targetSub">We'll build your plan around it</p>
+        <div class="mt-8">
+          <div class="flex justify-between items-end">
+            <label class="text-[11px] font-bold uppercase tracking-widest text-[var(--text-muted)]" data-i18n="onb.targetLabel">Target Average /20</label>
+            <span id="targetVal" class="text-3xl font-black">15.0</span>
+          </div>
+          <input id="onbTarget" type="range" min="10" max="19" step="0.1" value="15" class="range-slider w-full mt-4">
+          <div class="flex justify-between text-[11px] text-[var(--text-faint)] mt-1"><span data-i18n="onb.pass">10 Pass</span><span data-i18n="onb.excellence">19 Excellence</span></div>
+        </div>
+        <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label class="card rounded-2xl p-4 flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold" data-i18n="onb.amazighExempt">Amazigh exempt</span><input id="onbAmazigh" type="checkbox" checked class="w-5 h-5 accent-[var(--primary)]"></label>
+          <label class="card rounded-2xl p-4 flex items-center justify-between cursor-pointer"><span class="text-sm font-semibold" data-i18n="onb.epsExempt">EPS exempt</span><input id="onbEPS" type="checkbox" checked class="w-5 h-5 accent-[var(--primary)]"></label>
+        </div>
+        <div class="mt-6 p-4 rounded-2xl bg-[var(--primary-soft)] border border-[var(--border)]">
+          <div class="text-[11px] font-bold uppercase tracking-widest text-[var(--primary)]" data-i18n="onb.hintTitle">Orientation Hint</div>
+          <div id="onbHint" class="text-sm font-medium mt-1"></div>
+        </div>
+        <button onclick="finishOnboarding()" class="mt-6 w-full h-[50px] rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="onb.launch">Launch My Dashboard →</button>
+        <button onclick="onbBack()" class="mt-3 w-full h-[44px] rounded-full bg-[var(--bg-soft)] font-semibold text-sm" data-i18n="common.back">Back</button>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="min-h-screen flex">
+  <aside class="hidden lg:flex w-[300px] shrink-0 flex-col sticky top-0 h-screen p-4">
+    <div class="card rounded-[24px] h-full flex flex-col overflow-hidden">
+      <div class="p-6 border-b border-[var(--border)]">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] text-white flex items-center justify-center font-black shadow">B</div>
+          <div><div class="font-extrabold leading-none">BAC 2027</div><div class="text-[10px] font-bold tracking-[.2em] text-[var(--text-muted)] uppercase mt-1" data-i18n="brand.sub">Study Guide</div></div>
+        </div>
+        <div id="sideProfile" class="mt-6 p-3 rounded-2xl bg-[var(--bg-soft)] flex items-center gap-3"></div>
+      </div>
+      <nav class="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-none" id="navList"></nav>
+      <div class="p-3 border-t border-[var(--border)] space-y-2">
+        <div id="sideStreak" class="rounded-2xl bg-[var(--bg-soft)] p-3"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="toggleTheme()" class="h-11 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-semibold text-xs flex items-center justify-center gap-1.5"><span id="themeIcon">🌙</span><span id="themeLabel">Dark</span></button>
+          <button onclick="toggleLang()" class="h-11 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-semibold text-xs flex items-center justify-center gap-1.5">🌐 <span id="langLabel">العربية</span></button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="flex-1 min-w-0 flex flex-col">
+    <header class="lg:hidden sticky top-0 z-30 backdrop-blur-xl bg-[var(--bg)]/85 border-b border-[var(--border)]">
+      <div class="flex items-center justify-between px-4 h-[60px]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--primary)] to-[var(--primary-hover)] text-white flex items-center justify-center font-black text-sm shadow">B</div>
+          <div class="font-black tracking-tight text-[15px]">BAC 2027</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <div id="mobStreak" class="h-9 px-3 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center gap-1.5 text-sm font-bold">🔥 0</div>
+          <button onclick="toggleLang()" class="h-9 px-3 rounded-full bg-[var(--card)] border border-[var(--border)] text-xs font-black"><span id="langLabelMob">ع</span></button>
+          <button onclick="toggleTheme()" class="w-9 h-9 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)]">◐</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-8 pb-28 lg:pb-8 max-w-[1320px] w-full mx-auto">
+
+      <!-- DASHBOARD -->
+      <section id="view-dashboard" class="view active">
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]">Good morning</h1>
+            <p id="greetSub" class="text-[14px] text-[var(--text-muted)] mt-2 max-w-[600px]"></p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="switchView('tools');setTool('planner')" class="h-10 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm" data-i18n="btn.newTask">+ New Task</button>
+            <button onclick="switchView('tools');setTool('pomodoro')" class="h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm" data-i18n="btn.startFocus">Start Focus</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4 mt-6">
+          <div class="col-span-12 lg:col-span-8">
+            <div class="grid grid-cols-12 gap-4">
+              <div class="col-span-12 md:col-span-7 card rounded-[22px] p-5">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-extrabold">🔥 <span data-i18n="dash.streak">Streak</span></div>
+                  <div id="streakRisk" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200 hidden" data-i18n="dash.atRisk">At risk! Study today</div>
+                </div>
+                <div class="flex items-center gap-3 mt-4">
+                  <div class="w-[66px] h-[66px] rounded-2xl bg-[var(--text)] text-[var(--bg)] flex flex-col items-center justify-center leading-none shrink-0">
+                    <span id="streakNum" class="text-[26px] font-black">0</span>
+                    <span class="text-[9px] font-bold tracking-[.15em] uppercase opacity-70" data-i18n="dash.days">Days</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div id="streak7" class="flex gap-1.5"></div>
+                    <div class="flex justify-between mt-2 text-[10px] font-bold text-[var(--text-faint)] uppercase tracking-widest"><span id="wk1"></span><span id="wk2"></span></div>
+                  </div>
+                </div>
+                <div class="mt-4 h-2 w-full bg-[var(--bg-soft)] rounded-full overflow-hidden"><div id="streakBar" class="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] rounded-full transition-all" style="width:0%"></div></div>
+              </div>
+              <div class="col-span-12 md:col-span-5 card rounded-[22px] p-5">
+                <div class="flex justify-between items-center gap-2">
+                  <div class="font-extrabold">⭐ <span data-i18n="dash.level">Level</span></div>
+                  <div id="levelTitle" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[var(--primary-soft)] text-[var(--primary)]">Beginner</div>
+                </div>
+                <div class="mt-4">
+                  <div class="flex items-baseline gap-2"><span id="levelNum" class="text-[32px] font-black leading-none">1</span><span class="text-sm text-[var(--text-muted)]">/ 9 — <span id="xpTotal">0 XP</span></span></div>
+                  <div class="mt-3 h-2 w-full bg-[var(--bg-soft)] rounded-full overflow-hidden"><div id="xpBar" class="h-full bg-[var(--text)] rounded-full transition-all" style="width:0%"></div></div>
+                  <div class="mt-2 text-[11px] text-[var(--text-muted)]"><span id="xpNext"></span></div>
+                </div>
+              </div>
+              <div class="col-span-12 card rounded-[22px] p-5 flex gap-4 items-start">
+                <div class="w-10 h-10 rounded-full bg-[var(--primary-soft)] text-[var(--primary)] flex items-center justify-center font-black shrink-0 text-xl">“</div>
+                <div class="flex-1"><div id="quoteText" class="font-semibold leading-relaxed"></div><div id="quoteAuthor" class="text-[12px] text-[var(--text-muted)] mt-2"></div></div>
+                <button onclick="newQuote()" class="shrink-0 w-9 h-9 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↻</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-12 lg:col-span-4 space-y-4">
+            <div class="card rounded-[22px] p-5">
+              <div class="flex justify-between items-center gap-2">
+                <div class="font-extrabold">📊 <span data-i18n="dash.today">Today</span></div>
+                <button onclick="switchView('calculator')" class="text-xs font-bold text-[var(--primary)]" data-i18n="dash.viewGpa">View GPA →</button>
+              </div>
+              <div class="grid grid-cols-3 gap-2 mt-4">
+                <div class="rounded-2xl bg-[var(--bg-soft)] p-3"><div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="dash.avg">Avg</div><div id="todayAvg" class="text-xl font-black mt-1">--</div></div>
+                <div class="rounded-2xl bg-[var(--bg-soft)] p-3"><div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="dash.tasks">Tasks</div><div id="todayTasks" class="text-xl font-black mt-1">0/0</div></div>
+                <div class="rounded-2xl bg-[var(--bg-soft)] p-3"><div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="dash.focus">Focus</div><div id="todayFocus" class="text-xl font-black mt-1">0h</div></div>
+              </div>
+              <div id="quickSubjects" class="mt-4 space-y-2"></div>
+            </div>
+            <div class="card rounded-[22px] p-5">
+              <div class="font-extrabold">🙂 <span data-i18n="dash.wellbeing">Well-being</span></div>
+              <div class="flex gap-2 mt-3" id="dashMood"></div>
+              <div id="moodNote" class="mt-3 text-sm text-[var(--text-muted)]" data-i18n="dash.howFeel">How are you feeling today?</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-4 mt-4">
+          <div class="col-span-12 lg:col-span-7 card rounded-[22px] p-5">
+            <div class="flex justify-between items-center gap-2">
+              <div class="font-extrabold" data-i18n="dash.todayPlan">Today's Plan</div>
+              <button onclick="switchView('tools');setTool('planner')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]" data-i18n="common.manage">Manage</button>
+            </div>
+            <div id="dashTasks" class="mt-4 space-y-2"></div>
+          </div>
+          <div class="col-span-12 lg:col-span-5 card rounded-[22px] p-5">
+            <div class="flex justify-between items-center gap-2">
+              <div class="font-extrabold" data-i18n="dash.errorsRecent">Error Log • Recent</div>
+              <button onclick="switchView('tools');setTool('errors')" class="text-xs font-bold px-3 py-1.5 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]" data-i18n="common.viewAll">View all</button>
+            </div>
+            <div id="dashErrors" class="mt-4 space-y-2"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SUBJECTS -->
+      <section id="view-subjects" class="view">
+        <div class="flex flex-wrap justify-between gap-3 items-end">
+          <div>
+            <h2 class="text-[28px] font-black tracking-tight" data-i18n="subj.title">My Subjects</h2>
+            <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="subj.sub">Grades are capped at 20/20 — we warn you if you exceed the limit.</p>
+          </div>
+          <div class="flex gap-2">
+            <span id="subjCount" class="h-9 px-4 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center text-sm font-bold"></span>
+            <button onclick="resetGrades()" class="h-9 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-sm font-bold" data-i18n="subj.reset">Reset grades</button>
+          </div>
+        </div>
+        <div id="subjectsGrid" class="grid grid-cols-12 gap-4 mt-6"></div>
+      </section>
+
+      <!-- CALCULATOR -->
+      <section id="view-calculator" class="view">
+        <div class="flex flex-wrap justify-between gap-3 items-end">
+          <div>
+            <h2 class="text-[28px] font-black tracking-tight" data-i18n="calc.title">BAC Average Calculator</h2>
+            <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="calc.sub">Real coefficients per stream. Toggle Amazigh & EPS participation.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <label class="h-10 px-4 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center gap-2 text-sm font-semibold cursor-pointer"><input id="calcAmazigh" type="checkbox" class="w-4 h-4 accent-[var(--primary)]"> <span data-i18n="subject.amazigh">Amazigh</span></label>
+            <label class="h-10 px-4 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center gap-2 text-sm font-semibold cursor-pointer"><input id="calcEPS" type="checkbox" class="w-4 h-4 accent-[var(--primary)]"> <span data-i18n="calc.eps">EPS</span></label>
+            <button onclick="openReportPreview()" class="h-10 px-4 rounded-full bg-[var(--text)] text-[var(--bg)] flex items-center gap-2 text-sm font-bold">🖨️ <span data-i18n="calc.printReport">Print report</span></button>
+          </div>
+        </div>
+        <div class="grid grid-cols-12 gap-4 mt-6">
+          <div class="col-span-12 lg:col-span-8 card rounded-[22px] overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="text-[10px] uppercase tracking-widest text-[var(--text-faint)] bg-[var(--bg-soft)]">
+                  <tr>
+                    <th class="text-start p-4 font-bold" data-i18n="calc.thSubject">Subject</th>
+                    <th class="text-start p-4 font-bold" data-i18n="calc.thCoeff">Coeff</th>
+                    <th class="text-start p-4 font-bold" data-i18n="calc.thGrade">Grade /20</th>
+                    <th class="text-start p-4 font-bold" data-i18n="calc.thWeighted">Weighted</th>
+                  </tr>
+                </thead>
+                <tbody id="calcBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-span-12 lg:col-span-4 space-y-4">
+            <div class="card rounded-[22px] p-6">
+              <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="calc.calculated">Calculated Average</div>
+              <div class="flex items-baseline gap-2 mt-2"><span id="calcAvg" class="text-[44px] font-black leading-none grad-text">--</span><span class="text-[18px] font-bold text-[var(--text-muted)]">/20</span></div>
+              <div id="calcMention" class="mt-3 inline-flex px-3 py-1 rounded-full text-xs font-bold bg-[var(--bg-soft)] border border-[var(--border)]">--</div>
+              <div class="mt-5 space-y-2 text-sm">
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]" data-i18n="calc.totalCoeff">Total Coeff</span><span id="calcTCoeff" class="font-bold">--</span></div>
+                <div class="flex justify-between"><span class="text-[var(--text-muted)]" data-i18n="calc.totalWeighted">Total Weighted</span><span id="calcTWeight" class="font-bold">--</span></div>
+              </div>
+              <div class="mt-6">
+                <div class="flex justify-between items-center"><span class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="calc.scenario">Target Scenario</span><span id="calcTargetLabel" class="text-sm font-black">15.0</span></div>
+                <input id="calcTarget" type="range" min="10" max="19" step="0.1" value="15" class="range-slider w-full mt-3">
+                <div id="calcScenario" class="mt-3 text-sm leading-relaxed p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]"></div>
+              </div>
+            </div>
+            <div class="card rounded-[22px] p-5">
+              <div class="font-extrabold">🎓 <span data-i18n="calc.orientation">Orientation Predictor</span></div>
+              <p class="text-xs text-[var(--text-muted)] mt-1" data-i18n="calc.orientationSub">Based on your current average</p>
+              <div id="majorList" class="mt-4 space-y-2"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TOOLS -->
+      <section id="view-tools" class="view">
+        <h2 class="text-[28px] font-black tracking-tight" data-i18n="tools.title">Study Tools</h2>
+        <div class="mt-4 flex gap-2 overflow-x-auto scrollbar-none pb-1" id="toolTabs">
+          <button data-tool="pomodoro" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.pomodoro">Pomodoro</button>
+          <button data-tool="flashcards" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.flashcards">Flashcards</button>
+          <button data-tool="planner" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.planner">Planner</button>
+          <button data-tool="papers" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.papers">Past Papers</button>
+          <button data-tool="errors" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.errors">Error Log</button>
+          <button data-tool="wellness" class="tool-tab h-10 px-5 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm whitespace-nowrap" data-i18n="tools.wellness">Well-being</button>
+        </div>
+
+        <!-- Pomodoro -->
+        <div id="tool-pomodoro" class="tool-view mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-7 card rounded-[28px] p-6 md:p-8 flex flex-col items-center">
+              <div class="flex gap-2 p-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">
+                <button onclick="setPomodoroMode('focus')" id="pomoFocusBtn" class="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow" data-i18n="pomo.focus">Focus</button>
+                <button onclick="setPomodoroMode('break')" id="pomoBreakBtn" class="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]" data-i18n="pomo.break">Break</button>
+              </div>
+              <div class="relative mt-8">
+                <svg width="250" height="250" class="progress-ring">
+                  <circle cx="125" cy="125" r="110" stroke="var(--bg-soft)" stroke-width="12" fill="none"></circle>
+                  <circle id="pomoRing" cx="125" cy="125" r="110" stroke="var(--primary)" stroke-width="12" fill="none" stroke-linecap="round" style="transition:stroke-dashoffset .5s linear"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <div id="pomoTime" class="text-[52px] font-black tracking-tight leading-none">25:00</div>
+                  <div id="pomoLabel" class="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)] mt-2">Deep Work</div>
+                </div>
+              </div>
+              <div class="flex gap-3 mt-8">
+                <button onclick="togglePomodoro()" id="pomoStart" class="h-[50px] px-8 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="pomo.startFocus">Start Focus</button>
+                <button onclick="resetPomodoro()" class="h-[50px] w-[50px] rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↺</button>
+              </div>
+              <div class="mt-6 flex flex-wrap justify-center gap-6 text-sm">
+                <div><span class="text-[var(--text-muted)]" data-i18n="pomo.sessionsToday">Sessions today</span> <span id="pomoCount" class="font-black">0</span></div>
+                <div><span class="text-[var(--text-muted)]" data-i18n="pomo.totalFocus">Total focus</span> <span id="pomoTotal" class="font-black">0h 0m</span></div>
+              </div>
+            </div>
+            <div class="col-span-12 lg:col-span-5 space-y-4">
+              <div class="card rounded-[22px] p-5">
+                <div class="font-extrabold" data-i18n="pomo.settings">Focus Settings</div>
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.focusLen">Focus (min)</label><input id="pomoFocusLen" type="number" value="25" min="5" max="90" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.breakLen">Break (min)</label><input id="pomoBreakLen" type="number" value="5" min="1" max="30" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                </div>
+                <div class="mt-4 p-3 rounded-xl bg-[var(--primary-soft)] text-sm" data-i18n="pomo.tip">Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.</div>
+              </div>
+              <div class="card rounded-[22px] p-5">
+                <div class="font-extrabold" data-i18n="pomo.linkTask">Link to task</div>
+                <select id="pomoTaskSelect" class="mt-3 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Flashcards -->
+        <div id="tool-flashcards" class="tool-view hidden mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-5">
+              <div class="card rounded-[22px] p-5">
+                <div class="flex justify-between items-center gap-2">
+                  <div class="font-extrabold" data-i18n="fc.title">My Flashcards</div>
+                  <span id="fcDue" class="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)]"></span>
+                </div>
+                <div class="mt-4 grid grid-cols-1 gap-2">
+                  <input id="fcFront" data-i18n-ph="fc.frontPh" placeholder="Front (question)" class="h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-medium">
+                  <input id="fcBack" data-i18n-ph="fc.backPh" placeholder="Back (answer)" class="h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-medium">
+                  <div class="flex gap-2">
+                    <select id="fcSubject" class="flex-1 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select>
+                    <button onclick="addFlashcard()" class="h-11 px-5 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="common.add">Add</button>
+                  </div>
+                </div>
+                <div id="fcList" class="mt-4 space-y-2 max-h-[420px] overflow-y-auto scrollbar-none"></div>
+              </div>
+            </div>
+            <div class="col-span-12 lg:col-span-7">
+              <div class="card rounded-[28px] p-6 md:p-8 min-h-[470px] flex flex-col">
+                <div id="fcEmpty" class="flex-1 flex flex-col items-center justify-center text-center">
+                  <div class="w-16 h-16 rounded-2xl bg-[var(--bg-soft)] flex items-center justify-center text-2xl">🧠</div>
+                  <div class="font-extrabold mt-4" data-i18n="fc.emptyTitle">Ready to review</div>
+                  <p class="text-sm text-[var(--text-muted)] mt-1 max-w-[340px]" data-i18n="fc.emptyDesc">Add cards or start a session. Spaced repetition schedules them for you.</p>
+                  <button onclick="startFlashStudy()" class="mt-4 h-11 px-6 rounded-full bg-[var(--primary)] text-white font-bold" data-i18n="fc.studyAll">Study now</button>
+                </div>
+                <div id="fcStudy" class="hidden flex-1 flex-col">
+                  <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-[var(--text-faint)]">
+                    <span id="fcProgress">1 / 10</span>
+                    <button onclick="exitFlashStudy()" class="h-8 px-3 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] normal-case tracking-normal" data-i18n="common.exit">Exit</button>
+                  </div>
+                  <div class="flex-1 flex flex-col items-center justify-center mt-6">
+                    <div id="fcCard" class="w-full max-w-[470px] min-h-[230px] rounded-[22px] bg-[var(--bg-soft)] border border-[var(--border)] p-8 flex flex-col items-center justify-center text-center cursor-pointer" onclick="flipFlashcard()">
+                      <div id="fcQ" class="text-[20px] font-bold leading-tight"></div>
+                      <div id="fcHint" class="text-xs text-[var(--text-faint)] mt-3" data-i18n="fc.reveal">Click to reveal</div>
+                      <div id="fcA" class="hidden mt-6 pt-6 border-t border-[var(--border)] w-full text-[15px] leading-relaxed"></div>
+                    </div>
+                    <div id="fcActions" class="hidden mt-6 grid grid-cols-4 gap-2 w-full max-w-[470px]">
+                      <button onclick="rateFlash('again')" class="h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300 font-bold text-xs sm:text-sm" data-i18n="fc.again">Again</button>
+                      <button onclick="rateFlash('hard')" class="h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-300 font-bold text-xs sm:text-sm" data-i18n="fc.hard">Hard</button>
+                      <button onclick="rateFlash('good')" class="h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-300 font-bold text-xs sm:text-sm" data-i18n="fc.good">Good</button>
+                      <button onclick="rateFlash('easy')" class="h-12 rounded-xl bg-[var(--primary-soft)] border border-[var(--border)] text-[var(--primary)] font-bold text-xs sm:text-sm" data-i18n="fc.easy">Easy</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Planner -->
+        <div id="tool-planner" class="tool-view hidden mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-8 card rounded-[22px] p-5">
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div class="font-extrabold" data-i18n="plan.title">Daily & Weekly Planner</div>
+                <div class="flex gap-2">
+                  <button onclick="setPlannerFilter('all')" class="pl-filter h-8 px-3 rounded-full border border-[var(--border)] bg-[var(--bg-soft)] text-xs font-bold" data-f="all" data-i18n="plan.all">All</button>
+                  <button onclick="setPlannerFilter('today')" class="pl-filter h-8 px-3 rounded-full border border-[var(--border)] bg-[var(--bg-soft)] text-xs font-bold" data-f="today" data-i18n="plan.today">Today</button>
+                  <button onclick="setPlannerFilter('week')" class="pl-filter h-8 px-3 rounded-full border border-[var(--border)] bg-[var(--bg-soft)] text-xs font-bold" data-f="week" data-i18n="plan.week">Week</button>
+                </div>
+              </div>
+              <div class="mt-4 grid grid-cols-1 md:grid-cols-12 gap-2">
+                <input id="taskTitle" data-i18n-ph="plan.taskPh" placeholder="What do you need to study?" class="md:col-span-5 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-4 font-medium">
+                <select id="taskSubject" class="md:col-span-3 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select>
+                <select id="taskPriority" class="md:col-span-2 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold">
+                  <option value="low" data-i18n="pri.low">Low</option>
+                  <option value="med" selected data-i18n="pri.med">Medium</option>
+                  <option value="high" data-i18n="pri.high">High</option>
+                </select>
+                <button onclick="addTask()" class="md:col-span-2 h-11 px-5 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="common.add">Add</button>
+              </div>
+              <div id="plannerList" class="mt-5 space-y-2"></div>
+            </div>
+            <div class="col-span-12 lg:col-span-4 space-y-4">
+              <div class="card rounded-[22px] p-5">
+                <div class="font-extrabold" data-i18n="plan.thisWeek">This Week</div>
+                <div id="weekView" class="mt-4 space-y-3"></div>
+              </div>
+              <div class="card rounded-[22px] p-5 bg-[var(--text)] text-[var(--bg)] border-0">
+                <div class="font-extrabold" data-i18n="plan.proTip">Pro tip</div>
+                <p class="text-sm opacity-80 mt-2 leading-relaxed" data-i18n="plan.proTipText">Break big subjects into 45-minute tasks. Completing tasks earns XP and protects your streak.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Papers -->
+        <div id="tool-papers" class="tool-view hidden mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-8 card rounded-[22px] p-5">
+              <div class="flex justify-between items-center gap-2">
+                <div class="font-extrabold" data-i18n="pap.title">Past BAC Papers</div>
+                <button onclick="focusPaperForm()" class="h-9 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-sm font-bold" data-i18n="pap.add">+ Add paper</button>
+              </div>
+              <div class="overflow-x-auto mt-4">
+                <table class="w-full text-sm">
+                  <thead class="text-[10px] uppercase tracking-widest text-[var(--text-faint)]">
+                    <tr>
+                      <th class="text-start py-2" data-i18n="calc.thSubject">Subject</th>
+                      <th class="text-start py-2" data-i18n="pap.year">Year</th>
+                      <th class="text-start py-2" data-i18n="pap.status">Status</th>
+                      <th class="text-start py-2" data-i18n="pap.file">File</th>
+                      <th class="text-start py-2" data-i18n="pap.score">Score</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="papersBody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-span-12 lg:col-span-4 card rounded-[22px] p-5">
+              <div class="font-extrabold" data-i18n="pap.addTitle">Add Paper</div>
+              <div class="mt-4 space-y-3">
+                <select id="paperSubject" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select>
+                <input id="paperYear" type="number" data-i18n-ph="pap.yearPh" placeholder="Year e.g., 2023" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold">
+                <input id="paperTitle" data-i18n-ph="pap.titlePh" placeholder="Title (e.g., BAC 2023 Mathematics)" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-medium">
+                <select id="paperStatus" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold">
+                  <option value="not_started" data-i18n="st.not_started">Not started</option>
+                  <option value="in_progress" data-i18n="st.in_progress">In progress</option>
+                  <option value="completed" data-i18n="st.completed">Completed</option>
+                  <option value="reviewed" data-i18n="st.reviewed">Reviewed</option>
+                </select>
+                <label class="flex items-center gap-3 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 cursor-pointer">
+                  <span class="text-lg shrink-0">📎</span>
+                  <span id="paperFileLabel" class="text-sm font-medium text-[var(--text-muted)] truncate flex-1" data-i18n="pap.filePh">Attach subject (PDF or image)</span>
+                  <input id="paperFile" type="file" accept="application/pdf,image/*" class="hidden" onchange="onPaperFileChange(event)">
+                </label>
+                <div id="paperFilePreviewWrap" class="hidden items-center gap-3 p-2 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]">
+                  <div id="paperFilePreview" class="w-12 h-12 rounded-lg overflow-hidden shrink-0 bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-xl"></div>
+                  <span id="paperFileName" class="text-xs font-semibold truncate flex-1"></span>
+                  <button type="button" onclick="clearPaperFile()" class="w-7 h-7 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)]">✕</button>
+                </div>
+                <div class="flex gap-2">
+                  <input id="paperScore" type="number" min="0" max="20" data-i18n-ph="pap.scorePh" placeholder="Score /20" class="flex-1 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold">
+                  <button onclick="savePaperForm()" class="h-11 px-5 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="common.save">Save</button>
+                </div>
+              </div>
+              <div class="mt-6 text-xs text-[var(--text-muted)] leading-relaxed" data-i18n="pap.note">Track every past paper. Reviewing a paper gives +20 XP and helps you fix errors in the Error Log.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Errors -->
+        <div id="tool-errors" class="tool-view hidden mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-8 card rounded-[22px] p-5">
+              <div class="flex justify-between items-center gap-2">
+                <div class="font-extrabold" data-i18n="err.title">Error Log Manager</div>
+                <span id="errorStats" class="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]"></span>
+              </div>
+              <div id="errorsList" class="mt-4 space-y-3"></div>
+            </div>
+            <div class="col-span-12 lg:col-span-4 card rounded-[22px] p-5">
+              <div class="font-extrabold" data-i18n="err.log">Log a mistake</div>
+              <div class="mt-4 space-y-3">
+                <select id="errSubject" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select>
+                <input id="errTopic" data-i18n-ph="err.topicPh" placeholder="Topic e.g., Organic Chemistry" class="w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-medium">
+                <textarea id="errDesc" data-i18n-ph="err.descPh" placeholder="What was the mistake?" class="w-full min-h-[80px] rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] p-3 text-sm"></textarea>
+                <textarea id="errSol" data-i18n-ph="err.solPh" placeholder="Correct solution / rule to remember" class="w-full min-h-[80px] rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] p-3 text-sm"></textarea>
+                <button onclick="addError()" class="w-full h-11 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="err.save">Save error</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wellness -->
+        <div id="tool-wellness" class="tool-view hidden mt-6">
+          <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-12 lg:col-span-7 card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="well.title">Well-being & Mood Tracker</div>
+              <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="well.sub">Your mental state drives retention. Track it daily.</p>
+              <div class="mt-6">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="well.how">How do you feel today?</div>
+                <div id="moodPicker" class="flex gap-2 mt-3"></div>
+              </div>
+              <div class="mt-6">
+                <div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="well.energy">Energy level</div>
+                <input id="energyRange" type="range" min="1" max="5" value="3" class="range-slider w-full mt-2">
+                <div class="flex justify-between text-[11px] text-[var(--text-faint)]"><span data-i18n="well.exhausted">Exhausted</span><span data-i18n="well.energized">Energized</span></div>
+              </div>
+              <div class="mt-6">
+                <textarea id="moodNoteInput" data-i18n-ph="well.notePh" placeholder="Quick note about today..." class="w-full min-h-[90px] rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] p-3 text-sm"></textarea>
+                <button onclick="saveMood()" class="mt-3 h-11 px-6 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="well.save">Save today's mood</button>
+              </div>
+            </div>
+            <div class="col-span-12 lg:col-span-5 space-y-4">
+              <div class="card rounded-[22px] p-5">
+                <div class="font-extrabold" data-i18n="well.calendar">Mood Calendar</div>
+                <div id="moodCalendar" class="mt-4 grid grid-cols-7 gap-1.5"></div>
+              </div>
+              <div class="card rounded-[22px] p-5">
+                <div class="font-extrabold" data-i18n="well.recent">Recent entries</div>
+                <div id="moodList" class="mt-3 space-y-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ACHIEVEMENTS -->
+      <section id="view-achievements" class="view">
+        <h2 class="text-[28px] font-black tracking-tight" data-i18n="ach.title">Badges & Achievements</h2>
+        <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="ach.sub">Collect XP, keep your streak alive, and unlock milestones.</p>
+        <div class="mt-6 grid grid-cols-12 gap-4">
+          <div class="col-span-12 lg:col-span-8"><div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div></div>
+          <div class="col-span-12 lg:col-span-4 space-y-4">
+            <div class="card rounded-[22px] p-5">
+              <div class="font-extrabold" data-i18n="ach.levelProgress">Level Progress</div>
+              <div class="mt-4 flex items-center gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-[var(--text)] text-[var(--bg)] flex items-center justify-center text-2xl font-black" id="achLevel">1</div>
+                <div><div id="achTitle" class="font-black">Beginner</div><div id="achXP" class="text-sm text-[var(--text-muted)]">0 XP</div></div>
+              </div>
+              <div class="mt-4 h-2 bg-[var(--bg-soft)] rounded-full overflow-hidden"><div id="achBar" class="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)]" style="width:0%"></div></div>
+            </div>
+            <div class="card rounded-[22px] p-5">
+              <div class="font-extrabold" data-i18n="ach.howXp">How to earn XP</div>
+              <div class="mt-3 space-y-2 text-sm">
+                <div class="flex justify-between"><span data-i18n="xp.task">Complete a task</span><span class="font-bold">+10 XP</span></div>
+                <div class="flex justify-between"><span data-i18n="xp.pomo">Pomodoro session</span><span class="font-bold">+25 XP</span></div>
+                <div class="flex justify-between"><span data-i18n="xp.flash">Flashcard review</span><span class="font-bold">+5 XP</span></div>
+                <div class="flex justify-between"><span data-i18n="xp.paper">Paper completed</span><span class="font-bold">+20 XP</span></div>
+                <div class="flex justify-between"><span data-i18n="xp.error">Fix an error</span><span class="font-bold">+15 XP</span></div>
+                <div class="flex justify-between"><span data-i18n="xp.login">Daily login</span><span class="font-bold">+5 XP</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section id="view-settings" class="view">
+        <h2 class="text-[28px] font-black tracking-tight" data-i18n="set.title">Settings</h2>
+        <div class="grid grid-cols-12 gap-4 mt-6">
+          <div class="col-span-12 lg:col-span-7 space-y-4">
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="set.profile">Profile</div>
+              <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="set.name">Name</label><input id="setName" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="set.stream">Stream</label><select id="setStream" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-semibold"></select></div>
+                <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="set.target">Target Average</label><input id="setTarget" type="number" min="10" max="20" step="0.1" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                <div class="flex items-end"><button onclick="saveSettings()" class="w-full h-11 rounded-xl bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="set.saveProfile">Save profile</button></div>
+              </div>
+            </div>
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="set.data">Data Management</div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="exportData()" class="h-11 px-5 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-sm" data-i18n="set.export">Export JSON</button>
+                <label class="h-11 px-5 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-sm flex items-center cursor-pointer"><input type="file" id="importFile" class="hidden" onchange="importData(event)"><span data-i18n="set.import">Import JSON</span></label>
+                <button onclick="resetAll()" class="h-11 px-5 rounded-full bg-red-50 border border-red-200 text-red-600 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300 font-bold text-sm" data-i18n="set.reset">Reset everything</button>
+              </div>
+              <p class="text-xs text-[var(--text-muted)] mt-3" data-i18n="set.dataNote">All data is stored locally in your browser. Export a backup before the BAC.</p>
+            </div>
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" id="cloudSyncTitle">Cloud Sync</div>
+              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
+              <div id="cloudSignedOut" class="mt-4">
+                <button onclick="signInGoogle()" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-2">
+                  <svg width="16" height="16" viewBox="0 0 48 48" class="shrink-0"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.7 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.7 0-14.4 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 36.5 26.7 37 24 37c-5.2 0-9.7-3.3-11.3-8l-6.5 5C9.5 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C40.5 36.7 45 31 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
+                  <span id="cloudSignInLabel">Sign in with Google</span>
+                </button>
+              </div>
+              <div id="cloudSignedIn" class="mt-4 hidden">
+                <div class="flex items-center gap-3">
+                  <img id="cloudAvatar" class="w-10 h-10 rounded-full bg-[var(--bg-soft)]" src="" alt="">
+                  <div class="flex-1 min-w-0">
+                    <div id="cloudUserName" class="font-bold text-sm truncate"></div>
+                    <div id="cloudSyncStatus" class="text-[11px] text-[var(--text-muted)]">—</div>
+                  </div>
+                </div>
+                <button onclick="signOutCloud()" id="cloudSignOutBtn" class="mt-3 h-10 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-xs">Sign out</button>
+              </div>
+            </div>
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="set.report">Grade Report</div>
+              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" data-i18n="set.reportNote">Generate a polished, printable report card with your grades and target average — styled with your current theme.</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button onclick="openReportPreview()" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-1.5">🖨️ <span data-i18n="set.reportOpen">Open report</span></button>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-12 lg:col-span-5 space-y-4">
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="set.appearance">Appearance & Language</div>
+              <div class="mt-4 flex items-center justify-between p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]">
+                <span class="font-semibold text-sm" data-i18n="set.mode">Light / Dark</span>
+                <button onclick="toggleTheme()" class="h-9 px-4 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm flex items-center gap-1.5"><span id="themeIcon2">🌙</span><span id="themeLabel2" data-i18n="common.toggle">Toggle</span></button>
+              </div>
+              <div class="mt-3 flex items-center justify-between p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]">
+                <span class="font-semibold text-sm" data-i18n="set.language">Language / اللغة</span>
+                <button onclick="toggleLang()" class="h-9 px-4 rounded-full bg-[var(--primary)] text-white font-bold text-sm"><span id="langLabelSet">العربية</span></button>
+              </div>
+              <div class="mt-5">
+                <div class="text-[11px] font-black uppercase tracking-widest text-[var(--text-faint)] mb-2" data-i18n="set.themeColor">Color Theme</div>
+                <div id="themeGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5"></div>
+              </div>
+            </div>
+            <div class="card rounded-[22px] p-6">
+              <div class="font-extrabold" data-i18n="set.about">About BAC 2027</div>
+              <p class="text-sm text-[var(--text-muted)] mt-2 leading-relaxed" data-i18n="set.aboutText">Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!</p>
+              <div class="mt-4 text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]">Version 3.0 • Study OS</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer class="px-6 py-6 pb-8 text-[11px] text-[var(--text-faint)] text-center" data-i18n="footer">BAC 2027 — My Study Guide • Auto-saving • Made for focus</footer>
+  </div>
+</div>
+
+<!-- MOBILE BOTTOM TAB BAR -->
+<nav id="mobTabBar" class="tabbar lg:hidden fixed bottom-0 inset-x-0 z-40 bg-[var(--card)]/95 backdrop-blur-xl border-t border-[var(--border)]">
+  <div id="mobTabList" class="grid grid-cols-6"></div>
+</nav>
+
+<script>
+/* ============ SUBJECT DICTIONARY ============ */
+const SUBJ={
+ arabic:{en:"Arabic Language",ar:"اللغة العربية"},
+ french:{en:"French",ar:"اللغة الفرنسية"},
+ english:{en:"English",ar:"اللغة الإنجليزية"},
+ math:{en:"Mathematics",ar:"الرياضيات"},
+ physics:{en:"Physics",ar:"العلوم الفيزيائية"},
+ science:{en:"Natural Sciences",ar:"علوم الطبيعة والحياة"},
+ islamic:{en:"Islamic Education",ar:"العلوم الإسلامية"},
+ history:{en:"History & Geography",ar:"التاريخ والجغرافيا"},
+ philosophy:{en:"Philosophy",ar:"الفلسفة"},
+ sport:{en:"Physical Education",ar:"التربية البدنية"},
+ amazigh:{en:"Amazigh",ar:"اللغة الأمازيغية"},
+ tech:{en:"Technology",ar:"التكنولوجيا"},
+ economics:{en:"Economics",ar:"الاقتصاد والمناجمنت"},
+ management:{en:"Accounting & Management",ar:"التسيير المحاسبي والمالي"},
+ law:{en:"Law",ar:"القانون"},
+ spanish:{en:"Third Language",ar:"اللغة الأجنبية الثالثة"}
+};
+const SN=c=>(SUBJ[c]?SUBJ[c][LANG]:c);
+
+/* ============ STREAMS & COEFFICIENTS ============ */
+const STREAMS={
+ sci_exp:{en:"Experimental Sciences",ar:"علوم تجريبية",icon:"🧬",subjects:[
+  {code:"arabic",coeff:3},{code:"french",coeff:2},{code:"english",coeff:2},{code:"math",coeff:5},
+  {code:"physics",coeff:5},{code:"science",coeff:6},{code:"islamic",coeff:2},{code:"history",coeff:2},
+  {code:"philosophy",coeff:2},{code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]},
+ math:{en:"Mathematics",ar:"رياضيات",icon:"📐",subjects:[
+  {code:"arabic",coeff:3},{code:"french",coeff:2},{code:"english",coeff:2},{code:"math",coeff:7},
+  {code:"physics",coeff:6},{code:"science",coeff:2},{code:"islamic",coeff:2},{code:"history",coeff:2},
+  {code:"philosophy",coeff:2},{code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]},
+ tech_math:{en:"Mathematical Technique",ar:"تقني رياضي",icon:"⚙️",subjects:[
+  {code:"arabic",coeff:3},{code:"french",coeff:2},{code:"english",coeff:2},{code:"math",coeff:6},
+  {code:"physics",coeff:6},{code:"tech",coeff:7},{code:"islamic",coeff:2},{code:"history",coeff:2},
+  {code:"philosophy",coeff:2},{code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]},
+ eco:{en:"Management & Economics",ar:"تسيير واقتصاد",icon:"📊",subjects:[
+  {code:"arabic",coeff:3},{code:"french",coeff:2},{code:"english",coeff:2},{code:"math",coeff:5},
+  {code:"economics",coeff:5},{code:"management",coeff:6},{code:"law",coeff:2},{code:"history",coeff:2},
+  {code:"islamic",coeff:2},{code:"philosophy",coeff:2},{code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]},
+ letters:{en:"Literature & Philosophy",ar:"آداب وفلسفة",icon:"📚",subjects:[
+  {code:"arabic",coeff:5},{code:"french",coeff:2},{code:"english",coeff:2},{code:"math",coeff:2},
+  {code:"history",coeff:4},{code:"philosophy",coeff:6},{code:"islamic",coeff:2},
+  {code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]},
+ lang:{en:"Foreign Languages",ar:"لغات أجنبية",icon:"🌍",subjects:[
+  {code:"arabic",coeff:3},{code:"french",coeff:5},{code:"english",coeff:5},{code:"spanish",coeff:4},
+  {code:"history",coeff:2},{code:"philosophy",coeff:2},{code:"islamic",coeff:2},{code:"math",coeff:2},
+  {code:"sport",coeff:1,optional:true},{code:"amazigh",coeff:2,optional:true}]}
+};
+
+/* ============ QUOTES ============ */
+const QUOTES=[
+ {en:["Consistency beats intensity. One focused hour daily beats 7 hours once a week.","Study Science"],ar:["الاستمرارية أقوى من الحماس المؤقت. ساعة تركيز يومياً أفضل من 7 ساعات مرة في الأسبوع.","علم الدراسة"]},
+ {en:["You don't need to be perfect, you need to be consistent.","BAC Mindset"],ar:["لا تحتاج أن تكون مثالياً، تحتاج أن تكون منتظماً.","عقلية البكالوريا"]},
+ {en:["The pain of discipline is temporary. The pride of success is forever.","Motivation"],ar:["ألم الانضباط مؤقت، أما فخر النجاح فيبقى للأبد.","تحفيز"]},
+ {en:["Small progress is still progress. 1% better daily = 37x better in a year.","Atomic Habits"],ar:["التقدم الصغير يبقى تقدماً. 1% يومياً تعني 37 ضعفاً في السنة.","العادات الذرية"]},
+ {en:["Your future needs you. Your past doesn't define you.","Focus"],ar:["مستقبلك يحتاجك، وماضيك لا يحدد قيمتك.","تركيز"]},
+ {en:["Don't watch the clock; do what it does. Keep going.","Sam Levenson"],ar:["لا تراقب الساعة، افعل ما تفعله هي: استمر.","سام ليفنسون"]},
+ {en:["The secret of getting ahead is getting started.","Mark Twain"],ar:["سرّ التقدّم هو أن تبدأ.","مارك توين"]},
+ {en:["Mistakes prove you are trying. Log them, learn them, master them.","Error Log Philosophy"],ar:["الأخطاء دليل على المحاولة. سجّلها، تعلّم منها، وأتقنها.","فلسفة سجل الأخطاء"]},
+ {en:["You are not behind. You are exactly where you need to start.","Well-being"],ar:["أنت لست متأخراً، أنت في النقطة الصحيحة للبدء.","الصحة النفسية"]},
+ {en:["The BAC is not a sprint, it's a marathon of focus.","Algerian Students"],ar:["البكالوريا ليست سباقاً قصيراً، بل ماراثون تركيز.","طلبة الجزائر"]}
+];
+
+/* ============ BADGES ============ */
+const BADGES=[
+ {id:"first_step",icon:"🚀",en:["First Step","Complete onboarding"],ar:["الخطوة الأولى","إكمال الإعداد الأولي"],check:s=>!!s.profile.name},
+ {id:"streak_3",icon:"🔥",en:["Streak Starter","3-day streak"],ar:["بداية السلسلة","3 أيام متتالية"],check:s=>s.gamification.streak>=3},
+ {id:"streak_7",icon:"⚡",en:["Week Warrior","7-day streak"],ar:["محارب الأسبوع","7 أيام متتالية"],check:s=>s.gamification.streak>=7},
+ {id:"streak_30",icon:"🌋",en:["Unstoppable","30-day streak"],ar:["لا يُوقف","30 يوماً متتالياً"],check:s=>s.gamification.streak>=30},
+ {id:"focus_10",icon:"🍅",en:["Focus Master","10 pomodoro sessions"],ar:["سيد التركيز","10 جلسات بومودورو"],check:s=>s.pomodoro.sessionsCompleted>=10},
+ {id:"perfect",icon:"💯",en:["Perfect Score","Get 20/20 in any subject"],ar:["العلامة الكاملة","20/20 في أي مادة"],check:s=>Object.values(s.grades).some(g=>g===20)},
+ {id:"papers_5",icon:"📄",en:["Paper Hunter","Complete 5 past papers"],ar:["صائد المواضيع","إنهاء 5 مواضيع سابقة"],check:s=>s.papers.filter(p=>p.status==='completed'||p.status==='reviewed').length>=5},
+ {id:"error_fixer",icon:"🛠️",en:["Error Fixer","Resolve 10 errors"],ar:["مصلح الأخطاء","تصحيح 10 أخطاء"],check:s=>s.errors.filter(e=>e.status==='resolved').length>=10},
+ {id:"flash_50",icon:"🧠",en:["Memory Keeper","Review 50 flashcards"],ar:["حارس الذاكرة","مراجعة 50 بطاقة"],check:s=>s.flashcards.reduce((a,c)=>a+(c.reviews||0),0)>=50},
+ {id:"tasks_20",icon:"✅",en:["Task Crusher","Complete 20 tasks"],ar:["منجز المهام","إتمام 20 مهمة"],check:s=>s.tasks.filter(t=>t.completed).length>=20},
+ {id:"avg_15",icon:"🎯",en:["Excellence Seeker","Reach a 15+ average"],ar:["باحث عن التميّز","الوصول إلى معدل 15+"],check:s=>calcAverage(s)>=15},
+ {id:"mood_7",icon:"💚",en:["Self Aware","Track mood for 7 days"],ar:["وعي بالذات","تتبع المزاج 7 أيام"],check:s=>s.moods.length>=7}
+];
+
+/* ============ UNIVERSITY MAJORS ============ */
+const MAJORS=[
+ {en:"Medicine",ar:"الطب",min:16.5,stream:["sci_exp","math"]},
+ {en:"Pharmacy",ar:"الصيدلة",min:15.8,stream:["sci_exp"]},
+ {en:"Dentistry",ar:"طب الأسنان",min:16.0,stream:["sci_exp"]},
+ {en:"Architecture",ar:"الهندسة المعمارية",min:14.5,stream:["math","tech_math","sci_exp"]},
+ {en:"Computer Science",ar:"الإعلام الآلي",min:14.0,stream:["math","sci_exp","tech_math"]},
+ {en:"Software Engineering",ar:"هندسة البرمجيات",min:14.2,stream:["math","sci_exp","tech_math"]},
+ {en:"Civil Engineering",ar:"الهندسة المدنية",min:13.5,stream:["tech_math","math","sci_exp"]},
+ {en:"Electrical Engineering",ar:"الهندسة الكهربائية",min:13.8,stream:["tech_math","math"]},
+ {en:"Economics & Management",ar:"العلوم الاقتصادية والتسيير",min:12.5,stream:["eco","math","sci_exp"]},
+ {en:"Accounting & Finance",ar:"المحاسبة والمالية",min:12.8,stream:["eco"]},
+ {en:"Law",ar:"الحقوق",min:12.0,stream:["letters","lang","eco"]},
+ {en:"English Literature",ar:"أدب إنجليزي",min:12.0,stream:["lang","letters"]},
+ {en:"French Literature",ar:"أدب فرنسي",min:11.5,stream:["lang","letters"]},
+ {en:"Translation",ar:"الترجمة",min:13.0,stream:["lang","letters"]},
+ {en:"Psychology",ar:"علم النفس",min:12.5,stream:["letters","sci_exp"]},
+ {en:"Journalism",ar:"علوم الإعلام والاتصال",min:13.0,stream:["letters","lang"]}
+];
+const LEVEL_TITLES={en:["Beginner","Explorer","Learner","Achiever","Scholar","Strategist","Expert","Master","BAC Champion"],ar:["مبتدئ","مستكشف","متعلّم","منجز","دارس","استراتيجي","خبير","متمكّن","بطل البكالوريا"]};
+const MOOD_EMOJI=["😞","😐","🙂","😊","🤩"];
+
+/* ============ I18N DICTIONARY ============ */
+const I18N={
+en:{
+ "brand.sub":"Study Guide",
+ "nav.dashboard":"Dashboard","nav.subjects":"My Subjects","nav.calculator":"GPA Calculator","nav.tools":"Study Tools","nav.achievements":"Achievements","nav.settings":"Settings",
+ "common.continue":"Continue","common.back":"Back","common.add":"Add","common.save":"Save","common.exit":"Exit","common.manage":"Manage","common.viewAll":"View all","common.toggle":"Toggle","common.delete":"Delete","common.reviews":"reviews",
+ "onb.title1":"BAC 2027 —","onb.title2":"My Study Guide",
+ "onb.sub":"The complete study OS for the Algerian Baccalaureate. Track subjects, compute your average with real coefficients, build streaks, and stay motivated until exam day.",
+ "onb.f1t":"Target Planner","onb.f1d":"Know exactly what you need","onb.f2t":"Streaks & XP","onb.f2d":"Gamified consistency","onb.f3t":"Smart Tools","onb.f3d":"Pomodoro, flashcards & more",
+ "onb.cta":"Get Started — It's free","onb.note":"Auto-saves locally in your browser. No account needed.",
+ "onb.profileTitle":"Create your profile","onb.profileSub":"Personalize your experience","onb.name":"Your Name","onb.namePh":"e.g., Amine","onb.stream":"Your Stream",
+ "onb.targetTitle":"Set your target","onb.targetSub":"We'll build your plan around it","onb.targetLabel":"Target Average /20","onb.pass":"10 Pass","onb.excellence":"19 Excellence",
+ "onb.amazighExempt":"Amazigh exempt","onb.epsExempt":"EPS exempt","onb.hintTitle":"Orientation Hint","onb.launch":"Launch My Dashboard →",
+ "onb.hint":"With {v} you can aim for {list}.","onb.goals":"your goals","onb.subjects":"{n} subjects",
+ "greet.morning":"Good morning","greet.afternoon":"Good afternoon","greet.evening":"Good evening",
+ "dash.sub":"You have {t} task(s) today and {c} card(s) due. Your average is tracking at {avg}. Keep the momentum.",
+ "btn.newTask":"+ New Task","btn.startFocus":"Start Focus",
+ "dash.streak":"Streak","dash.atRisk":"At risk! Study today","dash.days":"Days","dash.level":"Level","dash.today":"Today","dash.viewGpa":"View GPA →","dash.avg":"Avg","dash.tasks":"Tasks","dash.focus":"Focus",
+ "dash.wellbeing":"Well-being","dash.howFeel":"How are you feeling today?","dash.todayPlan":"Today's Plan","dash.errorsRecent":"Error Log • Recent","dash.allDone":"All done for today! 🎉 Add more in the Planner.","dash.noErrors":"No errors logged yet. That's a good sign!",
+ "xp.next":"{n} XP to next level","xp.task":"Complete a task","xp.pomo":"Pomodoro session","xp.flash":"Flashcard review","xp.paper":"Paper completed","xp.error":"Fix an error","xp.login":"Daily login",
+ "subj.title":"My Subjects","subj.sub":"Grades are capped at 20/20 — we warn you if you exceed the limit.","subj.reset":"Reset grades","subj.count":"{n} subjects","subj.noGrade":"No grade","subj.gradeLabel":"Grade /20","subj.contributes":"Contributes <b>{n}</b> weighted points","subj.optional":"(optional)","subj.coeff":"Coeff",
+ "calc.title":"BAC Average Calculator","calc.sub":"Real coefficients per stream. Toggle Amazigh & EPS participation.","calc.eps":"EPS","subject.amazigh":"Amazigh",
+ "calc.thSubject":"Subject","calc.thCoeff":"Coeff","calc.thGrade":"Grade /20","calc.thWeighted":"Weighted",
+ "calc.calculated":"Calculated Average","calc.totalCoeff":"Total Coeff","calc.totalWeighted":"Total Weighted","calc.scenario":"Target Scenario","calc.orientation":"Orientation Predictor","calc.orientationSub":"Based on your current average",
+ "calc.min":"Min {n}/20","calc.eligible":"✅ Eligible","calc.needed":"🔒 {n} needed",
+ "sc.empty":"Enter your grades to see the scenario.",
+ "sc.all":"All grades entered. Average {avg}/20 — target {target}/20 {res}.",
+ "sc.reached":"✅ reached","sc.notReached":"❌ not reached",
+ "sc.impossible":"To reach <b>{target}/20</b> you'd need <b>{need}/20</b> on the remaining subjects — not possible. Lower the target or improve entered grades.",
+ "sc.exceed":"You already exceed your target! Even with <b>0/20</b> on the rest you'd keep <b>{avg}/20</b>. Aim higher?",
+ "sc.normal":"To reach <b>{target}/20</b> you need an average of <b>{need}/20</b> across the remaining <b>{coeff}</b> coefficient points.",
+ "mention.excellent":"Excellent","mention.vgood":"Very Good","mention.good":"Good","mention.pass":"Pass","mention.work":"Work needed",
+ "tools.title":"Study Tools","tools.pomodoro":"Pomodoro","tools.flashcards":"Flashcards","tools.planner":"Planner","tools.papers":"Past Papers","tools.errors":"Error Log","tools.wellness":"Well-being",
+ "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
+ "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Click to reveal","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
+ "plan.title":"Daily & Weekly Planner","plan.all":"All","plan.today":"Today","plan.week":"Week","plan.taskPh":"What do you need to study?","plan.thisWeek":"This Week","plan.proTip":"Pro tip","plan.proTipText":"Break big subjects into 45-minute tasks. Completing tasks earns XP and protects your streak.","plan.noTasks":"No tasks","plan.empty":"No tasks in this view. Add one above.",
+ "pri.low":"Low","pri.med":"Medium","pri.high":"High",
+ "pap.title":"Past BAC Papers","pap.add":"+ Add paper","pap.year":"Year","pap.status":"Status","pap.score":"Score","pap.addTitle":"Add Paper","pap.yearPh":"Year e.g., 2023","pap.titlePh":"Title (e.g., BAC 2023 Mathematics)","pap.scorePh":"Score /20","pap.note":"Track every past paper. Reviewing a paper gives +20 XP and helps you fix errors in the Error Log.","pap.empty":"No papers yet.","pap.file":"File","pap.filePh":"Attach subject (PDF or image)","pap.viewFile":"View file","pap.noFile":"No file attached to this paper.",
+ "st.not_started":"Not started","st.in_progress":"In progress","st.completed":"Completed","st.reviewed":"Reviewed",
+ "err.title":"Error Log Manager","err.log":"Log a mistake","err.topicPh":"Topic e.g., Organic Chemistry","err.descPh":"What was the mistake?","err.solPh":"Correct solution / rule to remember","err.save":"Save error","err.stats":"{n} errors • {f} fixed","err.solution":"Solution:","err.markFixed":"Mark fixed","err.resolved":"Resolved","err.open":"Open","err.default":"Review the lesson","err.empty":"No errors logged. Log mistakes to master them.",
+ "well.title":"Well-being & Mood Tracker","well.sub":"Your mental state drives retention. Track it daily.","well.how":"How do you feel today?","well.energy":"Energy level","well.exhausted":"Exhausted","well.energized":"Energized","well.notePh":"Quick note about today...","well.save":"Save today's mood","well.calendar":"Mood Calendar","well.recent":"Recent entries","well.noNote":"No note","well.energyOf":"Energy {n}/5","well.today":"Today: {m} — Energy {e}/5","well.none":"No entries yet.",
+ "mood.1":"Awful","mood.2":"Okay","mood.3":"Good","mood.4":"Great","mood.5":"Amazing",
+ "ach.title":"Badges & Achievements","ach.sub":"Collect XP, keep your streak alive, and unlock milestones.","ach.levelProgress":"Level Progress","ach.howXp":"How to earn XP","ach.xpTotal":"{n} XP total",
+ "set.title":"Settings","set.profile":"Profile","set.name":"Name","set.stream":"Stream","set.target":"Target Average","set.saveProfile":"Save profile","set.data":"Data Management","set.export":"Export JSON","set.import":"Import JSON","set.reset":"Reset everything","set.dataNote":"All data is stored locally in your browser. Export a backup before the BAC.","set.appearance":"Appearance & Language","set.theme":"Theme","set.language":"Language / اللغة","set.about":"About BAC 2027","set.aboutText":"Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!",
+ "footer":"BAC 2027 — My Study Guide • Auto-saving • Made for focus",
+ "theme.dark":"Dark","theme.light":"Light","set.mode":"Light / Dark","set.themeColor":"Color Theme","theme.groupClassic":"Classic","theme.groupBoys":"For Boys","theme.groupGirls":"For Girls","theme.active":"Active","toast.themeChanged":"Theme changed to {name}",
+ "toast.gradeCap":"Grade capped at 20/20","toast.gradesReset":"All grades were reset","toast.welcome":"Welcome to BAC 2027 — let's start!","toast.levelUp":"Level up! You are now {t} — Level {n}","toast.badge":"Badge unlocked: {t} {i}","toast.streakReset":"Streak reset — you missed a day. Let's rebuild!","toast.enterName":"Please enter your name","toast.fillCard":"Fill both sides of the card","toast.taskTitle":"Enter a task title","toast.fillError":"Fill the topic and description","toast.errorLogged":"Mistake logged","toast.paperSaved":"Paper saved","toast.paperSavedNoFile":"Paper saved, but the file was too large to store","toast.fileTooBig":"File too large (max 4MB)","toast.fileType":"Please attach a PDF or image file","toast.storageFull":"Storage is full — try removing an old attached file","toast.moodSaved":"Mood saved","toast.profileSaved":"Profile saved","toast.exported":"Data exported","toast.invalidFile":"Invalid file","toast.sessionDone":"Study session complete!","toast.focusDone":"Focus session complete! +25 XP","toast.breakDone":"Break over — ready for the next focus?","toast.noCards":"No flashcards to study",
+ "confirm.resetGrades":"Reset all grades?","confirm.resetAll":"Reset all data? This cannot be undone.",
+ "calc.total":"Total","calc.printReport":"Print Report",
+ "rep.previewTitle":"Report Preview","rep.print":"Print / PDF","rep.saveImage":"Save Image",
+ "rep.title":"Grade Report Card","rep.currentAvg":"Current Average","rep.targetAvg":"Target Average",
+ "rep.date":"Date","rep.exempt":"Exempt","rep.reached":"🎯 Target reached!","rep.remaining":"{n}- to go",
+ "rep.footer":"Generated by BAC 2027 Study Guide","rep.breakdown":"Grade Breakdown","rep.stats":"Statistics","rep.gap":"Gap",
+ "set.report":"Grade Report","set.reportNote":"Generate a printable report with your grades and target — styled with your theme.",
+ "set.reportOpen":"Open Report",
+ "toast.reportImgSaved":"Image ready!","toast.reportImgFail":"Export failed",
+ "report.imgPanelTitle":"Report ready — choose how to save","report.download":"Download PNG",
+ "report.openTab":"Open in new tab","report.mobileHint":"On mobile: long-press the image above then Save Image"
+},
+ar:{
+ "brand.sub":"دليل الدراسة",
+ "nav.dashboard":"لوحة التحكم","nav.subjects":"موادي","nav.calculator":"حاسبة المعدل","nav.tools":"أدوات الدراسة","nav.achievements":"الإنجازات","nav.settings":"الإعدادات",
+ "common.continue":"متابعة","common.back":"رجوع","common.add":"إضافة","common.save":"حفظ","common.exit":"خروج","common.manage":"إدارة","common.viewAll":"عرض الكل","common.toggle":"تبديل","common.delete":"حذف","common.reviews":"مراجعة",
+ "onb.title1":"بكالوريا 2027 —","onb.title2":"دليلي للدراسة",
+ "onb.sub":"نظام دراسة متكامل لبكالوريا الجزائر. تابع موادك، احسب معدلك بالمعاملات الرسمية، ابنِ سلسلة أيامك، وابقَ متحفزاً حتى يوم الامتحان.",
+ "onb.f1t":"مخطط الهدف","onb.f1d":"اعرف بالضبط ما تحتاجه","onb.f2t":"السلاسل والنقاط","onb.f2d":"انتظام بأسلوب اللعب","onb.f3t":"أدوات ذكية","onb.f3d":"بومودورو، بطاقات وأكثر",
+ "onb.cta":"لنبدأ — مجاناً","onb.note":"يتم الحفظ تلقائياً في متصفحك. لا حاجة لحساب.",
+ "onb.profileTitle":"أنشئ ملفك الشخصي","onb.profileSub":"خصّص تجربتك","onb.name":"اسمك","onb.namePh":"مثال: أمين","onb.stream":"شعبتك",
+ "onb.targetTitle":"حدّد هدفك","onb.targetSub":"سنبني خطتك على أساسه","onb.targetLabel":"المعدل المستهدف /20","onb.pass":"10 نجاح","onb.excellence":"19 امتياز",
+ "onb.amazighExempt":"معفى من الأمازيغية","onb.epsExempt":"معفى من التربية البدنية","onb.hintTitle":"تلميح التوجيه","onb.launch":"ابدأ لوحة التحكم ←",
+ "onb.hint":"بمعدل {v} يمكنك استهداف: {list}.","onb.goals":"أهدافك","onb.subjects":"{n} مواد",
+ "greet.morning":"صباح الخير","greet.afternoon":"مساء الخير","greet.evening":"مساء الخير",
+ "dash.sub":"لديك {t} مهمة اليوم و {c} بطاقة للمراجعة. معدلك الحالي {avg}. واصل الزخم.",
+ "btn.newTask":"+ مهمة جديدة","btn.startFocus":"ابدأ التركيز",
+ "dash.streak":"سلسلة الأيام","dash.atRisk":"في خطر! ادرس اليوم","dash.days":"يوم","dash.level":"المستوى","dash.today":"اليوم","dash.viewGpa":"عرض المعدل ←","dash.avg":"المعدل","dash.tasks":"المهام","dash.focus":"التركيز",
+ "dash.wellbeing":"الصحة النفسية","dash.howFeel":"كيف تشعر اليوم؟","dash.todayPlan":"خطة اليوم","dash.errorsRecent":"سجل الأخطاء • الأحدث","dash.allDone":"أنهيت كل شيء اليوم! 🎉 أضف مهاماً من المخطط.","dash.noErrors":"لا توجد أخطاء مسجلة بعد. مؤشر جيد!",
+ "xp.next":"{n} نقطة للمستوى التالي","xp.task":"إتمام مهمة","xp.pomo":"جلسة بومودورو","xp.flash":"مراجعة بطاقة","xp.paper":"إنهاء موضوع","xp.error":"تصحيح خطأ","xp.login":"دخول يومي",
+ "subj.title":"موادي","subj.sub":"العلامات محدودة بـ 20/20 — سننبهك عند تجاوز الحد.","subj.reset":"إعادة ضبط العلامات","subj.count":"{n} مادة","subj.noGrade":"بدون علامة","subj.gradeLabel":"العلامة /20","subj.contributes":"تساهم بـ <b>{n}</b> نقطة موزونة","subj.optional":"(اختياري)","subj.coeff":"معامل",
+ "calc.title":"حاسبة معدل البكالوريا","calc.sub":"معاملات رسمية حسب الشعبة. فعّل أو ألغِ الأمازيغية والتربية البدنية.","calc.eps":"تربية بدنية","subject.amazigh":"اللغة الأمازيغية","rep.print":"طباعة / PDF",
+ "calc.thSubject":"المادة","calc.thCoeff":"المعامل","calc.thGrade":"العلامة /20","calc.thWeighted":"الموزون",
+ "calc.calculated":"المعدل المحسوب","calc.totalCoeff":"مجموع المعاملات","calc.totalWeighted":"مجموع الموزون","calc.scenario":"سيناريو الهدف","calc.orientation":"توقع التوجيه الجامعي","calc.orientationSub":"بناءً على معدلك الحالي",
+ "calc.min":"الحد الأدنى {n}/20","calc.eligible":"✅ مؤهل","calc.needed":"🔒 ينقصك {n}",
+ "sc.empty":"أدخل علاماتك لعرض السيناريو.",
+ "sc.all":"تم إدخال كل العلامات. المعدل {avg}/20 — الهدف {target}/20 {res}.",
+ "sc.reached":"✅ تم بلوغه","sc.notReached":"❌ لم يتحقق",
+ "sc.impossible":"لبلوغ <b>{target}/20</b> تحتاج <b>{need}/20</b> في المواد المتبقية — غير ممكن. قلّل الهدف أو حسّن علاماتك.",
+ "sc.exceed":"لقد تجاوزت هدفك! حتى بـ <b>0/20</b> في الباقي ستحافظ على <b>{avg}/20</b>. ارفع سقف الهدف؟",
+ "sc.normal":"لبلوغ <b>{target}/20</b> تحتاج معدل <b>{need}/20</b> على <b>{coeff}</b> نقطة معامل متبقية.",
+ "mention.excellent":"امتياز","mention.vgood":"جيد جداً","mention.good":"جيد","mention.pass":"مقبول","mention.work":"يحتاج مجهوداً",
+ "tools.title":"أدوات الدراسة","tools.pomodoro":"بومودورو","tools.flashcards":"البطاقات","tools.planner":"المخطط","tools.papers":"مواضيع سابقة","tools.errors":"سجل الأخطاء","tools.wellness":"الصحة النفسية",
+ "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
+ "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط لكشف الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
+ "plan.title":"المخطط اليومي والأسبوعي","plan.all":"الكل","plan.today":"اليوم","plan.week":"الأسبوع","plan.taskPh":"ما الذي تريد مراجعته؟","plan.thisWeek":"هذا الأسبوع","plan.proTip":"نصيحة","plan.proTipText":"قسّم المواد الكبيرة إلى مهام من 45 دقيقة. إتمام المهام يمنحك نقاطاً ويحمي سلسلتك.","plan.noTasks":"لا مهام","plan.empty":"لا توجد مهام في هذا العرض. أضف واحدة أعلاه.",
+ "pri.low":"منخفضة","pri.med":"متوسطة","pri.high":"عالية",
+ "pap.title":"مواضيع البكالوريا السابقة","pap.add":"+ إضافة موضوع","pap.year":"السنة","pap.status":"الحالة","pap.score":"العلامة","pap.addTitle":"إضافة موضوع","pap.yearPh":"السنة مثلاً 2023","pap.titlePh":"العنوان (مثال: بكالوريا 2023 رياضيات)","pap.scorePh":"العلامة /20","pap.note":"تابع كل المواضيع السابقة. مراجعة موضوع تمنحك +20 نقطة وتساعدك على تصحيح أخطائك.","pap.empty":"لا توجد مواضيع بعد.","pap.file":"الملف","pap.filePh":"أرفق الموضوع (PDF أو صورة)","pap.viewFile":"عرض الملف","pap.noFile":"لا يوجد ملف مرفق بهذا الموضوع.",
+ "st.not_started":"لم يبدأ","st.in_progress":"قيد الإنجاز","st.completed":"مكتمل","st.reviewed":"تمت مراجعته",
+ "err.title":"مدير سجل الأخطاء","err.log":"سجّل خطأ","err.topicPh":"الموضوع مثلاً: الكيمياء العضوية","err.descPh":"ما هو الخطأ؟","err.solPh":"الحل الصحيح / القاعدة الواجب تذكرها","err.save":"حفظ الخطأ","err.stats":"{n} خطأ • {f} تم تصحيحه","err.solution":"الحل:","err.markFixed":"تم التصحيح","err.resolved":"مصحّح","err.open":"مفتوح","err.default":"راجع الدرس","err.empty":"لا أخطاء مسجلة. سجّل أخطاءك لتتقنها.",
+ "well.title":"متتبع المزاج والصحة النفسية","well.sub":"حالتك النفسية تؤثر على استيعابك. تابعها يومياً.","well.how":"كيف تشعر اليوم؟","well.energy":"مستوى الطاقة","well.exhausted":"منهك","well.energized":"مفعم بالطاقة","well.notePh":"ملاحظة سريعة عن يومك...","well.save":"حفظ مزاج اليوم","well.calendar":"تقويم المزاج","well.recent":"آخر التسجيلات","well.noNote":"بدون ملاحظة","well.energyOf":"الطاقة {n}/5","well.today":"اليوم: {m} — الطاقة {e}/5","well.none":"لا تسجيلات بعد.",
+ "mood.1":"سيء جداً","mood.2":"عادي","mood.3":"جيد","mood.4":"رائع","mood.5":"ممتاز",
+ "ach.title":"الشارات والإنجازات","ach.sub":"اجمع النقاط، حافظ على سلسلتك، وافتح الإنجازات.","ach.levelProgress":"تقدم المستوى","ach.howXp":"كيف تربح النقاط","ach.xpTotal":"{n} نقطة إجمالاً",
+ "set.title":"الإعدادات","set.profile":"الملف الشخصي","set.name":"الاسم","set.stream":"الشعبة","set.target":"المعدل المستهدف","set.saveProfile":"حفظ الملف","set.data":"إدارة البيانات","set.export":"تصدير JSON","set.import":"استيراد JSON","set.reset":"حذف كل البيانات","set.dataNote":"كل البيانات محفوظة محلياً في متصفحك. صدّر نسخة احتياطية قبل البكالوريا.","set.appearance":"المظهر واللغة","set.theme":"السمة","set.language":"اللغة / Language","set.about":"حول بكالوريا 2027","set.aboutText":"مصمم لطلبة الثانوي في الجزائر. المعاملات مطابقة للشعب الرسمية. يعمل دون إنترنت ويحفظ تلقائياً. بالتوفيق — أنت قادر!",
+ "footer":"بكالوريا 2027 — دليلي للدراسة • حفظ تلقائي • صُنع للتركيز",
+ "theme.dark":"داكن","theme.light":"فاتح","set.mode":"فاتح / داكن","set.themeColor":"لون الواجهة","theme.groupClassic":"كلاسيكي","theme.groupBoys":"للأولاد","theme.groupGirls":"للبنات","theme.active":"مفعّل","toast.themeChanged":"تم تغيير التيمة إلى {name}",
+ "toast.gradeCap":"تم تحديد العلامة بـ 20/20","toast.gradesReset":"تمت إعادة ضبط العلامات","toast.welcome":"مرحباً بك في بكالوريا 2027 — لنبدأ!","toast.levelUp":"ترقية! أصبحت {t} — المستوى {n}","toast.badge":"شارة جديدة: {t} {i}","toast.streakReset":"انقطعت السلسلة — فاتك يوم. لنعيد البناء!","toast.enterName":"الرجاء إدخال اسمك","toast.fillCard":"املأ وجهي البطاقة","toast.taskTitle":"أدخل عنوان المهمة","toast.fillError":"املأ الموضوع والوصف","toast.errorLogged":"تم تسجيل الخطأ","toast.paperSaved":"تم حفظ الموضوع","toast.paperSavedNoFile":"تم حفظ الموضوع، لكن الملف كان كبيرًا جدًا ولم يُحفظ","toast.fileTooBig":"الملف كبير جدًا (الحد الأقصى 4 ميغابايت)","toast.fileType":"الرجاء إرفاق ملف PDF أو صورة","toast.storageFull":"التخزين ممتلئ — جرّب حذف ملف مرفق قديم","toast.moodSaved":"تم حفظ المزاج","toast.profileSaved":"تم حفظ الملف","toast.exported":"تم تصدير البيانات","toast.invalidFile":"ملف غير صالح","toast.sessionDone":"انتهت جلسة المراجعة!","toast.focusDone":"انتهت جلسة التركيز! +25 نقطة","toast.breakDone":"انتهت الاستراحة — جاهز للتركيز؟","toast.noCards":"لا توجد بطاقات للمراجعة",
+ "confirm.resetGrades":"إعادة ضبط كل العلامات؟","confirm.resetAll":"حذف كل البيانات؟ لا يمكن التراجع.",
+ "calc.total":"المجموع","calc.printReport":"طباعة الكشف",
+ "rep.previewTitle":"معاينة الكشف","rep.saveImage":"حفظ كصورة",
+ "rep.title":"كشف الدرجات والمعدل","rep.currentAvg":"المعدل الحالي","rep.targetAvg":"المعدل المستهدف",
+ "rep.date":"التاريخ","rep.exempt":"معفى","rep.reached":"🎯 تحقق الهدف!","rep.remaining":"{n}- نقصان",
+ "rep.footer":"صدر عن تطبيق بكالوريا 2027 للدراسة","rep.breakdown":"كشف الدرجات","rep.stats":"الإحصائيات","rep.gap":"الفارق",
+ "set.report":"كشف الدرجات","set.reportNote":"أنشئ كشفاً للطباعة بدرجاتك ومعدلك المستهدف بألوان الثيم الحالي.",
+ "set.reportOpen":"فتح الكشف",
+ "toast.reportImgSaved":"الصورة جاهزة!","toast.reportImgFail":"فشل التصدير",
+ "report.imgPanelTitle":"الكشف جاهز — اختر طريقة الحفظ","report.download":"تحميل PNG",
+ "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة"
+}};
+let LANG="en";
+function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
+
+/* ============ HELPERS ============ */
+const todayISO=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+const isoOffset=n=>{const d=new Date();d.setDate(d.getDate()+n);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10)};
+function daysDiff(a,b){return Math.round((new Date(a)-new Date(b))/86400000)}
+function clampGrade(v){let n=parseFloat(v);if(isNaN(n))return null;if(n>20)return 20;if(n<0)return 0;return Math.round(n*100)/100}
+function streamName(k){return STREAMS[k]?STREAMS[k][LANG]:""}
+function majorName(m){return m[LANG]}
+function calcAverage(s){const st=STREAMS[s.profile.streamId];if(!st)return 0;let w=0,c=0;
+ st.subjects.forEach(sub=>{if(sub.code==='amazigh'&&s.settings.amazighExempt)return;if(sub.code==='sport'&&s.settings.epsExempt)return;const g=s.grades[sub.code];if(g==null)return;w+=g*sub.coeff;c+=sub.coeff});
+ return c?+(w/c).toFixed(2):0}
+function mentionFromAvg(a){if(a>=16)return t("mention.excellent");if(a>=14)return t("mention.vgood");if(a>=12)return t("mention.good");if(a>=10)return t("mention.pass");return t("mention.work")}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+/* ============ STATE ============ */
+let state=null;
+function defaultState(){return{
+ profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
+ grades:{},
+ settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"en"},
+ gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
+ tasks:[
+  {id:"t1",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
+  {id:"t2",title:"Physics past paper 2022",priority:"med",subject:"physics",dueDate:todayISO(),completed:false},
+  {id:"t3",title:"Outline the philosophy essay",priority:"low",subject:"philosophy",dueDate:todayISO(),completed:true}],
+ pomodoro:{sessionsCompleted:0,totalMinutes:0},
+ flashcards:[
+  {id:"f1",front:"What is Newton's second law?",back:"F = m · a",subject:"physics",interval:0,dueDate:todayISO(),ease:2.5,reviews:0},
+  {id:"f2",front:"Derivative of sin(x)?",back:"cos(x)",subject:"math",interval:1,dueDate:todayISO(),ease:2.5,reviews:2}],
+ papers:[{id:"p1",subject:"math",year:2023,title:"BAC 2023 Mathematics",status:"completed",score:14,date:todayISO()}],
+ errors:[{id:"e1",subject:"math",topic:"Limits",description:"Forgot to check the indeterminate form",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
+ moods:[],
+ meta:{updatedAt:0}}}
+function loadState(){try{const r=localStorage.getItem("bac2027_v3");if(!r)return null;const p=JSON.parse(r);const d=defaultState();return Object.assign(d,p,{profile:Object.assign(d.profile,p.profile||{}),settings:Object.assign(d.settings,p.settings||{}),gamification:Object.assign(d.gamification,p.gamification||{}),pomodoro:Object.assign(d.pomodoro,p.pomodoro||{}),meta:Object.assign({updatedAt:0},p.meta||{})})}catch(e){return null}}
+function saveState(){try{localStorage.setItem("bac2027_v3",JSON.stringify(state));return true}catch(e){toast(t("toast.storageFull"),"warn");return false}}
+
+/* ============ TOASTS / XP ============ */
+function toast(msg,type){const root=document.getElementById("toastRoot");const el=document.createElement("div");
+ el.className="pointer-events-auto px-4 py-3 rounded-2xl text-sm font-semibold shadow-lg border backdrop-blur-xl transition-all duration-300 "+(type==="warn"?"bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-950 dark:border-amber-800 dark:text-amber-100":"bg-[var(--card)] border-[var(--border)] text-[var(--text)]");
+ el.textContent=msg;root.appendChild(el);
+ setTimeout(()=>{el.style.opacity="0";el.style.transform="translateY(10px)";setTimeout(()=>el.remove(),320)},3000)}
+function showXPToast(text){const root=document.getElementById("xpRoot");const el=document.createElement("div");el.className="xp-toast";el.textContent=text;
+ el.style.left=(48+(Math.random()*16-8))+"%";el.style.top=(58+(Math.random()*12))+"%";root.appendChild(el);setTimeout(()=>el.remove(),1250)}
+function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
+ const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
+ if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,8)],n:nl}))}
+ saveState();renderGamification();checkBadges()}
+
+/* ============ STREAK ============ */
+function checkStreak(){const today=todayISO();const g=state.gamification;const hist=g.streakHistory||{};
+ if(!g.lastActive){g.streak=1;g.lastActive=today;hist[today]=true}
+ else if(g.lastActive===today){hist[today]=true}
+ else{const diff=Math.abs(daysDiff(today,g.lastActive));
+  if(diff===1){g.streak+=1;g.lastActive=today;hist[today]=true;addXP(5)}
+  else if(diff>1){g.streak=1;g.lastActive=today;hist[today]=true;toast(t("toast.streakReset"),"warn")}}
+ const cleaned={};for(let i=0;i<45;i++){const iso=isoOffset(-i);if(hist[iso])cleaned[iso]=true}
+ g.streakHistory=cleaned;saveState()}
+
+/* ============ THEME & LANG ============ */
+const THEME_COLORS={
+ default:{primary:"#6366f1",accent:"#10b981",group:"n"},
+ ocean:{primary:"#0ea5e9",accent:"#22d3ee",group:"b"},
+ volt:{primary:"#16a34a",accent:"#22d3ee",group:"b"},
+ cyber:{primary:"#7c3aed",accent:"#06b6d4",group:"b"},
+ fire:{primary:"#ef4444",accent:"#f59e0b",group:"b"},
+ rose:{primary:"#ec4899",accent:"#f43f5e",group:"g"},
+ lavender:{primary:"#a855f7",accent:"#6366f1",group:"g"},
+ sunset:{primary:"#fb923c",accent:"#fbbf24",group:"g"},
+ mint:{primary:"#14b8a6",accent:"#f472b6",group:"g"}
+};
+const THEME_NAMES={
+ default:{en:"Classic",ar:"كلاسيكي"},
+ ocean:{en:"Ocean",ar:"محيط"},
+ volt:{en:"Volt",ar:"فولت"},
+ cyber:{en:"Cyber",ar:"سايبر"},
+ fire:{en:"Fire",ar:"نار"},
+ rose:{en:"Rose",ar:"وردي"},
+ lavender:{en:"Lavender",ar:"لافندر"},
+ sunset:{en:"Sunset",ar:"غروب"},
+ mint:{en:"Mint",ar:"نعناع"}
+};
+function applyTheme(th){document.getElementById("htmlRoot").classList.toggle("dark",th==="dark");
+ const icon=th==="dark"?"☀️":"🌙",label=th==="dark"?t("theme.light"):t("theme.dark");
+ if(document.getElementById("themeIcon")){document.getElementById("themeIcon").textContent=icon;document.getElementById("themeLabel").textContent=label}
+ if(document.getElementById("themeIcon2")){document.getElementById("themeIcon2").textContent=icon;document.getElementById("themeLabel2").textContent=label}
+ state.settings.theme=th;saveState()}
+function toggleTheme(){applyTheme(state.settings.theme==="dark"?"light":"dark")}
+function applyThemeColor(name){document.getElementById("htmlRoot").setAttribute("data-theme",name);
+ state.settings.themeName=name;saveState();renderThemeGrid()}
+function renderThemeGrid(){const grid=document.getElementById("themeGrid");if(!grid)return;grid.innerHTML="";
+ const groups=[["n",t("theme.groupClassic")],["b",t("theme.groupBoys")],["g",t("theme.groupGirls")]];
+ groups.forEach(([gid,label])=>{
+  const keys=Object.keys(THEME_COLORS).filter(k=>THEME_COLORS[k].group===gid);
+  if(!keys.length)return;
+  const hdr=document.createElement("div");hdr.className="col-span-2 sm:col-span-3 text-[10px] font-black uppercase tracking-widest text-[var(--text-faint)] mt-2 first:mt-0";hdr.textContent=label;grid.appendChild(hdr);
+  keys.forEach(k=>{const c=THEME_COLORS[k];const active=(state.settings.themeName||"default")===k;
+   const d=document.createElement("button");
+   d.className="theme-card "+(active?"theme-active ":"")+"flex items-center gap-2.5 p-3 rounded-2xl bg-[var(--card)] border-2 overflow-hidden w-full text-left "+(active?"":"border-[var(--border)]");
+   d.innerHTML='<div class="theme-swatch" style="background:linear-gradient(135deg,'+c.primary+','+c.accent+')"></div><div class="min-w-0 flex-1 rtl:text-right"><div class="font-bold text-sm leading-snug break-words">'+THEME_NAMES[k][LANG]+'</div>'+(active?'<div class="text-[10px] font-bold text-[var(--primary)] whitespace-nowrap">'+t("theme.active")+'</div>':'')+'</div>';
+   d.onclick=()=>{applyThemeColor(k);toast(t("toast.themeChanged",{name:THEME_NAMES[k][LANG]}))};
+   grid.appendChild(d)})
+ })}
+function applyStaticI18n(){
+ document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.getAttribute("data-i18n"))});
+ document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i18n-ph"))});
+ document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
+function applyLang(lang){
+ LANG=lang;state.settings.lang=lang;saveState();
+ const root=document.getElementById("htmlRoot");
+ root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
+ document.body.classList.toggle("lang-ar",lang==="ar");
+ document.body.classList.toggle("lang-en",lang!=="ar");
+ const other=lang==="ar"?"English":"العربية";
+ ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
+ const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
+ applyStaticI18n();applyTheme(state.settings.theme);
+ renderNav();renderStreamGrid();if(onbVisible())updateOnb();
+ renderAllViews()}
+function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
+
+/* ============ NAV / VIEWS ============ */
+let currentView="dashboard";
+const NAV=[{id:"dashboard",icon:"🏠"},{id:"subjects",icon:"📚"},{id:"calculator",icon:"🧮"},{id:"tools",icon:"🛠️"},{id:"achievements",icon:"🏆"},{id:"settings",icon:"⚙️"}];
+function renderNav(){
+ const nav=document.getElementById("navList"),tabs=document.getElementById("mobTabList");
+ nav.innerHTML="";tabs.innerHTML="";
+ NAV.forEach(it=>{
+  const b=document.createElement("button");b.dataset.view=it.id;
+  b.className="navbtn w-full h-11 rounded-full px-4 flex items-center gap-3 text-sm font-semibold hover:bg-[var(--bg-soft)] text-start "+(currentView===it.id?"nav-active":"");
+  b.innerHTML='<span>'+it.icon+'</span><span>'+t("nav."+it.id)+'</span>';b.onclick=()=>switchView(it.id);
+  nav.appendChild(b);
+  const active=currentView===it.id;
+  const tb=document.createElement("button");tb.dataset.view=it.id;
+  tb.className="tabbtn flex flex-col items-center justify-center gap-0.5 py-2.5 "+(active?"tab-active":"text-[var(--text-faint)]");
+  tb.innerHTML='<span class="text-[19px] leading-none">'+it.icon+'</span><span class="text-[10px] font-bold leading-none mt-1 truncate max-w-[64px]">'+t("nav."+it.id)+'</span><span class="tabdot w-1 h-1 rounded-full bg-[var(--primary)] mt-0.5 '+(active?"opacity-100":"opacity-0")+'"></span>';
+  tb.onclick=()=>switchView(it.id);
+  tabs.appendChild(tb)})}
+function switchView(id){currentView=id;
+ document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+ const el=document.getElementById("view-"+id);if(el)el.classList.add("active");
+ renderNav();
+ window.scrollTo({top:0,behavior:"smooth"});
+ checkStreak();renderGamification();
+ if(id==="dashboard")renderDashboard();
+ if(id==="subjects")renderSubjects();
+ if(id==="calculator")renderCalculator();
+ if(id==="tools")renderTools();
+ if(id==="achievements")renderBadges();
+ if(id==="settings")renderSettings()}
+function toggleMobileNav(){document.getElementById("mobileNav").classList.toggle("open")}
+function renderAllViews(){renderGamification();renderDashboard();renderSubjects();renderCalculator();renderTools();renderBadges();renderSettings()}
+
+/* ============ GAMIFICATION UI ============ */
+function renderGamification(){
+ const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,8)];
+ document.getElementById("streakNum").textContent=g.streak;
+ document.getElementById("levelNum").textContent=lvl;
+ document.getElementById("levelTitle").textContent=title;
+ document.getElementById("xpTotal").textContent=g.xp+" XP";
+ document.getElementById("xpNext").textContent=t("xp.next",{n:150-(g.xp%150)});
+ document.getElementById("xpBar").style.width=((g.xp%150)/150*100)+"%";
+ document.getElementById("streakBar").style.width=Math.min(g.streak/7*100,100)+"%";
+ document.getElementById("sideProfile").innerHTML=
+  '<div class="w-9 h-9 rounded-full bg-[var(--text)] text-[var(--bg)] flex items-center justify-center font-black shrink-0">'+esc((state.profile.name||"A")[0].toUpperCase())+'</div>'+
+  '<div class="flex-1 min-w-0"><div class="font-bold text-sm truncate">'+esc(state.profile.name||"Student")+'</div><div class="text-[11px] text-[var(--text-muted)] truncate">'+esc(streamName(state.profile.streamId))+' • '+t("dash.level")+' '+lvl+'</div></div>';
+ let mini="";for(let i=6;i>=0;i--){const a=!!g.streakHistory[isoOffset(-i)];mini+='<div class="flex-1 h-1.5 rounded-full '+(a?'bg-[var(--primary)]':'bg-[var(--border)]')+'"></div>'}
+ document.getElementById("sideStreak").innerHTML='<div class="flex justify-between items-center gap-2"><span class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]">'+t("dash.streak")+'</span><span class="text-sm font-black">🔥 '+g.streak+'</span></div><div class="mt-2 flex gap-1">'+mini+'</div>';
+ document.getElementById("mobStreak").textContent="🔥 "+g.streak;
+ const s7=document.getElementById("streak7");s7.innerHTML="";
+ for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const iso=isoOffset(-i);const a=!!g.streakHistory[iso];
+  const dot=document.createElement("div");
+  dot.className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold border transition-all "+(a?"bg-[var(--text)] text-[var(--bg)] border-[var(--text)]":"bg-[var(--bg-soft)] border-[var(--border)] text-[var(--text-faint)]");
+  dot.textContent=a?"✓":d.getDate();s7.appendChild(dot)}
+ const loc=LANG==="ar"?"ar-DZ":"en-US";
+ const d1=new Date();d1.setDate(d1.getDate()-6);
+ document.getElementById("wk1").textContent=d1.toLocaleDateString(loc,{weekday:"short"});
+ document.getElementById("wk2").textContent=new Date().toLocaleDateString(loc,{weekday:"short"});
+ document.getElementById("streakRisk").classList.toggle("hidden",!!g.streakHistory[todayISO()]);
+ document.getElementById("achLevel").textContent=lvl;
+ document.getElementById("achTitle").textContent=title;
+ document.getElementById("achXP").textContent=t("ach.xpTotal",{n:g.xp});
+ document.getElementById("achBar").style.width=((g.xp%150)/150*100)+"%"}
+function checkBadges(){let changed=false;
+ BADGES.forEach(b=>{if(!state.gamification.badges.includes(b.id)&&b.check(state)){state.gamification.badges.push(b.id);changed=true;
+  toast(t("toast.badge",{t:b[LANG][0],i:b.icon}));launchConfetti();state.gamification.xp+=30}});
+ if(changed){saveState();renderBadges();renderGamification()}}
+
+/* ============ DASHBOARD ============ */
+let quoteIdx=Math.floor(Math.random()*QUOTES.length);
+function renderDashboard(){
+ const avg=calcAverage(state);const h=new Date().getHours();
+ const greet=h<12?t("greet.morning"):h<18?t("greet.afternoon"):t("greet.evening");
+ document.getElementById("greetTitle").textContent=greet+(state.profile.name?", "+state.profile.name:"");
+ const dueCards=state.flashcards.filter(f=>new Date(f.dueDate)<=new Date()).length;
+ const openTasks=state.tasks.filter(t2=>!t2.completed).length;
+ document.getElementById("greetSub").textContent=t("dash.sub",{t:openTasks,c:dueCards,avg:avg?avg+"/20":"--"});
+ document.getElementById("todayAvg").textContent=avg||"--";
+ document.getElementById("todayFocus").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
+ document.getElementById("todayTasks").textContent=state.tasks.filter(x=>x.completed).length+"/"+state.tasks.length;
+ renderQuote();
+ const qs=document.getElementById("quickSubjects");qs.innerHTML="";
+ const st=STREAMS[state.profile.streamId];
+ (st?st.subjects.filter(s=>!s.optional).sort((a,b)=>b.coeff-a.coeff).slice(0,4):[]).forEach(sub=>{
+  const g=state.grades[sub.code];const d=document.createElement("div");
+  d.className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]";
+  d.innerHTML='<div class="flex items-center gap-2 min-w-0"><span class="w-7 h-7 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-[11px] font-black">'+sub.coeff+'</span><span class="text-sm font-semibold truncate">'+esc(SN(sub.code))+'</span></div><span class="text-sm font-black '+(g!=null?'':'text-[var(--text-faint)]')+'">'+(g!=null?g+"/20":"--")+'</span>';
+  qs.appendChild(d)});
+ const moodRoot=document.getElementById("dashMood");moodRoot.innerHTML="";
+ [1,2,3,4,5].forEach(m=>{const b=document.createElement("button");
+  b.className="w-10 h-10 rounded-full border border-[var(--border)] bg-[var(--bg-soft)] text-[18px] flex items-center justify-center hover:scale-110 transition";
+  b.textContent=MOOD_EMOJI[m-1];b.onclick=()=>saveMood(m);moodRoot.appendChild(b)});
+ const todayMood=state.moods.find(x=>x.date===todayISO());
+ document.getElementById("moodNote").textContent=todayMood?t("well.today",{m:t("mood."+todayMood.mood),e:todayMood.energy}):t("dash.howFeel");
+ const dt=document.getElementById("dashTasks");dt.innerHTML="";
+ const open=state.tasks.filter(x=>!x.completed).slice(0,4);
+ if(!open.length)dt.innerHTML='<div class="text-sm text-[var(--text-muted)] p-3">'+t("dash.allDone")+'</div>';
+ open.forEach(task=>{const r=document.createElement("div");
+  r.className="flex items-center gap-3 p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]";
+  r.innerHTML='<button onclick="toggleTask(\''+task.id+'\')" class="w-6 h-6 shrink-0 rounded-full border-2 border-[var(--border-strong)] hover:border-[var(--primary)]"></button><div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate">'+esc(task.title)+'</div><div class="text-[11px] text-[var(--text-muted)]">'+esc(SN(task.subject))+' • '+t("pri."+task.priority)+'</div></div>';
+  dt.appendChild(r)});
+ const de=document.getElementById("dashErrors");de.innerHTML="";
+ if(!state.errors.length)de.innerHTML='<div class="text-sm text-[var(--text-muted)] p-3">'+t("dash.noErrors")+'</div>';
+ state.errors.slice(0,3).forEach(e=>{const d=document.createElement("div");
+  d.className="p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]";
+  d.innerHTML='<div class="flex justify-between gap-2"><span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--card)] border border-[var(--border)]">'+esc(SN(e.subject))+'</span><span class="text-[11px] text-[var(--text-faint)]">'+t(e.status==="resolved"?"err.resolved":"err.open")+'</span></div><div class="text-sm font-semibold mt-2">'+esc(e.topic)+'</div><div class="text-xs text-[var(--text-muted)] truncate">'+esc(e.description)+'</div>';
+  de.appendChild(d)})}
+function renderQuote(){const q=QUOTES[quoteIdx][LANG];
+ document.getElementById("quoteText").textContent=q[0];
+ document.getElementById("quoteAuthor").textContent="— "+q[1]}
+function newQuote(){quoteIdx=(quoteIdx+1+Math.floor(Math.random()*3))%QUOTES.length;renderQuote()}
+
+/* ============ SUBJECTS ============ */
+function renderSubjects(){const st=STREAMS[state.profile.streamId];if(!st)return;
+ document.getElementById("subjCount").textContent=t("subj.count",{n:st.subjects.length});
+ const grid=document.getElementById("subjectsGrid");grid.innerHTML="";
+ st.subjects.forEach(sub=>{const g=state.grades[sub.code];
+  const card=document.createElement("div");
+  card.className="col-span-12 md:col-span-6 xl:col-span-4 card rounded-[22px] p-5 lift";
+  const badgeCls=g!=null?(g>=10?"bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-900":"bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900"):"bg-[var(--bg-soft)] border border-[var(--border)] text-[var(--text-faint)]";
+  card.innerHTML=
+  '<div class="flex justify-between items-start gap-2">'+
+   '<div class="flex gap-3 min-w-0"><div class="w-10 h-10 shrink-0 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] flex items-center justify-center font-black text-sm">'+sub.coeff+'</div>'+
+   '<div class="min-w-0"><div class="font-bold leading-tight truncate">'+esc(SN(sub.code))+'</div><div class="text-[10px] text-[var(--text-muted)] uppercase tracking-widest font-bold mt-0.5">'+t("subj.coeff")+' '+sub.coeff+' '+(sub.optional?t("subj.optional"):"")+'</div></div></div>'+
+   '<span class="text-[11px] font-bold px-2 py-1 rounded-full shrink-0 '+badgeCls+'">'+(g!=null?g+"/20":t("subj.noGrade"))+'</span></div>'+
+  '<div class="mt-4"><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]">'+t("subj.gradeLabel")+'</label>'+
+   '<div class="mt-1.5 flex gap-2"><input data-sub="'+sub.code+'" value="'+(g!=null?g:"")+'" placeholder="--" type="number" min="0" max="20" step="0.25" class="grade-input flex-1 h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-4 font-bold outline-none focus:border-[var(--primary)]">'+
+   '<button onclick="clearGrade(\''+sub.code+'\')" class="h-11 w-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)]">✕</button></div>'+
+   '<div class="mt-2 h-1.5 w-full bg-[var(--bg-soft)] rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-[var(--primary)] to-[var(--accent)] transition-all" style="width:'+(g!=null?Math.min(g/20*100,100):0)+'%"></div></div>'+
+   '<div class="mt-2 text-[11px] text-[var(--text-muted)]">'+t("subj.contributes",{n:(g!=null?(g*sub.coeff).toFixed(1):"0")})+'</div></div>';
+  grid.appendChild(card)});
+ grid.querySelectorAll(".grade-input").forEach(inp=>{
+  inp.addEventListener("input",e=>{
+   const code=e.target.dataset.sub,v=e.target.value;
+   if(v===""){delete state.grades[code];saveState();renderDashboard();renderCalculator();return}
+   let c=clampGrade(v);
+   if(parseFloat(v)>20){e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);e.target.value=20;c=20;toast(t("toast.gradeCap"),"warn")}
+   if(parseFloat(v)<0){e.target.value=0;c=0}
+   state.grades[code]=c;saveState();renderDashboard();renderCalculator();
+   if(c===20)checkBadges()})})}
+function clearGrade(c){delete state.grades[c];saveState();renderSubjects();renderDashboard();renderCalculator()}
+function resetGrades(){if(confirm(t("confirm.resetGrades"))){state.grades={};saveState();renderSubjects();renderDashboard();renderCalculator();toast(t("toast.gradesReset"))}}
+
+/* ============ CALCULATOR ============ */
+function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)return;
+ const am=document.getElementById("calcAmazigh"),ep=document.getElementById("calcEPS");
+ am.checked=!state.settings.amazighExempt;ep.checked=!state.settings.epsExempt;
+ am.onchange=e=>{state.settings.amazighExempt=!e.target.checked;saveState();renderCalculator();renderDashboard()};
+ ep.onchange=e=>{state.settings.epsExempt=!e.target.checked;saveState();renderCalculator();renderDashboard()};
+ const body=document.getElementById("calcBody");body.innerHTML="";
+ let tc=0,tw=0;
+ st.subjects.forEach(sub=>{
+  if(sub.code==='amazigh'&&state.settings.amazighExempt)return;
+  if(sub.code==='sport'&&state.settings.epsExempt)return;
+  const g=state.grades[sub.code],w=g!=null?g*sub.coeff:0;
+  if(g!=null){tc+=sub.coeff;tw+=w}
+  const tr=document.createElement("tr");tr.className="border-b border-[var(--border)] last:border-0";
+  tr.innerHTML='<td class="p-3"><div class="font-semibold">'+esc(SN(sub.code))+'</div></td>'+
+   '<td class="p-3"><span class="inline-flex w-7 h-7 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] items-center justify-center font-black text-xs">'+sub.coeff+'</span></td>'+
+   '<td class="p-3"><input data-calc="'+sub.code+'" type="number" min="0" max="20" step="0.25" value="'+(g!=null?g:"")+'" placeholder="--" class="calc-input w-[92px] h-9 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold outline-none focus:border-[var(--primary)]"></td>'+
+   '<td class="p-3 font-bold">'+(g!=null?w.toFixed(1):"--")+'</td>';
+  body.appendChild(tr)});
+ const avg=tc?+(tw/tc).toFixed(2):0;
+ document.getElementById("calcAvg").textContent=avg||"--";
+ document.getElementById("calcTCoeff").textContent=tc||"--";
+ document.getElementById("calcTWeight").textContent=tc?tw.toFixed(1):"--";
+ document.getElementById("calcMention").textContent=avg?mentionFromAvg(avg):"--";
+ const ti=document.getElementById("calcTarget"),tl=document.getElementById("calcTargetLabel");
+ ti.value=state.profile.targetAvg;tl.textContent=(+state.profile.targetAvg).toFixed(1);
+ ti.oninput=e=>{state.profile.targetAvg=parseFloat(e.target.value);tl.textContent=(+e.target.value).toFixed(1);saveState();updateScenario(avg,tc,tw)};
+ updateScenario(avg,tc,tw);
+ const ml=document.getElementById("majorList");ml.innerHTML="";
+ MAJORS.filter(m=>m.stream.includes(state.profile.streamId)).sort((a,b)=>b.min-a.min).forEach(m=>{
+  const ok=avg>=m.min;const d=document.createElement("div");
+  d.className="flex justify-between items-center gap-2 p-3 rounded-xl border "+(ok?"bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-100":"bg-[var(--bg-soft)] border-[var(--border)]");
+  d.innerHTML='<div><div class="font-bold text-sm">'+esc(majorName(m))+'</div><div class="text-[11px] opacity-70">'+t("calc.min",{n:m.min})+'</div></div><div class="text-xs font-black shrink-0">'+(ok?t("calc.eligible"):t("calc.needed",{n:(m.min-avg).toFixed(1)}))+'</div>';
+  ml.appendChild(d)});
+ body.querySelectorAll(".calc-input").forEach(inp=>{
+  inp.addEventListener("input",e=>{const code=e.target.dataset.calc,v=e.target.value;
+   if(v===""){delete state.grades[code];saveState();renderCalculator();renderDashboard();return}
+   let c=clampGrade(v);
+   if(parseFloat(v)>20){e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);c=20;toast(t("toast.gradeCap"),"warn")}
+   state.grades[code]=c;saveState();
+   const focus=code;renderCalculator();renderDashboard();
+   const nx=document.querySelector('[data-calc="'+focus+'"]');if(nx){nx.focus();nx.setSelectionRange(nx.value.length,nx.value.length)}})})}
+function updateScenario(cur,tc,tw){
+ const target=+state.profile.targetAvg,st=STREAMS[state.profile.streamId];let rem=0;
+ st.subjects.forEach(sub=>{if(sub.code==='amazigh'&&state.settings.amazighExempt)return;if(sub.code==='sport'&&state.settings.epsExempt)return;if(state.grades[sub.code]==null)rem+=sub.coeff});
+ const box=document.getElementById("calcScenario");
+ if(!tc&&!rem){box.innerHTML=t("sc.empty");return}
+ if(!rem){box.innerHTML=t("sc.all",{avg:cur,target:target.toFixed(1),res:cur>=target?t("sc.reached"):t("sc.notReached")});return}
+ if(!tc){box.innerHTML=t("sc.normal",{target:target.toFixed(1),need:target.toFixed(2),coeff:rem});return}
+ const need=(target*(tc+rem)-tw)/rem;
+ if(need>20)box.innerHTML=t("sc.impossible",{target:target.toFixed(1),need:need.toFixed(2)});
+ else if(need<0)box.innerHTML=t("sc.exceed",{avg:cur});
+ else box.innerHTML=t("sc.normal",{target:target.toFixed(1),need:need.toFixed(2),coeff:rem})}
+
+/* ============ TOOLS ============ */
+let currentTool="pomodoro";
+function setTool(x){currentTool=x;renderTools()}
+function renderTools(){
+ document.querySelectorAll(".tool-tab").forEach(b=>{
+  const on=b.dataset.tool===currentTool;
+  b.classList.toggle("chip-active",on);
+  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()}});
+ document.querySelectorAll(".tool-view").forEach(v=>v.classList.add("hidden"));
+ const cur=document.getElementById("tool-"+currentTool);cur.classList.remove("hidden");cur.classList.add("fade-in-up");
+ fillSubjectSelects();
+ if(currentTool==="pomodoro")renderPomodoro();
+ if(currentTool==="flashcards")renderFlashcards();
+ if(currentTool==="planner")renderPlanner();
+ if(currentTool==="papers")renderPapers();
+ if(currentTool==="errors")renderErrors();
+ if(currentTool==="wellness")renderWellness()}
+function fillSubjectSelects(){
+ const st=STREAMS[state.profile.streamId];if(!st)return;
+ const opts=st.subjects.map(s=>'<option value="'+s.code+'">'+esc(SN(s.code))+'</option>').join("");
+ ["fcSubject","taskSubject","paperSubject","errSubject"].forEach(id=>{const el=document.getElementById(id);if(!el)return;const v=el.value;el.innerHTML=opts;if(v)el.value=v});
+ const ps=document.getElementById("paperStatus");if(ps){const v=ps.value;ps.querySelectorAll("option").forEach(o=>{o.textContent=t("st."+o.value)});ps.value=v}
+ const pr=document.getElementById("taskPriority");if(pr){const v=pr.value;pr.querySelectorAll("option").forEach(o=>{o.textContent=t("pri."+o.value)});pr.value=v}}
+
+/* --- Pomodoro --- */
+let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
+function renderPomodoro(){
+ const sel=document.getElementById("pomoTaskSelect");
+ sel.innerHTML='<option value="">'+t("pomo.noTask")+'</option>'+state.tasks.filter(x=>!x.completed).map(x=>'<option value="'+x.id+'">'+esc(x.title)+'</option>').join("");
+ document.getElementById("pomoCount").textContent=state.pomodoro.sessionsCompleted;
+ document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
+ document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
+ document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
+ updatePomoDisplay()}
+function setPomodoroMode(m){
+ if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false}
+ pomoMode=m;const f=document.getElementById("pomoFocusBtn"),b=document.getElementById("pomoBreakBtn");
+ if(m==="focus"){f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60}
+ else{b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60}
+ document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
+ document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
+ updatePomoDisplay()}
+function updatePomoDisplay(){
+ const mm=String(Math.floor(Math.max(pomoTimeLeft,0)/60)).padStart(2,"0"),ss=String(Math.max(pomoTimeLeft,0)%60).padStart(2,"0");
+ document.getElementById("pomoTime").textContent=mm+":"+ss;
+ const total=(pomoMode==="focus"?(parseInt(document.getElementById("pomoFocusLen").value)||25):(parseInt(document.getElementById("pomoBreakLen").value)||5))*60;
+ const prog=Math.min(Math.max(1-pomoTimeLeft/total,0),1),circ=2*Math.PI*110;
+ const ring=document.getElementById("pomoRing");
+ ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
+ ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)")}
+function togglePomodoro(){
+ if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;document.getElementById("pomoStart").textContent=t("pomo.resume");return}
+ pomoRunning=true;document.getElementById("pomoStart").textContent=t("pomo.pause");
+ pomoInterval=setInterval(()=>{pomoTimeLeft--;updatePomoDisplay();
+  if(pomoTimeLeft<=0){clearInterval(pomoInterval);pomoRunning=false;
+   if(pomoMode==="focus"){state.pomodoro.sessionsCompleted++;state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
+    saveState();addXP(25);toast(t("toast.focusDone"));setPomodoroMode("break");renderPomodoro();renderDashboard()}
+   else{toast(t("toast.breakDone"));setPomodoroMode("focus")}}},1000)}
+function resetPomodoro(){clearInterval(pomoInterval);pomoRunning=false;setPomodoroMode(pomoMode)}
+
+/* --- Flashcards --- */
+let fcQueue=[],fcIndex=0,fcFlipped=false;
+function renderFlashcards(){
+ const list=document.getElementById("fcList");list.innerHTML="";
+ if(!state.flashcards.length)list.innerHTML='<div class="text-sm text-[var(--text-muted)] p-2">'+t("fc.none")+'</div>';
+ state.flashcards.forEach(f=>{const due=new Date(f.dueDate)<=new Date();
+  const r=document.createElement("div");
+  r.className="p-3 rounded-xl border flex justify-between items-start gap-2 "+(due?"bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900":"bg-[var(--bg-soft)] border-[var(--border)]");
+  r.innerHTML='<div class="flex-1 min-w-0"><div class="font-semibold text-sm">'+esc(f.front)+'</div><div class="text-xs text-[var(--text-muted)] mt-1">'+esc(f.back)+'</div><div class="text-[11px] mt-2 flex gap-2 items-center flex-wrap"><span class="px-2 py-0.5 rounded-full bg-[var(--card)] border border-[var(--border)]">'+esc(SN(f.subject))+'</span><span class="text-[var(--text-faint)]">'+(f.reviews||0)+' '+t("common.reviews")+'</span></div></div><button onclick="deleteFlash(\''+f.id+'\')" class="w-7 h-7 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)]">✕</button>';
+  list.appendChild(r)});
+ document.getElementById("fcDue").textContent=t("fc.due",{n:state.flashcards.filter(f=>new Date(f.dueDate)<=new Date()).length})}
+function addFlashcard(){
+ const fr=document.getElementById("fcFront").value.trim(),bk=document.getElementById("fcBack").value.trim(),sj=document.getElementById("fcSubject").value;
+ if(!fr||!bk)return toast(t("toast.fillCard"),"warn");
+ state.flashcards.push({id:"f"+Date.now(),front:fr,back:bk,subject:sj,interval:0,dueDate:todayISO(),ease:2.5,reviews:0});
+ document.getElementById("fcFront").value="";document.getElementById("fcBack").value="";
+ saveState();renderFlashcards();addXP(5);renderDashboard()}
+function deleteFlash(id){state.flashcards=state.flashcards.filter(f=>f.id!==id);saveState();renderFlashcards();renderDashboard()}
+function startFlashStudy(){
+ fcQueue=state.flashcards.filter(f=>new Date(f.dueDate)<=new Date());
+ if(!fcQueue.length)fcQueue=state.flashcards.slice();
+ if(!fcQueue.length)return toast(t("toast.noCards"),"warn");
+ fcIndex=0;document.getElementById("fcEmpty").classList.add("hidden");
+ const s=document.getElementById("fcStudy");s.classList.remove("hidden");s.classList.add("flex");
+ showFlash()}
+function showFlash(){const f=fcQueue[fcIndex];if(!f){exitFlashStudy();return}
+ document.getElementById("fcProgress").textContent=(fcIndex+1)+" / "+fcQueue.length;
+ document.getElementById("fcQ").textContent=f.front;
+ document.getElementById("fcA").textContent=f.back;
+ document.getElementById("fcA").classList.add("hidden");
+ document.getElementById("fcHint").classList.remove("hidden");
+ document.getElementById("fcActions").classList.add("hidden");
+ fcFlipped=false}
+function flipFlashcard(){if(fcFlipped)return;fcFlipped=true;
+ document.getElementById("fcA").classList.remove("hidden");
+ document.getElementById("fcHint").classList.add("hidden");
+ document.getElementById("fcActions").classList.remove("hidden")}
+function rateFlash(r){const f=fcQueue[fcIndex];if(!f)return;
+ let ease=f.ease||2.5,iv=f.interval||0;
+ if(r==="again"){iv=0;ease=Math.max(1.3,ease-0.2)}
+ else if(r==="hard"){iv=Math.max(1,Math.round(iv*1.2));ease=Math.max(1.3,ease-0.15)}
+ else if(r==="good"){iv=iv===0?1:Math.round(iv*ease)}
+ else{iv=iv===0?3:Math.round(iv*ease*1.3);ease+=0.1}
+ f.ease=ease;f.interval=iv;f.reviews=(f.reviews||0)+1;f.dueDate=isoOffset(iv);
+ const i=state.flashcards.findIndex(x=>x.id===f.id);if(i>=0)state.flashcards[i]=f;
+ saveState();addXP(5);fcIndex++;
+ if(fcIndex>=fcQueue.length){toast(t("toast.sessionDone"));exitFlashStudy()}else showFlash();
+ renderFlashcards()}
+function exitFlashStudy(){document.getElementById("fcEmpty").classList.remove("hidden");
+ const s=document.getElementById("fcStudy");s.classList.add("hidden");s.classList.remove("flex")}
+
+/* --- Planner --- */
+let plannerFilter="all";
+function renderPlanner(){
+ document.querySelectorAll(".pl-filter").forEach(b=>b.classList.toggle("chip-active",b.dataset.f===plannerFilter));
+ const list=document.getElementById("plannerList");list.innerHTML="";
+ let tasks=state.tasks.slice();
+ if(plannerFilter==="today")tasks=tasks.filter(x=>x.dueDate===todayISO());
+ if(plannerFilter==="week"){const a=todayISO(),b=isoOffset(7);tasks=tasks.filter(x=>x.dueDate>=a&&x.dueDate<=b)}
+ tasks.sort((a,b)=>(a.completed?1:0)-(b.completed?1:0));
+ if(!tasks.length)list.innerHTML='<div class="text-sm text-[var(--text-muted)] p-3">'+t("plan.empty")+'</div>';
+ tasks.forEach(x=>{const r=document.createElement("div");
+  r.className="flex items-center gap-3 p-3 rounded-xl border "+(x.completed?"bg-[var(--bg-soft)] border-[var(--border)] opacity-60":"bg-[var(--card)] border-[var(--border)]");
+  const priCls=x.priority==="high"?"bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/50 dark:text-red-200 dark:border-red-900":x.priority==="med"?"bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900":"bg-[var(--bg-soft)] border border-[var(--border)]";
+  r.innerHTML='<button onclick="toggleTask(\''+x.id+'\')" class="w-7 h-7 shrink-0 rounded-full border-2 flex items-center justify-center '+(x.completed?"bg-[var(--text)] text-[var(--bg)] border-[var(--text)]":"border-[var(--border-strong)]")+'">'+(x.completed?"✓":"")+'</button>'+
+   '<div class="flex-1 min-w-0"><div class="text-sm font-semibold truncate '+(x.completed?"line-through":"")+'">'+esc(x.title)+'</div>'+
+   '<div class="flex gap-2 mt-1 flex-wrap"><span class="text-[11px] px-2 py-0.5 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">'+esc(SN(x.subject))+'</span>'+
+   '<span class="text-[11px] px-2 py-0.5 rounded-full '+priCls+'">'+t("pri."+x.priority)+'</span>'+
+   '<span class="text-[11px] text-[var(--text-faint)]">'+x.dueDate+'</span></div></div>'+
+   '<button onclick="deleteTask(\''+x.id+'\')" class="w-8 h-8 shrink-0 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">✕</button>';
+  list.appendChild(r)});
+ const week=document.getElementById("weekView");week.innerHTML="";
+ const loc=LANG==="ar"?"ar-DZ":"en-US";
+ for(let i=0;i<7;i++){const d=new Date();d.setDate(d.getDate()+i);const iso=isoOffset(i);
+  const dayTasks=state.tasks.filter(x=>x.dueDate===iso);
+  const div=document.createElement("div");div.className="flex gap-3";
+  div.innerHTML='<div class="w-12 shrink-0 text-[11px] font-bold uppercase tracking-widest text-[var(--text-faint)]">'+d.toLocaleDateString(loc,{weekday:"short"})+'<br><span class="text-[14px] font-black text-[var(--text)]">'+d.getDate()+'</span></div>'+
+   '<div class="flex-1 space-y-1 min-w-0">'+(dayTasks.length?dayTasks.map(x=>'<div class="text-xs p-2 rounded-lg truncate '+(x.completed?"bg-[var(--bg-soft)] line-through opacity-60":"bg-[var(--bg-soft)] border border-[var(--border)]")+'">'+esc(x.title)+'</div>').join(""):'<div class="text-[11px] text-[var(--text-faint)]">'+t("plan.noTasks")+'</div>')+'</div>';
+  week.appendChild(div)}
+ renderPomodoro()}
+function setPlannerFilter(f){plannerFilter=f;renderPlanner()}
+function addTask(){const ti=document.getElementById("taskTitle"),v=ti.value.trim();
+ if(!v)return toast(t("toast.taskTitle"),"warn");
+ state.tasks.unshift({id:"t"+Date.now(),title:v,subject:document.getElementById("taskSubject").value,priority:document.getElementById("taskPriority").value,dueDate:todayISO(),completed:false});
+ ti.value="";saveState();renderPlanner();renderDashboard();addXP(3)}
+function toggleTask(id){const x=state.tasks.find(k=>k.id===id);if(!x)return;
+ x.completed=!x.completed;saveState();
+ if(x.completed){
+  addXP(10);
+  // Launch confetti every 5 completed tasks as a milestone celebration
+  const doneCount=state.tasks.filter(t=>t.completed).length;
+  if(doneCount>0&&doneCount%5===0)launchConfetti();
+ }else{renderGamification();checkBadges()}
+ renderPlanner();renderDashboard()}
+function deleteTask(id){state.tasks=state.tasks.filter(x=>x.id!==id);saveState();renderPlanner();renderDashboard()}
+
+/* --- Papers --- */
+let paperFileData=null,paperFileType=null,paperFileName=null;
+function onPaperFileChange(e){
+ const f=e.target.files[0];if(!f)return;
+ if(f.size>4*1024*1024){toast(t("toast.fileTooBig"),"warn");e.target.value="";return}
+ const isPdf=f.type==="application/pdf",isImg=f.type.startsWith("image/");
+ if(!isPdf&&!isImg){toast(t("toast.fileType"),"warn");e.target.value="";return}
+ const reader=new FileReader();
+ reader.onload=ev=>{
+  paperFileData=ev.target.result;paperFileType=isPdf?"pdf":"image";paperFileName=f.name;
+  const prev=document.getElementById("paperFilePreview");
+  prev.innerHTML=isImg?'<img src="'+paperFileData+'" class="w-full h-full object-cover">':'<span>📄</span>';
+  document.getElementById("paperFileName").textContent=f.name;
+  document.getElementById("paperFilePreviewWrap").classList.remove("hidden");
+  document.getElementById("paperFilePreviewWrap").classList.add("flex");
+  document.getElementById("paperFileLabel").textContent=f.name};
+ reader.onerror=()=>toast(t("toast.fileType"),"warn");
+ reader.readAsDataURL(f)}
+function clearPaperFile(){paperFileData=null;paperFileType=null;paperFileName=null;
+ document.getElementById("paperFile").value="";
+ document.getElementById("paperFilePreviewWrap").classList.add("hidden");
+ document.getElementById("paperFilePreviewWrap").classList.remove("flex");
+ document.getElementById("paperFileLabel").textContent=t("pap.filePh")}
+function renderPapers(){const body=document.getElementById("papersBody");body.innerHTML="";
+ if(!state.papers.length)body.innerHTML='<tr><td colspan="6" class="py-4 text-sm text-[var(--text-muted)]">'+t("pap.empty")+'</td></tr>';
+ state.papers.forEach(p=>{const tr=document.createElement("tr");tr.className="paper-row border-b border-[var(--border)] last:border-0";
+  tr.onclick=(ev)=>{if(ev.target.closest("[data-nopop]"))return;openPaperDetails(p.id)};
+  const thumb=p.fileData?('<div class="w-11 h-11 rounded-lg overflow-hidden border border-[var(--border)] bg-[var(--bg-soft)] flex items-center justify-center text-lg" title="'+t("pap.viewFile")+'">'+(p.fileType==="image"?'<img src="'+p.fileData+'" class="w-full h-full object-cover">':'<span>📄</span>')+'</div>'):'<span class="text-[var(--text-faint)] text-xs">—</span>';
+  tr.innerHTML='<td class="py-3"><div class="font-semibold">'+esc(SN(p.subject))+'</div><div class="text-xs text-[var(--text-muted)] truncate max-w-[180px]">'+esc(p.title||"")+'</div></td><td class="py-3">'+esc(p.year)+'</td>'+
+   '<td class="py-3"><span class="text-[11px] px-2 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold">'+t("st."+p.status)+'</span></td>'+
+   '<td class="py-3">'+thumb+'</td>'+
+   '<td class="py-3 font-bold">'+(p.score!=null?p.score+"/20":"--")+'</td>'+
+   '<td class="py-3 text-end" data-nopop><button onclick="deletePaper(\''+p.id+'\')" class="w-7 h-7 rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">✕</button></td>';
+  body.appendChild(tr)})}
+/* ---- paper details popup + image zoom ---- */
+let pz={scale:1,x:0,y:0,dragging:false,sx:0,sy:0,ox:0,oy:0};
+function paperApplyZoom(){const img=document.getElementById("fileViewerImg");if(!img)return;
+ img.style.transform="translate("+pz.x+"px,"+pz.y+"px) scale("+pz.scale+")";
+ img.classList.toggle("zoomed",pz.scale>1);
+ const pct=document.getElementById("fileViewerZoomPct");if(pct)pct.textContent=Math.round(pz.scale*100)+"%"}
+function paperZoomIn(){pz.scale=Math.min(4,pz.scale+.4);paperApplyZoom()}
+function paperZoomOut(){pz.scale=Math.max(1,pz.scale-.4);if(pz.scale===1){pz.x=0;pz.y=0}paperApplyZoom()}
+function paperZoomReset(){pz={scale:1,x:0,y:0,dragging:false,sx:0,sy:0,ox:0,oy:0};paperApplyZoom()}
+function setupPaperImageZoom(img){
+ pz={scale:1,x:0,y:0,dragging:false,sx:0,sy:0,ox:0,oy:0};
+ img.addEventListener("wheel",e=>{e.preventDefault();pz.scale=Math.min(4,Math.max(1,pz.scale+(e.deltaY<0?.25:-.25)));if(pz.scale===1){pz.x=0;pz.y=0}paperApplyZoom()},{passive:false});
+ img.addEventListener("dblclick",()=>{if(pz.scale>1){paperZoomReset()}else{pz.scale=2;paperApplyZoom()}});
+ const start=(cx,cy)=>{if(pz.scale<=1)return;pz.dragging=true;pz.sx=cx;pz.sy=cy;pz.ox=pz.x;pz.oy=pz.y};
+ const move=(cx,cy)=>{if(!pz.dragging)return;pz.x=pz.ox+(cx-pz.sx);pz.y=pz.oy+(cy-pz.sy);paperApplyZoom()};
+ const end=()=>{pz.dragging=false};
+ img.addEventListener("mousedown",e=>{e.preventDefault();start(e.clientX,e.clientY)});
+ window.addEventListener("mousemove",e=>move(e.clientX,e.clientY));
+ window.addEventListener("mouseup",end);
+ img.addEventListener("touchstart",e=>{if(e.touches.length===1)start(e.touches[0].clientX,e.touches[0].clientY)},{passive:true});
+ img.addEventListener("touchmove",e=>{if(e.touches.length===1){move(e.touches[0].clientX,e.touches[0].clientY)}},{passive:true});
+ img.addEventListener("touchend",end)}
+function openPaperDetails(id){const p=state.papers.find(x=>x.id===id);if(!p)return;
+ document.getElementById("fileViewerTitle").textContent=p.title;
+ const info=document.getElementById("fileViewerInfo");
+ const field=(label,val)=>'<div><div class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]">'+label+'</div><div class="font-bold text-sm mt-0.5">'+val+'</div></div>';
+ info.innerHTML=field(t("calc.thSubject"),esc(SN(p.subject)))+field(t("pap.year"),esc(p.year))+
+  field(t("pap.status"),'<span class="text-[11px] px-2 py-1 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold inline-block">'+t("st."+p.status)+'</span>')+
+  field(t("pap.score"),(p.score!=null?p.score+"/20":"--"));
+ const zoomBar=document.getElementById("fileViewerZoomBar");
+ const wrap=document.getElementById("fileViewerBody");wrap.innerHTML="";
+ if(p.fileData&&p.fileType==="image"){
+  zoomBar.classList.remove("hidden");
+  const img=document.createElement("img");img.id="fileViewerImg";img.src=p.fileData;wrap.appendChild(img);
+  setupPaperImageZoom(img);paperApplyZoom()}
+ else if(p.fileData){
+  zoomBar.classList.add("hidden");
+  const ifr=document.createElement("iframe");ifr.src=p.fileData;ifr.className="w-full h-[65vh] rounded-lg bg-white";wrap.appendChild(ifr)}
+ else{
+  zoomBar.classList.add("hidden");
+  wrap.innerHTML='<div class="text-sm text-[var(--text-muted)] py-8">'+t("pap.noFile")+'</div>'}
+ document.getElementById("fileViewer").classList.remove("hidden")}
+function closePaperFile(){document.getElementById("fileViewer").classList.add("hidden");document.getElementById("fileViewerBody").innerHTML="";document.getElementById("fileViewerZoomBar").classList.add("hidden")}
+function savePaperForm(){
+ const sj=document.getElementById("paperSubject").value;
+ const yr=document.getElementById("paperYear").value||new Date().getFullYear();
+ const ti=document.getElementById("paperTitle").value.trim()||("BAC "+yr+" "+SN(sj));
+ const stt=document.getElementById("paperStatus").value;
+ const sc=clampGrade(document.getElementById("paperScore").value);
+ const paper={id:"p"+Date.now(),subject:sj,year:yr,title:ti,status:stt,score:sc,date:todayISO(),fileData:paperFileData,fileType:paperFileType,fileName:paperFileName};
+ state.papers.unshift(paper);
+ document.getElementById("paperTitle").value="";document.getElementById("paperScore").value="";
+ clearPaperFile();
+ if(!saveState()){paper.fileData=null;paper.fileType=null;saveState();toast(t("toast.paperSavedNoFile"),"warn")}
+ else toast(t("toast.paperSaved"));
+ renderPapers();
+ if(stt==="completed"||stt==="reviewed")addXP(20);else checkBadges()}
+function focusPaperForm(){document.getElementById("paperTitle").focus()}
+function deletePaper(id){state.papers=state.papers.filter(p=>p.id!==id);saveState();renderPapers()}
+
+/* --- Errors --- */
+function renderErrors(){
+ document.getElementById("errorStats").textContent=t("err.stats",{n:state.errors.length,f:state.errors.filter(e=>e.status==="resolved").length});
+ const list=document.getElementById("errorsList");list.innerHTML="";
+ if(!state.errors.length)list.innerHTML='<div class="text-sm text-[var(--text-muted)] p-3">'+t("err.empty")+'</div>';
+ state.errors.forEach(e=>{const d=document.createElement("div");
+  d.className="p-4 rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)]";
+  const btnCls=e.status==="resolved"?"bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-100 dark:border-emerald-900":"bg-[var(--card)] border border-[var(--border)]";
+  d.innerHTML='<div class="flex justify-between items-start gap-3"><div class="min-w-0"><div class="flex gap-2 items-center flex-wrap"><span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[var(--card)] border border-[var(--border)]">'+esc(SN(e.subject))+'</span><span class="text-[11px] text-[var(--text-faint)]">'+e.createdAt+'</span></div>'+
+   '<div class="font-bold mt-2">'+esc(e.topic)+'</div><div class="text-sm text-[var(--text-muted)] mt-1">'+esc(e.description)+'</div>'+
+   '<div class="mt-3 p-3 rounded-xl bg-[var(--card)] border border-[var(--border)] text-sm"><span class="font-bold">'+t("err.solution")+'</span> '+esc(e.solution)+'</div></div>'+
+   '<div class="flex flex-col gap-2 shrink-0"><button onclick="toggleError(\''+e.id+'\')" class="h-8 px-3 rounded-full text-xs font-bold '+btnCls+'">'+(e.status==="resolved"?t("err.resolved"):t("err.markFixed"))+'</button>'+
+   '<button onclick="deleteError(\''+e.id+'\')" class="h-8 w-8 rounded-full bg-[var(--card)] border border-[var(--border)]">✕</button></div></div>';
+  list.appendChild(d)})}
+function addError(){
+ const topic=document.getElementById("errTopic").value.trim(),desc=document.getElementById("errDesc").value.trim(),sol=document.getElementById("errSol").value.trim();
+ if(!topic||!desc)return toast(t("toast.fillError"),"warn");
+ state.errors.unshift({id:"e"+Date.now(),subject:document.getElementById("errSubject").value,topic:topic,description:desc,solution:sol||t("err.default"),status:"open",createdAt:todayISO()});
+ document.getElementById("errTopic").value="";document.getElementById("errDesc").value="";document.getElementById("errSol").value="";
+ saveState();renderErrors();renderDashboard();toast(t("toast.errorLogged"));addXP(5)}
+function toggleError(id){const e=state.errors.find(x=>x.id===id);if(!e)return;
+ e.status=e.status==="resolved"?"open":"resolved";saveState();
+ if(e.status==="resolved")addXP(15);else{renderGamification()}
+ renderErrors();renderDashboard()}
+function deleteError(id){state.errors=state.errors.filter(e=>e.id!==id);saveState();renderErrors();renderDashboard()}
+
+/* --- Wellness --- */
+function renderWellness(){
+ const picker=document.getElementById("moodPicker");picker.innerHTML="";
+ [1,2,3,4,5].forEach(m=>{const b=document.createElement("button");
+  b.className="flex-1 h-[74px] rounded-2xl bg-[var(--bg-soft)] border border-[var(--border)] flex flex-col items-center justify-center gap-1 hover:border-[var(--primary)] transition";
+  b.innerHTML='<span class="text-[22px]">'+MOOD_EMOJI[m-1]+'</span><span class="text-[11px] font-bold">'+t("mood."+m)+'</span>';
+  b.onclick=()=>saveMood(m);picker.appendChild(b)});
+ const cal=document.getElementById("moodCalendar");cal.innerHTML="";
+ for(let i=27;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const iso=isoOffset(-i);
+  const en=state.moods.find(x=>x.date===iso);const div=document.createElement("div");
+  div.className="aspect-square rounded-lg flex items-center justify-center text-[12px] border "+(en?"bg-[var(--primary-soft)] border-[var(--border)]":"bg-[var(--bg-soft)] border-[var(--border)] text-[var(--text-faint)]");
+  div.textContent=en?MOOD_EMOJI[en.mood-1]:d.getDate();div.title=iso;cal.appendChild(div)}
+ const list=document.getElementById("moodList");list.innerHTML="";
+ if(!state.moods.length)list.innerHTML='<div class="text-sm text-[var(--text-muted)]">'+t("well.none")+'</div>';
+ state.moods.slice(-5).reverse().forEach(m=>{const d=document.createElement("div");
+  d.className="p-3 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] flex gap-3";
+  d.innerHTML='<div class="text-xl">'+MOOD_EMOJI[m.mood-1]+'</div><div class="flex-1 min-w-0"><div class="text-sm font-semibold">'+m.date+' • '+t("well.energyOf",{n:m.energy})+'</div><div class="text-xs text-[var(--text-muted)] mt-1">'+esc(m.note||t("well.noNote"))+'</div></div>';
+  list.appendChild(d)})}
+function saveMood(manual){
+ const er=document.getElementById("energyRange");
+ const mood=manual||parseInt(er.value)||3,energy=parseInt(er.value)||3;
+ const note=document.getElementById("moodNoteInput").value.trim(),today=todayISO();
+ const ex=state.moods.find(x=>x.date===today);
+ if(ex){ex.mood=mood;ex.energy=energy;if(note)ex.note=note}else state.moods.push({date:today,mood:mood,energy:energy,note:note});
+ document.getElementById("moodNoteInput").value="";
+ saveState();renderWellness();renderDashboard();toast(t("toast.moodSaved"));addXP(5)}
+
+/* ============ BADGES ============ */
+function renderBadges(){const grid=document.getElementById("badgesGrid");grid.innerHTML="";
+ BADGES.forEach(b=>{const un=state.gamification.badges.includes(b.id);
+  const d=document.createElement("div");
+  d.className="p-4 rounded-[18px] border flex gap-3 transition "+(un?"bg-[var(--card)] border-[var(--border)] shadow-sm":"bg-[var(--bg-soft)] border-[var(--border)] opacity-60");
+  d.innerHTML='<div class="w-12 h-12 shrink-0 rounded-xl '+(un?"bg-[var(--text)] text-[var(--bg)]":"bg-[var(--card)] border border-[var(--border)]")+' flex items-center justify-center text-xl">'+b.icon+'</div>'+
+   '<div class="flex-1 min-w-0"><div class="font-bold text-sm flex items-center gap-2">'+b[LANG][0]+(un?" ✅":"")+'</div><div class="text-xs text-[var(--text-muted)] mt-1">'+b[LANG][1]+'</div></div>';
+  grid.appendChild(d)})}
+
+/* ============ SETTINGS ============ */
+function renderSettings(){
+ document.getElementById("setName").value=state.profile.name;
+ document.getElementById("setTarget").value=state.profile.targetAvg;
+ document.getElementById("setStream").innerHTML=Object.keys(STREAMS).map(k=>'<option value="'+k+'" '+(k===state.profile.streamId?"selected":"")+'>'+STREAMS[k].icon+' '+esc(STREAMS[k][LANG])+'</option>').join("");
+ renderThemeGrid()}
+function saveSettings(){
+ const n=document.getElementById("setName").value.trim();
+ if(!n)return toast(t("toast.enterName"),"warn");
+ state.profile.name=n;state.profile.streamId=document.getElementById("setStream").value;
+ state.profile.targetAvg=parseFloat(document.getElementById("setTarget").value)||15;
+ saveState();renderAllViews();renderNav();toast(t("toast.profileSaved"))}
+
+/* ============ GRADE REPORT (print / image) ============ */
+function _gradeColor(g){
+ if(g==null)return'var(--text-faint)';
+ if(g>=16)return'#16a34a';if(g>=14)return'var(--primary)';if(g>=10)return'#d97706';return'#dc2626'}
+
+function buildReportHTML(){
+ const isAr=(LANG==="ar");
+ const dir=isAr?"rtl":"ltr";
+ const fontFamily=isAr?"'Cairo','Inter',sans-serif":"'Inter',sans-serif";
+ const st=STREAMS[state.profile.streamId];if(!st)return"";
+ let tc=0,tw=0;
+
+ // resolve CSS vars to real hex values for html2canvas compatibility
+ const cs=getComputedStyle(document.documentElement);
+ const V={
+  primary:   cs.getPropertyValue('--primary').trim()||'#6366f1',
+  priHover:  cs.getPropertyValue('--primary-hover').trim()||'#4f46e5',
+  accent:    cs.getPropertyValue('--accent').trim()||'#10b981',
+  bg:        cs.getPropertyValue('--bg').trim()||'#f6f8fc',
+  bgSoft:    cs.getPropertyValue('--bg-soft').trim()||'#eef2f8',
+  card:      cs.getPropertyValue('--card').trim()||'#ffffff',
+  text:      cs.getPropertyValue('--text').trim()||'#0b1220',
+  textMuted: cs.getPropertyValue('--text-muted').trim()||'#5b6b85',
+  textFaint: cs.getPropertyValue('--text-faint').trim()||'#94a3b8',
+  border:    cs.getPropertyValue('--border').trim()||'#e4e9f2'
+ };
+
+ const gradeC=g=>{
+  if(g==null)return V.textFaint;
+  if(g>=16)return'#16a34a';if(g>=14)return V.primary;if(g>=10)return'#d97706';return'#dc2626'};
+
+ const rows=st.subjects.map((sub,i)=>{
+  const exempt=(sub.code==="amazigh"&&state.settings.amazighExempt)||(sub.code==="sport"&&state.settings.epsExempt);
+  const g=state.grades[sub.code];
+  const w=g!=null?g*sub.coeff:0;
+  if(!exempt&&g!=null){tc+=sub.coeff;tw+=w}
+  const gradeTxt=exempt?t("rep.exempt"):(g!=null?g.toFixed(2):"--");
+  const wTxt=exempt?"—":(g!=null?w.toFixed(2):"--");
+  const gc=gradeC(exempt?null:g);
+  const barW=g!=null&&!exempt?Math.round(g/20*100):0;
+  const rowBg=i%2===0?V.bgSoft:V.card;
+  const _TA  = isAr ? 'right' : 'left';
+  return`<tr style="background:${rowBg};direction:${isAr?'rtl':'ltr'}">
+   <td style="padding:10px 14px;font-weight:700;font-size:13px;color:${exempt?V.textFaint:V.text};border-bottom:1px solid ${V.border};text-align:${_TA}">
+    ${esc(SN(sub.code))}${exempt?` <span style="font-size:10px;opacity:.6">(${t("rep.exempt")})</span>`:''}
+   </td>
+   <td style="padding:10px 10px;text-align:center;font-weight:900;font-size:13px;color:${V.textMuted};border-bottom:1px solid ${V.border}">${sub.coeff}</td>
+   <td style="padding:10px 14px;border-bottom:1px solid ${V.border}">
+    <div style="display:flex;flex-direction:row;align-items:center;gap:8px">
+     <span style="font-weight:900;font-size:13px;color:${gc};min-width:38px;text-align:center;direction:ltr">${gradeTxt}</span>
+     <div style="flex:1;height:5px;background:${V.border};border-radius:99px;overflow:hidden;min-width:50px;direction:ltr">
+      <div style="width:${barW}%;height:100%;background:${gc};border-radius:99px"></div>
+     </div>
+    </div>
+   </td>
+   <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:13px;color:${exempt?V.textFaint:V.text};border-bottom:1px solid ${V.border};direction:ltr">${wTxt}</td>
+  </tr>`}).join("");
+
+ const avg=tc?+(tw/tc).toFixed(2):0;
+ const target=+state.profile.targetAvg||15;
+ const mention=avg?mentionFromAvg(avg):"--";
+ const reached=avg>=target;
+ const diff=Math.abs(target-avg).toFixed(2);
+ const targetStatus=reached?t("rep.reached"):t("rep.remaining",{n:diff});
+ const avgPct=Math.min(100,Math.round(avg/20*100));
+ const tarPct=Math.min(100,Math.round(target/20*100));
+ const avgC=gradeC(avg||null);
+ const dateStr=new Date().toLocaleDateString(isAr?"ar-DZ":"en-GB",{year:"numeric",month:"long",day:"numeric"});
+
+ // لـ html2canvas: كل العناصر تحتاج direction و text-align صريحَين في inline style
+ // لأن html2canvas يتجاهل dir="rtl" على المستوى العلوي
+ const TA  = isAr ? 'right' : 'left';   // text-align الأساسي
+ const TAe = isAr ? 'left'  : 'right';  // text-align المعاكس
+ const FL  = isAr ? 'row-reverse' : 'row'; // flex row
+ const DIR = isAr ? 'rtl' : 'ltr';
+
+ return `<div style="direction:${DIR};font-family:${fontFamily};background:${V.bg};border-radius:22px;overflow:hidden">
+
+<!-- HEADER -->
+<div style="direction:${DIR};background:linear-gradient(135deg,${V.primary},${V.priHover});padding:28px 32px;color:#fff;position:relative;overflow:hidden">
+ <div style="position:absolute;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.09);top:-100px;${isAr?'left':'right'}:-70px"></div>
+ <div style="position:absolute;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.07);bottom:-55px;${isAr?'right':'left'}:-40px"></div>
+ <div style="position:relative;display:flex;flex-direction:row;justify-content:space-between;align-items:flex-start;gap:12px;direction:${DIR}">
+  <div style="text-align:${TA}">
+   <div style="font-weight:900;font-size:10px;letter-spacing:.16em;opacity:.82;text-transform:uppercase;margin-bottom:6px">🇩🇿 BAC 2027 · Study Guide</div>
+   <div style="font-weight:900;font-size:24px;line-height:1.2">${t("rep.title")}</div>
+  </div>
+  <div style="width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📋</div>
+ </div>
+ <div style="position:relative;margin-top:20px;display:flex;flex-direction:row;flex-wrap:wrap;gap:0;direction:${DIR}">
+  <div style="margin-${TAe}:28px;margin-bottom:8px;text-align:${TA}">
+   <div style="font-size:9px;font-weight:900;opacity:.75;text-transform:uppercase;letter-spacing:.1em">${t("set.name")}</div>
+   <div style="font-weight:800;font-size:15px;margin-top:3px">${esc(state.profile.name||"—")}</div>
+  </div>
+  <div style="margin-${TAe}:28px;margin-bottom:8px;text-align:${TA}">
+   <div style="font-size:9px;font-weight:900;opacity:.75;text-transform:uppercase;letter-spacing:.1em">${t("set.stream")}</div>
+   <div style="font-weight:800;font-size:15px;margin-top:3px">${esc(streamName(state.profile.streamId))}</div>
+  </div>
+  <div style="margin-bottom:8px;text-align:${TA}">
+   <div style="font-size:9px;font-weight:900;opacity:.75;text-transform:uppercase;letter-spacing:.1em">${t("rep.date")}</div>
+   <div style="font-weight:800;font-size:15px;margin-top:3px">${dateStr}</div>
+  </div>
+ </div>
+</div>
+
+<!-- KPI CARDS -->
+<div style="direction:${DIR};background:${V.card};padding:22px 32px 0">
+ <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px">
+
+  <!-- المعدل الحالي -->
+  <div style="background:${V.bgSoft};border:1px solid ${V.border};border-radius:16px;padding:16px;text-align:center;overflow:hidden">
+   <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:${V.textMuted};margin-bottom:8px">${t("rep.currentAvg")}</div>
+   <div style="font-size:36px;font-weight:900;color:${avgC};line-height:1;direction:ltr;display:inline-block">${avg||"--"}<span style="font-size:12px;font-weight:700;color:${V.textMuted}">/20</span></div>
+   <div style="margin-top:8px;height:4px;background:${V.border};border-radius:99px;overflow:hidden;direction:ltr">
+    <div style="width:${avgPct}%;height:100%;background:${avgC};border-radius:99px"></div>
+   </div>
+   <div style="font-size:11px;font-weight:800;color:${V.textMuted};margin-top:7px">${mention}</div>
+  </div>
+
+  <!-- المعدل المستهدف -->
+  <div style="background:${V.bgSoft};border:1px solid ${V.border};border-radius:16px;padding:16px;text-align:center;overflow:hidden">
+   <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:${V.textMuted};margin-bottom:8px">${t("rep.targetAvg")}</div>
+   <div style="font-size:36px;font-weight:900;color:${V.accent};line-height:1;direction:ltr;display:inline-block">${target.toFixed(1)}<span style="font-size:12px;font-weight:700;color:${V.textMuted}">/20</span></div>
+   <div style="margin-top:8px;height:4px;background:${V.border};border-radius:99px;overflow:hidden;direction:ltr">
+    <div style="width:${tarPct}%;height:100%;background:${V.accent};border-radius:99px"></div>
+   </div>
+   <div style="font-size:11px;font-weight:800;color:${reached?'#16a34a':'#d97706'};margin-top:7px">${targetStatus}</div>
+  </div>
+
+  <!-- الإحصائيات -->
+  <div style="background:${V.bgSoft};border:1px solid ${V.border};border-radius:16px;padding:16px">
+   <div style="font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:${V.textMuted};margin-bottom:10px;text-align:${TA}">${t("rep.stats")}</div>
+   <div style="font-size:12px;display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;flex-direction:row;justify-content:space-between;direction:${DIR}"><span style="color:${V.textMuted};font-weight:700">${t("calc.thCoeff")}</span><span style="font-weight:900;color:${V.text}">${tc||"--"}</span></div>
+    <div style="height:1px;background:${V.border}"></div>
+    <div style="display:flex;flex-direction:row;justify-content:space-between;direction:${DIR}"><span style="color:${V.textMuted};font-weight:700">${t("calc.thWeighted")}</span><span style="font-weight:900;color:${V.text}">${tc?tw.toFixed(2):"--"}</span></div>
+    <div style="height:1px;background:${V.border}"></div>
+    <div style="display:flex;flex-direction:row;justify-content:space-between;direction:${DIR}"><span style="color:${V.textMuted};font-weight:700">${t("rep.gap")}</span><span style="font-weight:900;color:${reached?'#16a34a':'#d97706'}">${reached?'+'+diff:diff+'-'}</span></div>
+   </div>
+  </div>
+
+ </div>
+</div>
+
+<!-- TABLE -->
+<div style="direction:${DIR};background:${V.card};padding:0 32px 26px">
+ <div style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.14em;color:${V.textFaint};padding-bottom:10px;margin-bottom:12px;border-bottom:2px solid ${V.primary};text-align:${TA}">${t("rep.breakdown")}</div>
+ <table style="width:100%;border-collapse:collapse;font-size:13px;border:1px solid ${V.border}">
+  <thead>
+   <tr style="background:${V.primary}22">
+    <th style="text-align:${TA};padding:10px 14px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:${V.textMuted};border-bottom:1px solid ${V.border}">${t("calc.thSubject")}</th>
+    <th style="text-align:center;padding:10px 10px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:${V.textMuted};border-bottom:1px solid ${V.border}">${t("calc.thCoeff")}</th>
+    <th style="text-align:center;padding:10px 14px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:${V.textMuted};border-bottom:1px solid ${V.border}">${t("calc.thGrade")}</th>
+    <th style="text-align:center;padding:10px 14px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:${V.textMuted};border-bottom:1px solid ${V.border}">${t("calc.thWeighted")}</th>
+   </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+  <tfoot>
+   <tr style="background:${V.bgSoft}">
+    <td colspan="2" style="padding:12px 14px;font-weight:900;font-size:13px;color:${V.text};border-top:2px solid ${V.border};text-align:${TA}">${t("calc.total")}</td>
+    <td style="padding:12px 14px;text-align:center;font-weight:900;color:${V.primary};border-top:2px solid ${V.border}">${tc||"--"}</td>
+    <td style="padding:12px 14px;text-align:center;font-weight:900;color:${V.primary};border-top:2px solid ${V.border}">${tc?tw.toFixed(2):"--"}</td>
+   </tr>
+  </tfoot>
+ </table>
+</div>
+
+<!-- FOOTER -->
+<div style="direction:${DIR};background:${V.bgSoft};border-top:1px solid ${V.border};padding:12px 32px;display:flex;flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+ <div style="font-size:10px;color:${V.textFaint};font-weight:700">${t("rep.footer")}</div>
+ <div style="font-size:10px;color:${V.primary};font-weight:900;opacity:.85">BAC 2027 · v3.0</div>
+</div>
+
+</div>`}
+
+function openReportPreview(){
+ document.getElementById("reportSheet").innerHTML=buildReportHTML();
+ document.getElementById("reportImgPanel").classList.add("hidden");
+ document.getElementById("reportModal").classList.remove("hidden")}
+function closeReportPreview(){document.getElementById("reportModal").classList.add("hidden")}
+
+/* --- PRINT / PDF ---
+   Opens the browser's native print dialog.
+   On desktop: "Save as PDF" option in the dialog.
+   On mobile Chrome/Safari: share → Print → Save to Files/Drive.
+   The @media print CSS already isolates #reportSheet. */
+function printReport(){
+ document.getElementById("reportSheet").innerHTML=buildReportHTML();
+ setTimeout(()=>window.print(),120)}
+
+function exportPDF(){
+ document.getElementById("reportSheet").innerHTML=buildReportHTML();
+ setTimeout(()=>{
+  // html2canvas → جهّز الصفحة كـ PDF عبر مكتبة jsPDF
+  loadHtml2Canvas().then(()=>{
+   const sheet=document.getElementById("reportSheet");
+   const isDark=document.documentElement.classList.contains('dark');
+   const bg=isDark?'#0f1626':'#f6f8fc';
+   return window.html2canvas(sheet,{scale:2.5,backgroundColor:bg,useCORS:true,logging:false});
+  }).then(canvas=>{
+   const imgData=canvas.toDataURL("image/png");
+   const w=canvas.width,h=canvas.height;
+   // أبعاد A4 بالـ pt: 595.28 × 841.89
+   const ratio=595.28/w;
+   const pdfH=Math.round(h*ratio);
+   // استخدام jsPDF
+   const loadJsPDF=()=>{
+    if(window.jspdf)return Promise.resolve();
+    return new Promise((res,rej)=>{
+     const s=document.createElement("script");
+     s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+     s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+   };
+   return loadJsPDF().then(()=>{
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"portrait",unit:"pt",format:[595.28,pdfH]});
+    doc.addImage(imgData,"PNG",0,0,595.28,pdfH);
+    doc.save("bac2027-report-"+todayISO()+".pdf");
+    toast(LANG==="ar"?"✅ PDF جاهز":"✅ PDF ready");
+   });
+  }).catch(err=>{console.error(err);toast(LANG==="ar"?"⚠️ فشل تصدير PDF":"⚠️ PDF export failed","warn")});
+ },120)}
+
+/* --- IMAGE EXPORT ---
+   Renders to canvas, shows a preview panel with:
+   - download link  (works on desktop & Android Chrome)
+   - "open in tab"  (works everywhere, incl. iOS Safari)
+   - long-press hint for mobile */
+let _h2cLoading=null;
+function loadHtml2Canvas(){
+ if(window.html2canvas)return Promise.resolve();
+ if(_h2cLoading)return _h2cLoading;
+ _h2cLoading=new Promise((res,rej)=>{
+  const s=document.createElement("script");
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
+  s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+ return _h2cLoading}
+
+let _lastImgDataUrl=null;
+function openImgInTab(){
+ if(!_lastImgDataUrl)return;
+ const w=window.open();
+ w.document.write('<html><head><title>BAC Report</title><style>body{margin:0;background:#111;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:20px;box-sizing:border-box}img{max-width:100%;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.5)}.tip{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.12);color:#fff;padding:10px 20px;border-radius:999px;font-family:sans-serif;font-size:13px;font-weight:700;backdrop-filter:blur(8px)}</style></head>');
+ w.document.write('<body><img src="'+_lastImgDataUrl+'" alt="BAC Report"><div class="tip">📱 Long-press → Save Image &nbsp;|&nbsp; 💻 Right-click → Save Image As</div></body></html>');
+ w.document.close()}
+
+function loadDomToImage(){
+ if(window.domtoimage)return Promise.resolve();
+ return new Promise((res,rej)=>{
+  const s=document.createElement("script");
+  s.src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js";
+  s.onload=res;s.onerror=rej;document.head.appendChild(s)});
+}
+function saveReportImage(){
+ const btn=document.getElementById("reportImgBtn");const orig=btn.innerHTML;
+ btn.innerHTML='⏳ ...';btn.disabled=true;
+ document.getElementById("reportImgPanel").classList.add("hidden");
+ loadDomToImage().then(()=>{
+  const sheet=document.getElementById("reportSheet");
+  const isDark=document.documentElement.classList.contains('dark');
+  const bg=isDark?'#0f1626':'#f6f8fc';
+  const scale=2.5;
+  const w=sheet.offsetWidth*scale;
+  const h=sheet.offsetHeight*scale;
+  return window.domtoimage.toPng(sheet,{
+   width:w,height:h,
+   style:{transform:'scale('+scale+')',transformOrigin:'top left',
+    background:bg,width:sheet.offsetWidth+'px',height:sheet.offsetHeight+'px'},
+   bgcolor:bg,quality:1
+  });
+ }).then(dataUrl=>{
+  _lastImgDataUrl=dataUrl;
+  const fname="bac2027-report-"+todayISO()+".png";
+  // Update the preview panel
+  const panel=document.getElementById("reportImgPanel");
+  document.getElementById("reportImgPanelTitle").textContent=t("report.imgPanelTitle");
+  document.getElementById("reportImgDlLabel").textContent=t("report.download");
+  document.getElementById("reportImgOpenLabel").textContent=t("report.openTab");
+  document.getElementById("reportImgHint").textContent=t("report.mobileHint");
+  const dlBtn=document.getElementById("reportImgDownloadBtn");
+  dlBtn.href=dataUrl;dlBtn.download=fname;
+  document.getElementById("reportImgPreview").src=dataUrl;
+  panel.classList.remove("hidden");
+  // Scroll panel into view
+  panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+  // Also try programmatic download (works on desktop + Android Chrome)
+  try{const a=document.createElement("a");a.href=dataUrl;a.download=fname;document.body.appendChild(a);a.click();document.body.removeChild(a)}catch(e){}
+  toast(LANG==="ar"?"✅ الكشف جاهز":"✅ Report ready")
+ }).catch(err=>{console.error(err);toast(LANG==="ar"?"⚠️ فشل التصدير":"⚠️ Export failed","warn")})
+ .finally(()=>{btn.innerHTML=orig;btn.disabled=false})}
+
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download="bac2027-"+todayISO()+".json";a.click();URL.revokeObjectURL(url);toast(t("toast.exported"))}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
+ r.onload=ev=>{try{const d=JSON.parse(ev.target.result);localStorage.setItem("bac2027_v3",JSON.stringify(d));location.reload()}catch(x){toast(t("toast.invalidFile"),"warn")}};
+ r.readAsText(f)}
+function resetAll(){if(confirm(t("confirm.resetAll"))){localStorage.removeItem("bac2027_v3");location.reload()}}
+
+/* ============ ONBOARDING ============ */
+let onbStep=1;
+function onbVisible(){return !document.getElementById("onboarding").classList.contains("hidden")}
+function showOnboarding(){document.getElementById("onboarding").classList.remove("hidden");document.getElementById("app").classList.add("hidden");renderStreamGrid();onbStep=1;updateOnb()}
+function hideOnboarding(){document.getElementById("onboarding").classList.add("hidden");document.getElementById("app").classList.remove("hidden")}
+function renderStreamGrid(){const grid=document.getElementById("streamGrid");if(!grid)return;grid.innerHTML="";
+ Object.keys(STREAMS).forEach(k=>{const v=STREAMS[k];const d=document.createElement("div");
+  d.className="card rounded-2xl p-4 cursor-pointer border-2 hover:border-[var(--primary)] transition "+(state&&state.profile.streamId===k?"!border-[var(--primary)] !bg-[var(--primary-soft)]":"");
+  d.innerHTML='<div class="text-xl">'+v.icon+'</div><div class="font-bold text-sm mt-2">'+esc(v[LANG])+'</div><div class="text-[11px] text-[var(--text-muted)] mt-1">'+t("onb.subjects",{n:v.subjects.length})+'</div>';
+  d.onclick=()=>{state.profile.streamId=k;renderStreamGrid()};grid.appendChild(d)})}
+function updateOnb(){
+ document.querySelectorAll(".onb-step").forEach(s=>s.classList.add("hidden"));
+ document.getElementById("onbStep"+onbStep).classList.remove("hidden");
+ document.getElementById("onbProgress").style.width=(onbStep/3*100)+"%";
+ if(onbStep===3)updateOnbHint()}
+function updateOnbHint(){const v=parseFloat(document.getElementById("onbTarget").value);
+ document.getElementById("targetVal").textContent=v.toFixed(1);
+ const list=MAJORS.filter(m=>m.min<=v).sort((a,b)=>b.min-a.min).slice(0,3).map(m=>majorName(m)).join("، ".trim()===""?", ":(LANG==="ar"?"، ":", "));
+ document.getElementById("onbHint").textContent=t("onb.hint",{v:v.toFixed(1),list:list||t("onb.goals")})}
+function onbNext(){
+ if(onbStep===2){const n=document.getElementById("onbName").value.trim();if(!n)return toast(t("toast.enterName"),"warn");state.profile.name=n}
+ if(onbStep<3){onbStep++;updateOnb()}}
+function onbBack(){if(onbStep>1){onbStep--;updateOnb()}}
+function finishOnboarding(){
+ state.profile.targetAvg=parseFloat(document.getElementById("onbTarget").value)||15;
+ state.settings.amazighExempt=document.getElementById("onbAmazigh").checked;
+ state.settings.epsExempt=document.getElementById("onbEPS").checked;
+ state.gamification.lastActive=todayISO();state.gamification.streak=1;
+ state.gamification.streakHistory={};state.gamification.streakHistory[todayISO()]=true;
+ saveState();hideOnboarding();initApp();toast(t("toast.welcome"));addXP(20)}
+
+/* ============ CONFETTI ============ */
+function launchConfetti(){
+ // Use canvas-confetti library if available
+ if(typeof confetti==="function"){
+  const primary=getComputedStyle(document.documentElement).getPropertyValue("--primary").trim()||"#6366f1";
+  const accent=getComputedStyle(document.documentElement).getPropertyValue("--accent").trim()||"#10b981";
+  // First burst from left
+  confetti({particleCount:80,angle:60,spread:70,origin:{x:0,y:0.65},colors:[primary,accent,"#ffffff","#fbbf24","#f472b6"]});
+  // Second burst from right (slight delay)
+  setTimeout(()=>{confetti({particleCount:80,angle:120,spread:70,origin:{x:1,y:0.65},colors:[primary,accent,"#ffffff","#fbbf24","#a78bfa"]})},180);
+  // Final center burst
+  setTimeout(()=>{confetti({particleCount:50,spread:100,origin:{x:0.5,y:0.4},scalar:1.2,colors:[primary,accent,"#ffffff"]})},380);
+  return;
+ }
+ // Fallback: canvas-based confetti
+ const c=document.getElementById("confetti"),ctx=c.getContext("2d");
+ c.width=window.innerWidth;c.height=window.innerHeight;
+ const P=[];for(let i=0;i<130;i++)P.push({x:Math.random()*c.width,y:Math.random()*c.height-260,vx:(Math.random()-.5)*8,vy:Math.random()*6+2,r:Math.random()*7+3,color:"hsl("+(Math.random()*80+200)+",95%,62%)",rot:Math.random()*360,vr:(Math.random()-.5)*12});
+ let fr=0;(function anim(){ctx.clearRect(0,0,c.width,c.height);
+  P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.13;p.rot+=p.vr;
+   ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore()});
+  fr++;if(fr<190)requestAnimationFrame(anim);else ctx.clearRect(0,0,c.width,c.height)})()}
+
+/* ============ INIT ============ */
+function initApp(){
+ renderNav();applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
+ fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
+(function(){
+ state=loadState()||defaultState();
+ LANG=state.settings.lang||"en";
+ applyLang(LANG);
+ document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
+ document.getElementById("onbTarget").addEventListener("input",updateOnbHint);
+ ["pomoFocusLen","pomoBreakLen"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{if(!pomoRunning)setPomodoroMode(pomoMode)}));
+ window.addEventListener("resize",()=>{const c=document.getElementById("confetti");c.width=window.innerWidth;c.height=window.innerHeight});
+ if(!state.profile.name){showOnboarding()}else{hideOnboarding();initApp()}
+
+ // ===== OFFLINE DETECTION =====
+ const offlineBanner=document.getElementById("offlineBanner");
+ function showOffline(){
+  document.getElementById("offlineMsg").textContent=LANG==="ar"?"يرجى الاتصال بالإنترنت":"No internet connection";
+  offlineBanner.style.pointerEvents="auto";
+  offlineBanner.classList.remove("translate-y-full","opacity-0");
+  offlineBanner.classList.add("translate-y-0","opacity-100")}
+ function hideOffline(){
+  offlineBanner.style.pointerEvents="auto";
+  offlineBanner.style.background="var(--accent)";
+  offlineBanner.style.boxShadow="0 -4px 24px rgba(16,185,129,.35)";
+  document.getElementById("offlineMsg").textContent=LANG==="ar"?"✅ تم الاتصال بالإنترنت":"✅ Back online";
+  setTimeout(()=>{
+   offlineBanner.style.pointerEvents="none";
+   offlineBanner.classList.add("translate-y-full","opacity-0");
+   offlineBanner.classList.remove("translate-y-0","opacity-100");
+   setTimeout(()=>{offlineBanner.style.background="var(--danger)";offlineBanner.style.boxShadow="0 -4px 24px rgba(239,68,68,.35)"},400)
+  },3000)}
+ window.addEventListener("offline",showOffline);
+ window.addEventListener("online",hideOffline);
+ if(!navigator.onLine){showOffline()}
+})();
+
+/* ============ CLOUD SYNC (Firebase) ============ */
+const firebaseConfig={
+ apiKey:"AIzaSyCPf-wlq_bWewBnsAIGWnfS5WjMZb_guq4",
+ authDomain:"bac2027t.firebaseapp.com",
+ projectId:"bac2027t",
+ storageBucket:"bac2027t.firebasestorage.app",
+ messagingSenderId:"152939626155",
+ appId:"1:152939626155:web:0b084675ca7486d7d941ee"
+};
+firebase.initializeApp(firebaseConfig);
+const fbAuth=firebase.auth();
+const fbDb=firebase.firestore();
+try{fbDb.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
+const googleProvider=new firebase.auth.GoogleAuthProvider();
+
+let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
+
+function signInGoogle(){
+ fbAuth.signInWithPopup(googleProvider).catch(e=>{
+  toast(LANG==="ar"?"فشل تسجيل الدخول: "+e.message:"Sign-in failed: "+e.message,"warn")});
+}
+function signOutCloud(){
+ if(cloudUnsub){cloudUnsub();cloudUnsub=null}
+ fbAuth.signOut();
+}
+function updateCloudUI(){
+ const out=document.getElementById("cloudSignedOut"),inn=document.getElementById("cloudSignedIn");
+ if(!out||!inn)return;
+ if(cloudUser){
+  out.classList.add("hidden");inn.classList.remove("hidden");
+  document.getElementById("cloudUserName").textContent=cloudUser.displayName||cloudUser.email||"";
+  const av=document.getElementById("cloudAvatar");
+  if(cloudUser.photoURL)av.src=cloudUser.photoURL;else av.removeAttribute("src");
+ }else{
+  out.classList.remove("hidden");inn.classList.add("hidden");
+ }
+ document.getElementById("cloudSignInLabel").textContent=LANG==="ar"?"تسجيل الدخول بـ Google":"Sign in with Google";
+ document.getElementById("cloudSignOutBtn").textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
+ document.getElementById("cloudSyncTitle").textContent=LANG==="ar"?"المزامنة السحابية":"Cloud Sync";
+ document.getElementById("cloudSyncDesc").textContent=LANG==="ar"?"سجّل الدخول بـ Google لنسخ بياناتك احتياطياً في السحابة ومزامنتها بين أجهزتك.":"Sign in with Google to back up your data to the cloud and sync it across your devices.";
+}
+function setCloudStatus(status){
+ const el=document.getElementById("cloudSyncStatus");if(!el)return;
+ const map={
+  syncing:LANG==="ar"?"⏳ جارِ المزامنة...":"⏳ Syncing...",
+  synced:LANG==="ar"?"✅ تمت المزامنة":"✅ Synced",
+  pending:LANG==="ar"?"⏳ بانتظار الحفظ...":"⏳ Saving...",
+  offline:LANG==="ar"?"📴 محفوظ محلياً فقط":"📴 Saved locally only",
+  error:LANG==="ar"?"⚠️ فشلت المزامنة":"⚠️ Sync failed"
+ };
+ el.textContent=map[status]||"—";
+}
+function mergeRemoteState(remote){
+ const d=defaultState();
+ return Object.assign(d,remote,{
+  profile:Object.assign(d.profile,remote.profile||{}),
+  settings:Object.assign(d.settings,remote.settings||{}),
+  gamification:Object.assign(d.gamification,remote.gamification||{}),
+  pomodoro:Object.assign(d.pomodoro,remote.pomodoro||{}),
+  meta:Object.assign({updatedAt:0},remote.meta||{})
+ });
+}
+function applyRemoteState(remote){
+ applyingRemote=true;
+ state=mergeRemoteState(remote);
+ try{localStorage.setItem("bac2027_v3",JSON.stringify(state))}catch(e){}
+ LANG=state.settings.lang||LANG;
+ applyLang(LANG);
+ document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
+ applyTheme(state.settings.theme);
+ renderNav();renderAllViews();fillSubjectSelects();checkBadges();
+ setCloudStatus("synced");
+ applyingRemote=false;
+}
+function pushToCloud(){
+ if(!cloudUser)return;
+ if(!navigator.onLine){setCloudStatus("offline");return}
+ setCloudStatus("syncing");
+ const payload=JSON.parse(JSON.stringify(state));
+ fbDb.collection("users").doc(cloudUser.uid).set(payload).then(()=>{
+  setCloudStatus("synced");
+ }).catch(e=>{
+  setCloudStatus("error");
+  toast(LANG==="ar"?"تم الحفظ محلياً فقط، فشلت المزامنة السحابية":"Saved locally only — cloud sync failed","warn");
+ });
+}
+function queueCloudSync(){
+ if(applyingRemote||!cloudUser)return;
+ setCloudStatus("pending");
+ clearTimeout(cloudSyncTimer);
+ cloudSyncTimer=setTimeout(pushToCloud,1200);
+}
+function attachCloudListener(uid){
+ if(cloudUnsub){cloudUnsub();cloudUnsub=null}
+ cloudFirstSync=true;
+ cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(doc=>{
+  if(!doc.exists){
+   state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
+   pushToCloud();
+   return;
+  }
+  const remote=doc.data();
+  const remoteTime=(remote.meta&&remote.meta.updatedAt)||0;
+  const localTime=(state.meta&&state.meta.updatedAt)||0;
+  if(cloudFirstSync&&remoteTime<=localTime&&localTime>0){
+   cloudFirstSync=false;
+   pushToCloud();
+   return;
+  }
+  cloudFirstSync=false;
+  if(remoteTime>localTime){
+   applyRemoteState(remote);
+  }else if(localTime>remoteTime){
+   pushToCloud();
+  }else{
+   setCloudStatus("synced");
+  }
+ },err=>{
+  setCloudStatus("error");
+ });
+}
+const _origSaveState=saveState;
+saveState=function(){
+ state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
+ const ok=_origSaveState();
+ queueCloudSync();
+ return ok;
+};
+/* ============ LOGIN GATE LOGIC ============ */
+(function(){
+  const EMOJIS = ["📚","✏️","🎓","📖","💡","🧮","🔬","🌍"];
+  const bgEl = document.getElementById("lgBgEmojis");
+  EMOJIS.forEach((e,i)=>{
+    const s = document.createElement("span");
+    s.className = "lg-bg-emoji";
+    s.textContent = e;
+    s.style.left = (Math.random()*90)+"%";
+    s.style.top  = (Math.random()*90)+"%";
+    s.style.animationDuration = (4+Math.random()*4)+"s";
+    s.style.animationDelay   = (i*0.5)+"s";
+    bgEl.appendChild(s);
+  });
+
+  const loginGate   = document.getElementById("loginGate");
+  const blockedGate = document.getElementById("blockedGate");
+  const lgBtn       = document.getElementById("lgGoogleBtn");
+  const lgError     = document.getElementById("lgError");
+  const blEmail     = document.getElementById("blEmail");
+  const blBack      = document.getElementById("blBackBtn");
+
+  function showError(msg){
+    lgError.textContent = msg;
+    lgError.classList.add("show");
+  }
+  function hideError(){ lgError.classList.remove("show"); }
+
+  function showBlocked(email){
+    blEmail.textContent = email;
+    loginGate.classList.add("hidden");
+    blockedGate.classList.remove("hidden");
+  }
+
+  function hideGates(){
+    loginGate.classList.add("hidden");
+    blockedGate.classList.add("hidden");
+  }
+
+  function showLogin(){
+    blockedGate.classList.add("hidden");
+    loginGate.classList.remove("hidden");
+    lgBtn.disabled = false;
+    lgBtn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+    hideError();
+  }
+
+  let lgLoading = false;
+  lgBtn.addEventListener("click", async ()=>{
+    if(lgLoading) return;
+    lgLoading = true;
+    lgBtn.disabled = true;
+    lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
+    hideError();
+    try {
+      await fbAuth.signInWithPopup(googleProvider);
+      // onAuthStateChanged will handle the rest
+    } catch(err){
+      const msg = err.message||"";
+      if(msg.includes("popup-closed-by-user")){
+        showError("تم إغلاق نافذة تسجيل الدخول. حاول مرة أخرى.");
+      } else if(!msg.includes("cancelled-popup-request")){
+        showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+      }
+      showLogin();
+    } finally {
+      lgLoading = false;
+    }
+  });
+
+  blBack.addEventListener("click", ()=>{
+    fbAuth.signOut();
+    showLogin();
+  });
+
+  // ===== ALLOWED EMAILS LIST =====
+  // Leave empty [] to allow ALL Google accounts.
+  // Add specific emails to restrict access, e.g: ["user@gmail.com"]
+  const ALLOWED_EMAILS = [];
+
+  function isAllowed(email){
+    if(ALLOWED_EMAILS.length === 0) return true;
+    return ALLOWED_EMAILS.includes((email||"").toLowerCase());
+  }
+
+  fbAuth.onAuthStateChanged(user=>{
+    cloudUser = user;
+    updateCloudUI();
+    if(user){
+      if(!isAllowed(user.email)){
+        showBlocked(user.email);
+        fbAuth.signOut();
+        return;
+      }
+      hideGates();
+      attachCloudListener(user.uid);
+    } else {
+      if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
+      showLogin();
+    }
+  });
+})();
+</script>
+</body>
+</html>
