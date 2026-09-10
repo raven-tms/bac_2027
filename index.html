@@ -2547,12 +2547,17 @@ setTimeout(()=>{ _appInitializing=false; },0);
     if(!user || !user.email) return false;
     try {
       const email = user.email.toLowerCase();
+      console.log('[BAC-AUTH] checking Firestore for:', email);
       const doc = await fbDb.collection("allowed_emails_tacky").doc(email).get();
+      console.log('[BAC-AUTH] doc.exists:', doc.exists, doc.exists ? 'active:' + doc.data().active : '');
       if(!doc.exists){ _clearAccessCache(email); return false; }
       const allowed = doc.data().active === true;
       _setAccessCache(email, allowed);
       return allowed;
-    } catch(e){ return false; }
+    } catch(e){
+      console.error('[BAC-AUTH] _checkUserAccess error:', e && e.code, e && e.message);
+      return false;
+    }
   }
 
   // ===== AUTH STATE HANDLER =====
@@ -2562,13 +2567,12 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
   async function _onAuthReady(user){
     _authStateFired++;
+    console.log('[BAC-AUTH] _onAuthReady fired #' + _authStateFired + ', user:', user ? user.email : 'null', '_redirectPending:', _redirectPending);
     cloudUser = user;
     updateCloudUI();
 
     if(!user){
-      // لا تُظهر شاشة الدخول إذا كنا لا نزال في انتظار redirect result
-      if(_redirectPending) return;
-      // أول استدعاء null قد يكون مؤقتاً — ننتظر 700ms
+      if(_redirectPending) { console.log('[BAC-AUTH] user=null but redirectPending, waiting...'); return; }
       if(_authStateFired === 1){
         const fired = _authStateFired;
         setTimeout(()=>{
@@ -2581,13 +2585,14 @@ setTimeout(()=>{ _appInitializing=false; },0);
       return;
     }
 
-    // وصل مستخدم حقيقي — redirect انتهى
     _redirectPending = false;
 
     const email = user.email ? user.email.toLowerCase() : null;
     const cached = email ? _getAccessCache(email) : null;
+    console.log('[BAC-AUTH] email:', email, 'cached:', cached);
 
     if(cached === true){
+      console.log('[BAC-AUTH] fast path — cached allowed');
       hideGates();
       attachCloudListener(user.uid);
       _checkUserAccess(user).then(still=>{
@@ -2597,15 +2602,17 @@ setTimeout(()=>{ _appInitializing=false; },0);
     }
 
     if(cached === false){
+      console.log('[BAC-AUTH] cached denied → showBlocked');
       showBlocked(user.email);
       fbAuth.signOut();
       return;
     }
 
-    // Slow path: تحقق من Firestore
+    console.log('[BAC-AUTH] slow path — checking Firestore...');
     lgBtn.disabled = true;
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     const allowed = await _checkUserAccess(user);
+    console.log('[BAC-AUTH] Firestore check result:', allowed);
     if(allowed){
       hideGates();
       attachCloudListener(user.uid);
@@ -2624,6 +2631,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
   fbAuth.getRedirectResult()
     .then(result => {
+      console.log('[BAC-AUTH] getRedirectResult:', result ? 'has user: ' + !!(result.user) : 'null');
       // إذا لا يوجد مستخدم من redirect → أظهر شاشة الدخول العادية
       if(!result || !result.user){
         _redirectPending = false;
@@ -2634,6 +2642,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       fbAuth.onAuthStateChanged(_onAuthReady);
     })
     .catch(err => {
+      console.error('[BAC-AUTH] getRedirectResult error:', err && err.code, err && err.message);
       _redirectPending = false;
       lgBtn.disabled = false;
       lgBtn.innerHTML = googleLogoHTML;
