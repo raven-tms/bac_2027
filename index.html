@@ -15,12 +15,6 @@
     _warn.apply(console, args);
   };
 </script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}</script>
 <style>
 :root{
 --bg:#f6f8fc;--bg-soft:#eef2f8;--card:#ffffff;--card-hover:#f8fafc;
@@ -138,6 +132,64 @@ table td,table th{white-space:nowrap}
   overflow: hidden;
 }
 #loginGate.hidden { display: none; }
+.lg-checking {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 18px; animation: lgFade .35s ease both;
+}
+.lg-checking.hidden { display: none; }
+.lg-checking-logo {
+  width:64px; height:64px; border-radius:18px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:2rem; box-shadow:0 8px 24px rgba(59,130,246,0.4);
+  animation: lgPulse 1.4s ease-in-out infinite;
+}
+@keyframes lgPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+.lg-checking-brand {
+  font-size: 1.7rem; font-weight: 900; letter-spacing: 0.5px;
+  color: #f1f5f9; text-align: center; line-height: 1.3;
+  font-family: 'Inter', sans-serif;
+}
+.lg-checking-brand span {
+  color: #3b82f6;
+}
+.lg-checking-brand small {
+  display: block; font-size: 0.85rem; font-weight: 700; color: #64748b;
+  letter-spacing: 2px; margin-top: 4px;
+}
+.lg-checking-spinner {
+  width:26px; height:26px; border:3px solid rgba(255,255,255,0.15);
+  border-top-color:#3b82f6; border-radius:50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes lgFade { from{opacity:0} to{opacity:1} }
+#loginGate .lg-card.hidden { display:none; }
+
+/* ===== LOGOUT CONFIRM MODAL ===== */
+#logoutConfirmModal { position:fixed; inset:0; z-index:9997; display:flex; align-items:center; justify-content:center; padding:20px; }
+#logoutConfirmModal.hidden { display:none; }
+.lo-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(4px); }
+.lo-card {
+  position:relative; width:100%; max-width:360px;
+  background:var(--card,#fff); border:1px solid var(--border,#e5e7eb);
+  border-radius:20px; padding:26px 22px 20px; text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,0.35);
+  animation: lgUp 0.25s ease both;
+}
+.lo-icon {
+  width:56px; height:56px; border-radius:16px; margin:0 auto 14px;
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+  display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  box-shadow:0 8px 20px rgba(239,68,68,0.35);
+}
+.lo-title { font-weight:900; font-size:1.05rem; color:var(--text,#111); margin-bottom:6px; }
+.lo-sub { font-size:0.85rem; color:var(--text-muted,#6b7280); line-height:1.6; margin-bottom:20px; }
+.lo-actions { display:flex; gap:10px; }
+.lo-btn { flex:1; padding:11px 14px; border-radius:12px; font-weight:700; font-size:0.88rem; cursor:pointer; transition:transform .15s ease, opacity .15s ease; border:none; }
+.lo-btn:active { transform:scale(.97); }
+.lo-cancel { background:var(--bg-soft,#f1f5f9); color:var(--text,#111); border:1px solid var(--border,#e5e7eb); }
+.lo-confirm { background:linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
 .lg-bg-emoji {
   position: absolute; font-size: 2rem; opacity: 0.10;
   animation: lgFloat linear infinite; user-select: none; pointer-events: none;
@@ -199,17 +251,20 @@ table td,table th{white-space:nowrap}
 /* ===== BLOCKED SCREEN ===== */
 #blockedGate {
   position:fixed; inset:0; z-index:9999;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:flex-start; justify-content:center;
   padding:24px 16px;
   background:linear-gradient(135deg, #0f172a 0%, #1c0f0f 100%);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
 }
 #blockedGate.hidden { display:none; }
 .bl-card {
   background:#1e2433; border:1px solid #2a3352;
-  border-radius:24px; padding:40px 36px 36px;
+  border-radius:24px; padding:32px 28px 28px;
   max-width:440px; width:100%;
   box-shadow:0 24px 60px rgba(0,0,0,0.6);
   animation:lgUp 0.5s ease both; text-align:center;
+  margin:auto 0;
 }
 .bl-icon {
   width:72px; height:72px; border-radius:20px;
@@ -241,7 +296,12 @@ table td,table th{white-space:nowrap}
 <!-- ===== LOGIN GATE ===== -->
 <div id="loginGate">
   <div id="lgBgEmojis" style="position:absolute;inset:0;pointer-events:none;"></div>
-  <div class="lg-card">
+  <div id="lgCheckingView" class="lg-checking">
+    <div class="lg-checking-logo">📚</div>
+    <div class="lg-checking-brand">TACKY <span>BAC</span><small>2027</small></div>
+    <div class="lg-checking-spinner"></div>
+  </div>
+  <div class="lg-card hidden" id="lgCardView">
     <div class="lg-logo">
       <div class="lg-logo-icon">📚</div>
       <div class="lg-logo-text">
@@ -269,23 +329,37 @@ table td,table th{white-space:nowrap}
   <div class="bl-card">
     <div class="bl-icon">🔒</div>
     <h1>TACKY <span style="color:var(--accent,#3b82f6)">BAC</span></h1>
-    <p class="bl-msg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:16px 18px;margin-top:14px;color:#f87171;font-weight:600;line-height:1.9;">
+    <p class="bl-msg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:10px;color:#f87171;font-weight:600;line-height:1.7;font-size:0.85rem;">
       عذراً، هذا الحساب غير مفعل! أنت لست مشتركاً في الخدمة.<br><br>
       للاشتراك في الخدمة، يرجى التواصل معنا وإرسال بريدك الإلكتروني عبر الروابط التالية و بعد الدفع سيتم تفعيل حسابك على الفور ⚡
     </p>
-    <p class="bl-email" id="blEmail" style="margin-top:12px;font-size:0.85rem;color:#f87171;"></p>
-    <div class="bl-contact-label" style="font-size:0.78rem;color:#64748b;font-weight:700;margin:18px 0 10px;">📞 تواصل معنا للاشتراك</div>
-    <div style="display:flex;flex-direction:column;gap:10px;">
-      <a href="https://t.me/Tacky_menim" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#229ED9;color:#fff;">✈️ تيليغرام — tacky_menim</a>
-      <a href="https://www.instagram.com/tacky_menim?igsh=ejM3ZGdqamo3NnFh&utm_source=qr" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;">📸 إنستغرام — tacky_menim</a>
-      <a href="tel:+213795104614" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">☎️ الهاتف — ‎+213795104614‎</a>
-      <a href="mailto:tackymenim@gmail.com" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#fff;color:#1e293b;border:1.5px solid #2a3352;">📧 البريد — tackymenim@gmail.com</a>
+    <p class="bl-email" id="blEmail" style="margin-top:8px;font-size:0.8rem;color:#f87171;"></p>
+    <div class="bl-contact-label" style="font-size:0.75rem;color:#64748b;font-weight:700;margin:14px 0 8px;">📞 تواصل معنا للاشتراك</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <a href="https://t.me/Tacky_menim" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.85rem;background:#229ED9;color:#fff;">✈️ تيليغرام — tacky_menim</a>
+      <a href="https://www.instagram.com/tacky_menim?igsh=ejM3ZGdqamo3NnFh&utm_source=qr" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.85rem;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;">📸 إنستغرام — tacky_menim</a>
+      <a href="tel:+213795104614" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.85rem;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">☎️ الهاتف — ‎+213795104614‎</a>
+      <a href="mailto:tackymenim@gmail.com" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 14px;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.85rem;background:#fff;color:#1e293b;border:1.5px solid #2a3352;">📧 البريد — tackymenim@gmail.com</a>
     </div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;border-top:1px solid #2a3352;padding-top:18px;">
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;border-top:1px solid #2a3352;padding-top:14px;">
       <button class="bl-back" id="blRefreshBtn" style="background:var(--accent,#3b82f6);color:#fff;border:none;">🔄 تحديث وإعادة المحاولة</button>
       <button class="bl-back" id="blBackBtn">🚪 تسجيل الخروج أو تبديل الحساب</button>
     </div>
-    <div id="blCheckingMsg" style="display:none;margin-top:12px;font-size:0.85rem;color:#94a3b8;">⏳ جارٍ التحقق من حالة الاشتراك...</div>
+    <div id="blCheckingMsg" style="display:none;margin-top:10px;font-size:0.8rem;color:#94a3b8;">⏳ جارٍ التحقق من حالة الاشتراك...</div>
+  </div>
+</div>
+
+<!-- ===== LOGOUT CONFIRM MODAL ===== -->
+<div id="logoutConfirmModal" class="hidden">
+  <div class="lo-backdrop" onclick="closeLogoutConfirm()"></div>
+  <div class="lo-card">
+    <div class="lo-icon">🚪</div>
+    <div class="lo-title" id="loTitle">تسجيل الخروج</div>
+    <div class="lo-sub" id="loSub">هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟</div>
+    <div class="lo-actions">
+      <button class="lo-btn lo-cancel" id="loCancelBtn" onclick="closeLogoutConfirm()">إلغاء</button>
+      <button class="lo-btn lo-confirm" id="loConfirmBtn" onclick="confirmLogout()">تسجيل الخروج</button>
+    </div>
   </div>
 </div>
 
@@ -985,6 +1059,13 @@ table td,table th{white-space:nowrap}
   <div id="mobTabList" class="grid grid-cols-6"></div>
 </nav>
 
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>tailwind.config={darkMode:'class',theme:{extend:{fontFamily:{sans:['Inter','sans-serif']}}}}</script>
+
 <script>
 /* ============ SUBJECT DICTIONARY ============ */
 const SUBJ={
@@ -1322,7 +1403,7 @@ function applyLang(lang){
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
  applyStaticI18n();applyTheme(state.settings.theme);
  renderNav();renderStreamGrid();if(onbVisible())updateOnb();
- renderAllViews()}
+ renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 
 /* ============ NAV / VIEWS ============ */
@@ -2310,11 +2391,26 @@ function signInGoogle(){
   toast(LANG==="ar"?"فشل تسجيل الدخول: "+e.message:"Sign-in failed: "+e.message,"warn")});
 }
 function signOutCloud(){
+ openLogoutConfirm();
+}
+function openLogoutConfirm(){
+ const m=document.getElementById("logoutConfirmModal");
+ if(!m)return;
+ m.classList.remove("hidden");
+}
+function closeLogoutConfirm(){
+ const m=document.getElementById("logoutConfirmModal");
+ if(!m)return;
+ m.classList.add("hidden");
+}
+function confirmLogout(){
+ closeLogoutConfirm();
  clearTimeout(_saveDebounceTimer);
  _saveDebounceTimer=null;
  _pendingLocalEdit=false;
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
  fbAuth.signOut();
+ toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
 }
 function updateCloudUI(){
  const out=document.getElementById("cloudSignedOut"),inn=document.getElementById("cloudSignedIn");
@@ -2330,6 +2426,13 @@ function updateCloudUI(){
  document.getElementById("cloudSignInLabel").textContent=LANG==="ar"?"تسجيل الدخول بـ Google":"Sign in with Google";
  document.getElementById("cloudSignOutBtn").textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
  document.getElementById("cloudSyncTitle").textContent=LANG==="ar"?"المزامنة السحابية":"Cloud Sync";
+ const loTitle=document.getElementById("loTitle"),loSub=document.getElementById("loSub"),loCancel=document.getElementById("loCancelBtn"),loConfirm=document.getElementById("loConfirmBtn");
+ if(loTitle){
+  loTitle.textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
+  loSub.textContent=LANG==="ar"?"هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟":"Are you sure you want to sign out of your account?";
+  loCancel.textContent=LANG==="ar"?"إلغاء":"Cancel";
+  loConfirm.textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
+ }
  document.getElementById("cloudSyncDesc").textContent=LANG==="ar"?"سجّل الدخول بـ Google لنسخ بياناتك احتياطياً في السحابة ومزامنتها بين أجهزتك.":"Sign in with Google to back up your data to the cloud and sync it across your devices.";
 }
 function setCloudStatus(status){
@@ -2522,6 +2625,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
   });
 
   const loginGate    = document.getElementById("loginGate");
+  const lgChecking   = document.getElementById("lgCheckingView");
+  const lgCard       = document.getElementById("lgCardView");
   const blockedGate  = document.getElementById("blockedGate");
   const lgBtn        = document.getElementById("lgGoogleBtn");
   const lgError      = document.getElementById("lgError");
@@ -2552,6 +2657,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
   function showLogin(){
     blockedGate.classList.add("hidden");
     loginGate.classList.remove("hidden");
+    lgChecking.classList.add("hidden");
+    lgCard.classList.remove("hidden");
     lgBtn.disabled = false;
     lgBtn.innerHTML = googleLogoHTML;
     hideError();
@@ -2633,7 +2740,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
         const fired = _authStateFired;
         setTimeout(()=>{
           if(_authStateFired === fired && !_redirectPending) showLogin();
-        }, 700);
+        }, 250);
         return;
       }
       if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
