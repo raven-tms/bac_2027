@@ -2547,7 +2547,10 @@ function initApp(){
  document.getElementById("onbTarget").addEventListener("input",updateOnbHint);
  ["pomoFocusLen","pomoBreakLen"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{if(!pomoRunning)setPomodoroMode(pomoMode)}));
  window.addEventListener("resize",()=>{const c=document.getElementById("confetti");c.width=window.innerWidth;c.height=window.innerHeight});
- if(!state.profile.name){showOnboarding()}else{hideOnboarding();initApp()}
+ // ⚠️ لا نُظهر الأونبوردينغ هنا — ننتظر Firebase أولاً
+ // (إذا أظهرناه الآن بناء على state المحلي الفارغ، سيظهر عند كل Refresh حتى للمستخدمين القدامى)
+ // showOnboarding/hideOnboarding يُستدعى من _onAuthReady بعد تأكيد الخادم
+ hideOnboarding(); // إخفاء مبدئي، Firebase هو من يقرر
 
  // ===== OFFLINE DETECTION =====
  const offlineBanner=document.getElementById("offlineBanner");
@@ -2835,12 +2838,11 @@ function applyRemoteState(remote){
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
- // الحساب موجود مسبقاً وله ملف شخصي محفوظ في السحابة (اسم + شعبة) —
- // لا داعي لإظهار نافذة الإعداد الأولي مجدداً، حتى لو كانت ظاهرة الآن
- // بسبب أن الحالة المحلية الابتدائية (قبل وصول بيانات السحابة) كانت فارغة.
- if(state.profile.name){
-   if(onbVisible()){hideOnboarding();initApp()}
- }
+ // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
+ // سواء كان له اسم أو لا، البيانات السحابية موجودة = مستخدم قديم لا يحتاج أونبوردينغ.
+ const wasOnboarding = onbVisible();
+ hideOnboarding();
+ if(wasOnboarding){initApp();}
  renderNav();renderAllViews();fillSubjectSelects();checkBadges();
  setCloudStatus("synced");
  applyingRemote=false;
@@ -3145,28 +3147,6 @@ window.addEventListener('focus',_checkDayRollover);
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
 
- // 🔒 نُبقي شاشة "جارِ التحقق" (loginGate) ظاهرة إلى أن نعرف يقيناً هل
- // للمستخدم ملف شخصي محفوظ في السحابة أم لا. هذا يمنع "ومضة" نافذة
- // الإعداد الأولي (اسم + شعبة) التي كانت تظهر لجزء من الثانية عند كل
- // Refresh قبل أن تصل بيانات السحابة — لأن hideGates() كان يُستدعى فوراً
- // بينما state ما تزال فارغة (defaultState) إلى حين وصول الشبكة.
- let _gateReleased=false;
- function _releaseGate(){
-  if(_gateReleased)return;
-  _gateReleased=true;
-  if(typeof window.hideGates==="function"){
-   window.hideGates();
-  }else{
-   // خطة بديلة دفاعية إذا لم تُعرَّف window.hideGates بعد لأي سبب
-   const lg=document.getElementById("loginGate"),bg=document.getElementById("blockedGate");
-   if(lg)lg.classList.add("hidden");
-   if(bg)bg.classList.add("hidden");
-  }
- }
- // خطة بديلة أمان: لا نترك المستخدم عالقاً خلف شاشة التحقق إلى الأبد
- // (مثلاً بلا إنترنت وبلا أي cache) — بعد 6 ثوانٍ نحرر الشاشة بأي حال.
- const _gateSafetyTimer=setTimeout(_releaseGate,6000);
-
  // 🔒 تجديد الـ Token فوراً عند بدء الاستماع — يضمن أن أول طلب للخادم يستخدم
  // token صالحاً حتى لو مضت فترة طويلة منذ تسجيل الدخول
  const currentUser = fbAuth.currentUser;
@@ -3182,24 +3162,15 @@ async function attachCloudListener(uid){
  fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
   serverCheckDone=true;
   if(!serverSnap.exists){
-   // مستخدم جديد تماماً بتأكيد مباشر من الخادم (وليس من الـ cache المحلي) —
-   // لا نرفع أبداً أي بيانات "state" قد تكون بقايا حساب آخر استُعمل على
-   // نفس الجهاز/المتصفح؛ بل نبدأ بحالة افتراضية نظيفة 100% ونرفعها هي فقط.
-   // هذا يطابق تماماً منطق تطبيق habittck الناجح: "مستخدم جديد مؤكَّد من
-   // الخادم = بيانات افتراضية جديدة، لا بيانات الذاكرة المحلية الحالية".
+   // مستخدم جديد تماماً بتأكيد مباشر من الخادم —
+   // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
-   renderAllViews();
-   state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
-   pushToCloud();
-   // مستخدم جديد فعلاً — الآن فقط يصح إظهار نافذة الإعداد الأولي (مرة واحدة)
-   _releaseGate();
+   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
+   if(!state.profile.name){showOnboarding();}else{hideOnboarding();initApp();}
   } else if(!_pendingLocalEdit){
    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
    applyRemoteState(serverSnap.data());
-   _releaseGate();
-  } else {
-   _releaseGate();
   }
  }).catch(e=>{
   serverCheckDone=true;
@@ -3212,7 +3183,7 @@ async function attachCloudListener(uid){
 
  cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
   try{
-   if(!snap.exists){isFirstSnapshot=false;_releaseGate();return;}
+   if(!snap.exists){isFirstSnapshot=false;return;}
    const d=snap.data();
 
    // تجاهل snapshot كتبه هذا الجهاز نفسه منذ أقل من 4 ثوانٍ
@@ -3234,8 +3205,10 @@ async function attachCloudListener(uid){
      applyRemoteState(d);
     } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
      pushToCloud();
+    } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
+     // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
+     const wasOnb=onbVisible();hideOnboarding();if(wasOnb)initApp();
     }
-    _releaseGate();
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
     if(!_pendingLocalEdit&&remoteTime>localTime){
@@ -3243,11 +3216,10 @@ async function attachCloudListener(uid){
      toast(LANG==="ar"?"🔄 تم تحديث البيانات من جهاز آخر":"🔄 Data updated from another device");
     }
    }
-  }catch(e){console.error('Snapshot apply error:',e);_releaseGate();}
+  }catch(e){console.error('Snapshot apply error:',e);}
  },err=>{
   setCloudStatus("error");
   console.error('Firestore listener error:',err&&err.code);
-  _releaseGate();
  });
 }
 
@@ -3303,10 +3275,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
     loginGate.classList.add("hidden");
     blockedGate.classList.add("hidden");
   }
-  // attachCloudListener مُعرّفة خارج هذا الـ IIFE (نطاق مختلف)، لذا نعرّض
-  // hideGates على window لتقدر تستدعيها — وإلا فشلت المكالمة بصمت (ReferenceError
-  // داخل .then/catch) وبقيت شاشة "جارِ التحقق" ظاهرة للأبد.
-  window.hideGates = hideGates;
 
   const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
 
@@ -3439,9 +3407,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
     if(cached === true){
       console.log('[BAC-AUTH] fast path — cached allowed');
-      // ملاحظة: لا نستدعي hideGates() هنا — نتركها لـ attachCloudListener
-      // كي تبقى شاشة "جارِ التحقق" ظاهرة إلى أن تصل بيانات السحابة فعلياً،
-      // فلا تظهر نافذة إنشاء الملف الشخصي لومضة قبل أن تُخفى تلقائياً.
+      hideGates();
       attachCloudListener(user.uid);
       _checkUserAccess(user).then(still=>{
         if(!still){ _clearAccessCache(email); _blockedSignOut=true; showBlocked(user.email); fbAuth.signOut(); }
@@ -3462,6 +3428,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       _checkUserAccess(user).then(nowAllowed=>{
         if(nowAllowed){
           console.log('[BAC-AUTH] re-check confirms account is now active — unblocking automatically');
+          hideGates();
           attachCloudListener(user.uid);
         } else {
           _blockedSignOut = true;
@@ -3481,6 +3448,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
     const allowed = await _checkUserAccess(user);
     console.log('[BAC-AUTH] Firestore check result:', allowed);
     if(allowed){
+      hideGates();
       attachCloudListener(user.uid);
     } else {
       _blockedSignOut = true;
