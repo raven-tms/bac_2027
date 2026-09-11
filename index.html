@@ -1538,8 +1538,11 @@ function defaultState(){return{
  moods:[],
  meta:{updatedAt:0}}}
 // habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
-// إطلاقاً. saveState() الآن لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
+// إطلاقاً. saveState() لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
 // queueCloudSync() (انظر التغليف أسفل الملف) الذي يكتب إلى Firestore فقط.
+// الحماية ضد فقدان البيانات تتم بإعادة تأكيد الخادم مرتين قبل اعتبار الحساب
+// "جديداً" (انظر attachCloudListener → _confirmNoDocOnServer) — وليس عبر أي
+// تخزين محلي، حرصاً على أن يكون Firebase هو المصدر الوحيد للبيانات.
 function loadState(){return null}
 function saveState(){return true}
 
@@ -3556,21 +3559,44 @@ async function attachCloudListener(uid){
  let serverCheckDone=false;
  let serverConfirmedNew=false;
 
- fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
-  serverCheckDone=true;
+ // 🛡️ حماية ضد فقدان البيانات (كل شيء يبقى داخل Firebase — بلا أي تخزين محلي):
+ // عدم وجود مستند عند أول فحص قد يكون بسبب مشكلة اتصال/Token مؤقتة وليس لأن
+ // الحساب جديد فعلاً. لذلك لا نحسم القرار من فحص واحد: إن جاء الفحص الأول
+ // بدون مستند، نعيد المحاولة من الخادم مرة أخرى (بعد تأخير قصير) قبل الحسم.
+ function _fetchServerDoc(){return fbDb.collection("users").doc(uid).get({source:'server'})}
+ function _confirmNoDocOnServer(){
+  return new Promise(resolve=>{
+   setTimeout(()=>{
+    _fetchServerDoc().then(snap2=>resolve(!snap2.exists)).catch(()=>resolve(false));
+   },1500);
+  });
+ }
+ _fetchServerDoc().then(async serverSnap=>{
   if(!serverSnap.exists){
-   // مستخدم جديد تماماً بتأكيد مباشر من الخادم —
+   const confirmedTwice=await _confirmNoDocOnServer();
+   serverCheckDone=true;
+   if(!confirmedTwice){
+    // الفحص الثاني وجد مستنداً فعلاً (كان الأول متأخراً/عابراً) — لا نمسح شيئاً،
+    // نطبّق البيانات الحقيقية من الخادم كأي مستخدم موجود.
+    const snap2=await _fetchServerDoc().catch(()=>null);
+    if(snap2&&snap2.exists&&!_pendingLocalEdit){applyRemoteState(snap2.data());}
+    return;
+   }
+   // مستخدم جديد تماماً بتأكيد مزدوج من الخادم —
    // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
    // نحافظ على تفضيل اللغة الحالي بدل الرجوع للّغة الافتراضية للحالة الجديدة —
    // هذا هو سبب ظهور خليط عربي/إنجليزي: state.settings.lang كان يُعاد ضبطه دون تحديث LANG أو الواجهة.
    state.settings.lang=LANG;
-   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
+   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم (مرتين)
    if(!state.profile.name){updateDOMTranslations();showOnboarding();}else{hideOnboarding();initApp();}
-  } else if(!_pendingLocalEdit){
-   // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
-   applyRemoteState(serverSnap.data());
+  } else {
+   serverCheckDone=true;
+   if(!_pendingLocalEdit){
+    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
+    applyRemoteState(serverSnap.data());
+   }
   }
  }).catch(e=>{
   serverCheckDone=true;
