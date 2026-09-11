@@ -81,6 +81,25 @@
     _warn.apply(console, args);
   };
 </script>
+<script>
+  // ⚡ تطبيق اللغة المحفوظة فوراً قبل رسم الصفحة — يمنع "وميض" اللغة الخاطئة
+  // هذا السكريبت يعمل قبل أي CSS أو HTML آخر، وقبل Firebase بالطبع.
+  // الأولوية: 1) localStorage → 2) الافتراضي "ar"
+  (function(){
+    try{
+      var lang = localStorage.getItem('bac2027_lang');
+      if(lang !== 'ar' && lang !== 'en') lang = 'ar';
+      var html = document.documentElement;
+      html.setAttribute('lang', lang);
+      html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      // نضع data-lang حتى يستخدمه باقي الكود مباشرةً عند التهيئة
+      html.setAttribute('data-initial-lang', lang);
+      if(lang === 'ar'){
+        document.body && document.body.classList.add('lang-ar');
+      }
+    }catch(e){}
+  })();
+</script>
 <style>
 :root{
 --bg:#f6f8fc;--bg-soft:#eef2f8;--card:#ffffff;--card-hover:#f8fafc;
@@ -1496,7 +1515,16 @@ ar:{
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
  "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
-let LANG="ar";
+// قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
+let LANG=(function(){
+  try{
+    var il=document.documentElement.getAttribute('data-initial-lang');
+    if(il==='ar'||il==='en')return il;
+    var ls=localStorage.getItem('bac2027_lang');
+    if(ls==='ar'||ls==='en')return ls;
+  }catch(e){}
+  return 'ar';
+}());
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
 
 /* ============ HELPERS ============ */
@@ -1523,7 +1551,7 @@ let state=null;
 function defaultState(){return{
  profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
  grades:{},
- settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
+ settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:LANG||"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
   {id:"t1",title_en:"Revise Mathematics — Functions",title_ar:"مراجعة الرياضيات — الدوال",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
@@ -2946,8 +2974,9 @@ function initApp(){
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=defaultState();
- // قراءة اللغة من localStorage فوراً عند البداية (قبل وصول بيانات Firestore)
- try{const saved=localStorage.getItem('bac2027_lang');if(saved==="ar"||saved==="en")state.settings.lang=saved;}catch(e){}
+ // LANG تم تحديده مبكراً من localStorage (قبل هذه الدالة)، نُزامنه مع state
+ // (defaultState يستخدم LANG مباشرةً الآن، لكن نُضيف هذا كحماية مضاعفة)
+ state.settings.lang=LANG;
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -3167,6 +3196,19 @@ try{
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
 let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
+// 🛡️ نتذكّر (لمدة الجلسة الحالية فقط، بلا أي تخزين محلي) هل آخر نسخة حقيقية
+// وصلتنا من Firestore كانت تحتوي بيانات فعلية (اسم/علامات/مهام حقيقية). إن كانت
+// كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
+// البيانات: لن يُسمح لأي خلل عابر أن يمسح حساباً معروفاً أنه يحتوي بيانات.
+let _remoteHadRealData=false;
+function _stateLooksMeaningful(s){
+ if(!s)return false;
+ const hasName=!!(s.profile&&s.profile.name);
+ const hasGrades=!!(s.grades&&Object.keys(s.grades).length>0);
+ const hasRealTasks=!!(s.tasks&&s.tasks.some(tk=>!["t1","t2","t3"].includes(tk.id)));
+ const hasXP=!!(s.gamification&&s.gamification.xp>0);
+ return hasName||hasGrades||hasRealTasks||hasXP;
+}
 
 function signInGoogle(){
  fbAuth.signInWithPopup(googleProvider).catch(e=>{
@@ -3241,6 +3283,7 @@ function mergeRemoteState(remote){
 function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
+ if(_stateLooksMeaningful(state))_remoteHadRealData=true;
  LANG=state.settings.lang||LANG;
  // مزامنة localStorage مع اللغة القادمة من Firestore
  try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
@@ -3280,7 +3323,7 @@ const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','inter
 
 const _PAYLOAD_SCHEMA = {
   // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
-  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak'],
+  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak','flashcards','papers','errors','moods','pomodoro','wellness'],
 
   // الحقول المسموح بها داخل كل قسم فرعي
   meta:         ['updatedAt','version','onboarded'],
@@ -3378,6 +3421,33 @@ function sanitizeFirestorePayload(rawPayload) {
     }
   });
 
+  // ③-b للأقسام ذات البنية الديناميكية من نوع Object بسيط (pomodoro):
+  ['pomodoro'].forEach(section => {
+    if (topLevel[section] !== undefined) {
+      if (typeof topLevel[section] !== 'object' || Array.isArray(topLevel[section])) {
+        console.warn('[BAC-SANITIZE]', section, 'expected object, got:', typeof topLevel[section], '— resetting to {}');
+        topLevel[section] = {};
+      } else {
+        topLevel[section] = _sanitizeObject(topLevel[section]);
+      }
+    }
+  });
+
+  // ③-c للأقسام ذات البنية الديناميكية من نوع Array (flashcards, papers, moods, wellness):
+  ['flashcards', 'papers', 'moods', 'wellness'].forEach(section => {
+    if (topLevel[section] !== undefined) {
+      if (!Array.isArray(topLevel[section])) {
+        // إذا كان object أو نوع آخر — نحوّله لمصفوفة فارغة بدل حذفه
+        console.warn('[BAC-SANITIZE]', section, 'expected array, got:', typeof topLevel[section], '— resetting to []');
+        topLevel[section] = [];
+      } else {
+        topLevel[section] = topLevel[section].map(item =>
+          (item && typeof item === 'object') ? _sanitizeObject(item) : item
+        ).filter(item => item !== null && item !== undefined);
+      }
+    }
+  });
+
   // ④ نظيف شامل نهائي لكامل الـ payload (يلتقط أي شيء فات)
   const finalPayload = _sanitizeObject(topLevel);
 
@@ -3443,6 +3513,18 @@ async function _doCloudWrite(uid,retryCount){
 
  // 🔒 تنظيف وتحقق شامل من الـ payload قبل الرفع لـ Firestore
  const payload = sanitizeFirestorePayload(rawPayload);
+
+ // 🛡️ حارس حاسم ضد تكرار حادثة فقدان البيانات: إن كنا نعلم أن هذا الحساب
+ // يحتوي فعلاً بيانات حقيقية على السحابة (وصلتنا سابقاً في نفس الجلسة)، لكن
+ // الحالة الحالية المطلوب رفعها فارغة/افتراضية — نرفض الكتابة فوراً. هذا يمنع
+ // أي خلل عابر (LANG غير متزامن، state أُعيد ضبطه بالخطأ...) من محو بيانات
+ // حقيقية على الخادم.
+ if(_remoteHadRealData && !_stateLooksMeaningful(state)){
+  console.error('[BAC-CLOUD] blocked write: current state looks empty but the cloud account is known to hold real data. Refusing to overwrite.');
+  setCloudStatus('error');
+  toast(LANG==="ar"?"⚠️ تم إيقاف الحفظ وقائياً: بياناتك المحلية فارغة وحسابك يحتوي بيانات محفوظة — أعد تحميل الصفحة قبل المتابعة":"⚠️ Save blocked as a precaution: your local data looks empty but your account has saved data — please reload the page","warn");
+  return;
+ }
 
  payload._savedAt=Date.now();
  payload._writerId=_sessionId;
