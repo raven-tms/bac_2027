@@ -1624,9 +1624,10 @@ function applyLang(lang){
  const other=lang==="ar"?"English":"العربية";
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
- applyStaticI18n();applyTheme(state.settings.theme);
+ applyTheme(state.settings.theme);
  _syncDefaultDataLang(lang);
- renderNav();renderStreamGrid();if(onbVisible())updateOnb();
+ updateDOMTranslations();
+ renderStreamGrid();if(onbVisible())updateOnb();
  renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function _syncDefaultDataLang(lang){
  if(!state)return;
@@ -1639,6 +1640,10 @@ function _syncDefaultDataLang(lang){
  });
 }
 function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
+/* دوال مساعدة بنفس الأسماء المطلوبة — تُغلّف محرك الترجمة الحالي (renderNav/applyStaticI18n)
+   حتى يكون التحديث الفوري صريحًا وسهل الصيانة دون تكرار المنطق. */
+function updateDOMTranslations(){applyStaticI18n();renderNavigation()}
+function renderNavigation(){renderNav()}
 
 /* ============ NAV / VIEWS ============ */
 let currentView="dashboard";
