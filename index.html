@@ -1084,12 +1084,12 @@ table td,table th{white-space:nowrap}
               <p class="text-xs text-[var(--text-muted)] mt-3" data-i18n="set.dataNote">All data is stored locally in your browser. Export a backup before the BAC.</p>
             </div>
             <div class="card rounded-[22px] p-6">
-              <div class="font-extrabold" id="cloudSyncTitle">Cloud Sync</div>
-              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
+              <div class="font-extrabold" id="cloudSyncTitle" data-i18n="cloud.title">Cloud Sync</div>
+              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc" data-i18n="cloud.desc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
               <div id="cloudSignedOut" class="mt-4">
                 <button onclick="signInGoogle()" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 48 48" class="shrink-0"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.7 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.7 0-14.4 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 36.5 26.7 37 24 37c-5.2 0-9.7-3.3-11.3-8l-6.5 5C9.5 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C40.5 36.7 45 31 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
-                  <span id="cloudSignInLabel">Sign in with Google</span>
+                  <span id="cloudSignInLabel" data-i18n="cloud.signIn">Sign in with Google</span>
                 </button>
               </div>
               <div id="cloudSignedIn" class="mt-4 hidden">
@@ -1100,7 +1100,7 @@ table td,table th{white-space:nowrap}
                     <div id="cloudSyncStatus" class="text-[11px] text-[var(--text-muted)]">—</div>
                   </div>
                 </div>
-                <button onclick="signOutCloud()" id="cloudSignOutBtn" class="mt-3 h-10 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-xs">Sign out</button>
+                <button onclick="signOutCloud()" id="cloudSignOutBtn" class="mt-3 h-10 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-xs" data-i18n="cloud.signOut">Sign out</button>
               </div>
             </div>
             <div class="card rounded-[22px] p-6">
@@ -1345,7 +1345,13 @@ en:{
  "set.reportOpen":"Open Report",
  "toast.reportImgSaved":"Image ready!","toast.reportImgFail":"Export failed",
  "report.imgPanelTitle":"Report ready — choose how to save","report.download":"Download PNG",
- "report.openTab":"Open in new tab","report.mobileHint":"On mobile: long-press the image above then Save Image"
+ "report.openTab":"Open in new tab","report.mobileHint":"On mobile: long-press the image above then Save Image",
+ "cloud.title":"Cloud Sync","cloud.desc":"Sign in with Google to back up your data to the cloud and sync it across your devices.",
+ "cloud.signIn":"Sign in with Google","cloud.signOut":"Sign out",
+ "auth.errLogin":"Sign-in failed. Check your internet connection and try again.",
+ "auth.errLoginMsg":"Sign-in failed: {msg}","auth.errUnknown":"Unknown error",
+ "auth.errRedirect":"Could not complete sign-in. Please try again.",
+ "bl.checking":"⏳ Checking...","bl.refresh":"🔄 Refresh and retry","bl.notActive":"⛔ Account not activated yet"
 },
 ar:{
  "brand.sub":"دليل الدراسة",
@@ -1402,7 +1408,13 @@ ar:{
  "set.reportOpen":"فتح الكشف",
  "toast.reportImgSaved":"الصورة جاهزة!","toast.reportImgFail":"فشل التصدير",
  "report.imgPanelTitle":"الكشف جاهز — اختر طريقة الحفظ","report.download":"تحميل PNG",
- "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة"
+ "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة",
+ "cloud.title":"مزامنة السحابة","cloud.desc":"سجّل دخولك بـ Google لحفظ بياناتك في السحابة ومزامنتها على جميع أجهزتك.",
+ "cloud.signIn":"تسجيل الدخول بـ Google","cloud.signOut":"تسجيل الخروج",
+ "auth.errLogin":"تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.",
+ "auth.errLoginMsg":"تعذر تسجيل الدخول: {msg}","auth.errUnknown":"خطأ غير معروف",
+ "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
+ "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
 let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
@@ -1434,15 +1446,15 @@ function defaultState(){return{
  settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
-  {id:"t1",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
-  {id:"t2",title:"Physics past paper 2022",priority:"med",subject:"physics",dueDate:todayISO(),completed:false},
-  {id:"t3",title:"Outline the philosophy essay",priority:"low",subject:"philosophy",dueDate:todayISO(),completed:true}],
+  {id:"t1",title_en:"Revise Mathematics — Functions",title_ar:"مراجعة الرياضيات — الدوال",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
+  {id:"t2",title_en:"Physics past paper 2022",title_ar:"موضوع الفيزياء 2022",title:"Physics past paper 2022",priority:"med",subject:"physics",dueDate:todayISO(),completed:false},
+  {id:"t3",title_en:"Outline the philosophy essay",title_ar:"تخطيط مقالة الفلسفة",title:"Outline the philosophy essay",priority:"low",subject:"philosophy",dueDate:todayISO(),completed:true}],
  pomodoro:{sessionsCompleted:0,totalMinutes:0},
  flashcards:[
-  {id:"f1",front:"What is Newton's second law?",back:"F = m · a",subject:"physics",interval:0,dueDate:todayISO(),ease:2.5,reviews:0},
-  {id:"f2",front:"Derivative of sin(x)?",back:"cos(x)",subject:"math",interval:1,dueDate:todayISO(),ease:2.5,reviews:2}],
+  {id:"f1",front_en:"What is Newton's second law?",front_ar:"ما هو قانون نيوتن الثاني؟",front:"What is Newton's second law?",back:"F = m · a",subject:"physics",interval:0,dueDate:todayISO(),ease:2.5,reviews:0},
+  {id:"f2",front_en:"Derivative of sin(x)?",front_ar:"مشتقة sin(x)؟",front:"Derivative of sin(x)?",back:"cos(x)",subject:"math",interval:1,dueDate:todayISO(),ease:2.5,reviews:2}],
  papers:[{id:"p1",subject:"math",year:2023,title:"BAC 2023 Mathematics",status:"completed",score:14,date:todayISO()}],
- errors:[{id:"e1",subject:"math",topic:"Limits",description:"Forgot to check the indeterminate form",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
+ errors:[{id:"e1",subject:"math",topic_en:"Limits",topic_ar:"النهايات",topic:"Limits",description_en:"Forgot to check the indeterminate form",description_ar:"نسيت التحقق من الشكل غير المحدد",description:"Forgot to check the indeterminate form",solution_en:"Always test 0/0 and apply L'Hôpital when needed",solution_ar:"دائماً تحقق من 0/0 وطبّق قاعدة لوبيتال عند الحاجة",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
  moods:[],
  meta:{updatedAt:0}}}
 // habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
@@ -1531,8 +1543,19 @@ function applyLang(lang){
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
  applyStaticI18n();applyTheme(state.settings.theme);
+ _syncDefaultDataLang(lang);
  renderNav();renderStreamGrid();if(onbVisible())updateOnb();
  renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
+function _syncDefaultDataLang(lang){
+ if(!state)return;
+ state.tasks.forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
+ state.flashcards.forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
+ state.errors.forEach(er=>{
+  if(er.topic_en&&er.topic_ar)er.topic=lang==="ar"?er.topic_ar:er.topic_en;
+  if(er.description_en&&er.description_ar)er.description=lang==="ar"?er.description_ar:er.description_en;
+  if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
+ });
+}
 function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 
 /* ============ NAV / VIEWS ============ */
@@ -1800,7 +1823,18 @@ function fillSubjectSelects(){
  const pr=document.getElementById("taskPriority");if(pr){const v=pr.value;pr.querySelectorAll("option").forEach(o=>{o.textContent=t("pri."+o.value)});pr.value=v}}
 
 /* --- Pomodoro --- */
+// ✅ نظام وقت حقيقي: نحفظ timestamp البداية بدل العداد التنازلي
+// هذا يضمن استمرار العمل حتى لو أُغلقت الشاشة أو تجمّد setInterval
 let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
+let _pomoStartedAt=null;   // Date.now() لحظة الضغط على Start
+let _pomoTotalSecs=25*60;  // المدة الكاملة للجلسة الحالية بالثواني
+
+// حساب الوقت المتبقي الحقيقي من الـ timestamp
+function _pomoCalcLeft(){
+ if(!pomoRunning||!_pomoStartedAt) return pomoTimeLeft;
+ const elapsed=Math.floor((Date.now()-_pomoStartedAt)/1000);
+ return Math.max(0,_pomoTotalSecs-elapsed);}
+
 function renderPomodoro(){
  const sel=document.getElementById("pomoTaskSelect");
  sel.innerHTML='<option value="">'+t("pomo.noTask")+'</option>'+state.tasks.filter(x=>!x.completed).map(x=>'<option value="'+x.id+'">'+esc(x.title)+'</option>').join("");
@@ -1808,34 +1842,73 @@ function renderPomodoro(){
  document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
  document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
- updatePomoDisplay()}
+ updatePomoDisplay();}
+
 function setPomodoroMode(m){
- if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false}
+ if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;_pomoStartedAt=null;}
  pomoMode=m;const f=document.getElementById("pomoFocusBtn"),b=document.getElementById("pomoBreakBtn");
- if(m==="focus"){f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
-  pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60}
- else{b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
-  pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60}
+ if(m==="focus"){
+  f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60;
+ }else{
+  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60;
+ }
+ _pomoTotalSecs=pomoTimeLeft;
  document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
- updatePomoDisplay()}
+ updatePomoDisplay();}
+
 function updatePomoDisplay(){
- const mm=String(Math.floor(Math.max(pomoTimeLeft,0)/60)).padStart(2,"0"),ss=String(Math.max(pomoTimeLeft,0)%60).padStart(2,"0");
+ const left=_pomoCalcLeft();
+ const mm=String(Math.floor(left/60)).padStart(2,"0"),ss=String(left%60).padStart(2,"0");
  document.getElementById("pomoTime").textContent=mm+":"+ss;
- const total=(pomoMode==="focus"?(parseInt(document.getElementById("pomoFocusLen").value)||25):(parseInt(document.getElementById("pomoBreakLen").value)||5))*60;
- const prog=Math.min(Math.max(1-pomoTimeLeft/total,0),1),circ=2*Math.PI*110;
+ const prog=Math.min(Math.max(1-left/_pomoTotalSecs,0),1),circ=2*Math.PI*110;
  const ring=document.getElementById("pomoRing");
  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
- ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)")}
+ ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)");}
+
+function _pomoTick(){
+ const left=_pomoCalcLeft();
+ pomoTimeLeft=left;
+ updatePomoDisplay();
+ if(left<=0){
+  clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
+  if(pomoMode==="focus"){
+   state.pomodoro.sessionsCompleted++;
+   state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
+   saveState();addXP(25);toast(t("toast.focusDone"));
+   setPomodoroMode("break");renderPomodoro();renderDashboard();
+  }else{toast(t("toast.breakDone"));setPomodoroMode("focus");}}}
+
 function togglePomodoro(){
- if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;document.getElementById("pomoStart").textContent=t("pomo.resume");return}
- pomoRunning=true;document.getElementById("pomoStart").textContent=t("pomo.pause");
- pomoInterval=setInterval(()=>{pomoTimeLeft--;updatePomoDisplay();
-  if(pomoTimeLeft<=0){clearInterval(pomoInterval);pomoRunning=false;
-   if(pomoMode==="focus"){state.pomodoro.sessionsCompleted++;state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-    saveState();addXP(25);toast(t("toast.focusDone"));setPomodoroMode("break");renderPomodoro();renderDashboard()}
-   else{toast(t("toast.breakDone"));setPomodoroMode("focus")}}},1000)}
-function resetPomodoro(){clearInterval(pomoInterval);pomoRunning=false;setPomodoroMode(pomoMode)}
+ if(pomoRunning){
+  // Pause — نحفظ الوقت المتبقي الحقيقي ونوقف العداد
+  pomoTimeLeft=_pomoCalcLeft();
+  _pomoTotalSecs=pomoTimeLeft;
+  _pomoStartedAt=null;
+  clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;
+  document.getElementById("pomoStart").textContent=t("pomo.resume");
+  updatePomoDisplay();return;
+ }
+ // Start / Resume — نحفظ timestamp البداية
+ _pomoStartedAt=Date.now()-((_pomoTotalSecs-pomoTimeLeft)*1000);
+ pomoRunning=true;
+ document.getElementById("pomoStart").textContent=t("pomo.pause");
+ pomoInterval=setInterval(_pomoTick,500); // 500ms للدقة أفضل
+}
+
+function resetPomodoro(){
+ clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
+ setPomodoroMode(pomoMode);}
+
+// ✅ عند العودة من إغلاق الشاشة / تبديل التبويب — نحسب الوقت الفعلي فوراً
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden&&pomoRunning){_pomoTick();}});
+window.addEventListener("focus",()=>{
+ if(pomoRunning){_pomoTick();}});
 
 /* --- Flashcards --- */
 let fcQueue=[],fcIndex=0,fcFlipped=false;
@@ -3547,14 +3620,14 @@ setTimeout(()=>{ _appInitializing=false; },0);
           _redirectPending = true;
           fbAuth.signInWithRedirect(googleProvider).catch(err2=>{
             _redirectPending = false;
-            showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+            showError(t("auth.errLogin"));
             lgBtn.disabled = false;
             lgBtn.innerHTML = googleLogoHTML;
           });
           return;
         }
 
-        showError("تعذر تسجيل الدخول: " + (err && err.message ? err.message : "خطأ غير معروف"));
+        showError(t("auth.errLoginMsg",{msg:err&&err.message?err.message:t("auth.errUnknown")}));
         lgBtn.disabled = false;
         lgBtn.innerHTML = googleLogoHTML;
       });
@@ -3572,7 +3645,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       console.error('[BAC-AUTH] getRedirectResult error:', err && err.code, err && err.message);
       _redirectPending = false;
       if(err && err.code && err.code !== 'auth/no-current-user'){
-        showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
+        showError(t("auth.errRedirect"));
       }
     });
 
@@ -3587,19 +3660,19 @@ setTimeout(()=>{ _appInitializing=false; },0);
     const user = fbAuth.currentUser;
     if(!user){ showLogin(); return; }
     blRefresh.disabled=true;
-    blRefresh.textContent="⏳ جارٍ التحقق...";
+    blRefresh.textContent=t("bl.checking");
     if(blChecking) blChecking.style.display="block";
     _clearAccessCache(user.email);
     const allowed = await _checkUserAccess(user);
     if(blChecking) blChecking.style.display="none";
     blRefresh.disabled=false;
-    blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة";
+    blRefresh.innerHTML=t("bl.refresh");
     if(allowed){
       hideGates();
       attachCloudListener(user.uid);
     } else {
-      blRefresh.textContent="⛔ لا يزال الحساب غير مفعّل";
-      setTimeout(()=>{ blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة"; },2500);
+      blRefresh.textContent=t("bl.notActive");
+      setTimeout(()=>{ blRefresh.innerHTML=t("bl.refresh"); },2500);
     }
   });
 })();
