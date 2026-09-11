@@ -1615,7 +1615,6 @@ function applyStaticI18n(){
  document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
- // حفظ اللغة في localStorage كطبقة احتياطية فورية مستقلة عن Firestore
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
  saveState();
  const root=document.getElementById("htmlRoot");
@@ -1628,8 +1627,7 @@ function applyLang(lang){
  applyStaticI18n();applyTheme(state.settings.theme);
  _syncDefaultDataLang(lang);
  renderNav();renderStreamGrid();if(onbVisible())updateOnb();
- renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}
- renderNav();}
+ renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function _syncDefaultDataLang(lang){
  if(!state)return;
  state.tasks.forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
