@@ -1617,6 +1617,8 @@ function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
  // حفظ اللغة في localStorage كطبقة احتياطية فورية مستقلة عن Firestore
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
+ if(typeof _lastLocalWriteTime!=="undefined")_lastLocalWriteTime=Date.now();
+ if(typeof _pendingLocalEdit!=="undefined")_pendingLocalEdit=true;
  saveState();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
