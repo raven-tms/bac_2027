@@ -3038,7 +3038,10 @@ async function _doCloudWrite(uid,retryCount){
  }
 
  try{
-  await fbDb.collection("users").doc(uid).update(payload);
+  // 🔒 استخدام set(merge:true) بدل update: يضمن نجاح الحفظ الأول لحساب جديد
+  // (update يفشل بخطأ not-found إذا لم تكن الوثيقة موجودة أصلاً)، وفي نفس
+  // الوقت لا يمحو أي حقول أخرى غير موجودة في payload عند التحديث اللاحق.
+  await fbDb.collection("users").doc(uid).set(payload,{merge:true});
   setCloudStatus("synced");
   _pendingLocalEdit=false;
   _lastLocalWriteTime=Date.now();
