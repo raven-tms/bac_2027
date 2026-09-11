@@ -3145,6 +3145,21 @@ window.addEventListener('focus',_checkDayRollover);
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
 
+ // 🔒 نُبقي شاشة "جارِ التحقق" (loginGate) ظاهرة إلى أن نعرف يقيناً هل
+ // للمستخدم ملف شخصي محفوظ في السحابة أم لا. هذا يمنع "ومضة" نافذة
+ // الإعداد الأولي (اسم + شعبة) التي كانت تظهر لجزء من الثانية عند كل
+ // Refresh قبل أن تصل بيانات السحابة — لأن hideGates() كان يُستدعى فوراً
+ // بينما state ما تزال فارغة (defaultState) إلى حين وصول الشبكة.
+ let _gateReleased=false;
+ function _releaseGate(){
+  if(_gateReleased)return;
+  _gateReleased=true;
+  hideGates();
+ }
+ // خطة بديلة أمان: لا نترك المستخدم عالقاً خلف شاشة التحقق إلى الأبد
+ // (مثلاً بلا إنترنت وبلا أي cache) — بعد 6 ثوانٍ نحرر الشاشة بأي حال.
+ const _gateSafetyTimer=setTimeout(_releaseGate,6000);
+
  // 🔒 تجديد الـ Token فوراً عند بدء الاستماع — يضمن أن أول طلب للخادم يستخدم
  // token صالحاً حتى لو مضت فترة طويلة منذ تسجيل الدخول
  const currentUser = fbAuth.currentUser;
@@ -3170,9 +3185,14 @@ async function attachCloudListener(uid){
    renderAllViews();
    state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
    pushToCloud();
+   // مستخدم جديد فعلاً — الآن فقط يصح إظهار نافذة الإعداد الأولي (مرة واحدة)
+   _releaseGate();
   } else if(!_pendingLocalEdit){
    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
    applyRemoteState(serverSnap.data());
+   _releaseGate();
+  } else {
+   _releaseGate();
   }
  }).catch(e=>{
   serverCheckDone=true;
@@ -3185,7 +3205,7 @@ async function attachCloudListener(uid){
 
  cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
   try{
-   if(!snap.exists){isFirstSnapshot=false;return;}
+   if(!snap.exists){isFirstSnapshot=false;_releaseGate();return;}
    const d=snap.data();
 
    // تجاهل snapshot كتبه هذا الجهاز نفسه منذ أقل من 4 ثوانٍ
@@ -3208,6 +3228,7 @@ async function attachCloudListener(uid){
     } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
      pushToCloud();
     }
+    _releaseGate();
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
     if(!_pendingLocalEdit&&remoteTime>localTime){
@@ -3215,10 +3236,11 @@ async function attachCloudListener(uid){
      toast(LANG==="ar"?"🔄 تم تحديث البيانات من جهاز آخر":"🔄 Data updated from another device");
     }
    }
-  }catch(e){console.error('Snapshot apply error:',e);}
+  }catch(e){console.error('Snapshot apply error:',e);_releaseGate();}
  },err=>{
   setCloudStatus("error");
   console.error('Firestore listener error:',err&&err.code);
+  _releaseGate();
  });
 }
 
@@ -3406,7 +3428,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
     if(cached === true){
       console.log('[BAC-AUTH] fast path — cached allowed');
-      hideGates();
+      // ملاحظة: لا نستدعي hideGates() هنا — نتركها لـ attachCloudListener
+      // كي تبقى شاشة "جارِ التحقق" ظاهرة إلى أن تصل بيانات السحابة فعلياً،
+      // فلا تظهر نافذة إنشاء الملف الشخصي لومضة قبل أن تُخفى تلقائياً.
       attachCloudListener(user.uid);
       _checkUserAccess(user).then(still=>{
         if(!still){ _clearAccessCache(email); _blockedSignOut=true; showBlocked(user.email); fbAuth.signOut(); }
@@ -3427,7 +3451,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
       _checkUserAccess(user).then(nowAllowed=>{
         if(nowAllowed){
           console.log('[BAC-AUTH] re-check confirms account is now active — unblocking automatically');
-          hideGates();
           attachCloudListener(user.uid);
         } else {
           _blockedSignOut = true;
@@ -3447,7 +3470,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
     const allowed = await _checkUserAccess(user);
     console.log('[BAC-AUTH] Firestore check result:', allowed);
     if(allowed){
-      hideGates();
       attachCloudListener(user.uid);
     } else {
       _blockedSignOut = true;
