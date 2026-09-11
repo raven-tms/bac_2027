@@ -3,6 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!--
+  ✅ Content Security Policy (CSP) — الخط الأول لمنع هجمات XSS وحقن الكود الخارجي
+  ═══════════════════════════════════════════════════════════════════════════════════
+  • default-src  : يرفض كل مصدر غير مذكور صراحةً (مبدأ Deny-by-default)
+  • script-src   : يسمح فقط بسكريبتات inline (الكود المدمج في الملف) + CDNs الموثوقة
+                   'unsafe-inline' مطلوب لأن الكود مدمج في HTML (لا ملفات .js منفصلة)
+  • style-src    : يسمح بـ inline styles + Google Fonts CSS فقط
+  • font-src     : يسمح بتحميل الخطوط من gstatic فقط
+  • connect-src  : يقيّد طلبات fetch/XHR/WebSocket لنطاقات Firebase و Google API فقط
+  • img-src      : يسمح بصور self + data URIs + صور ملفات تعريف Google
+  • frame-src    : يسمح بـ iframes من Firebase فقط (لنافذة تسجيل الدخول)
+  • object-src   : يمنع تحميل Flash/plugins تماماً
+  • base-uri     : يمنع إعادة توجيه الـ base URL (نوع من هجمات injection)
+  • form-action  : يقيّد وجهة إرسال النماذج على self فقط
+  ═══════════════════════════════════════════════════════════════════════════════════
+-->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src  'self'
+               https://*.googleapis.com
+               https://*.firebaseio.com
+               https://*.firebaseapp.com;
+
+  script-src   'self'
+               'unsafe-inline'
+               https://cdn.tailwindcss.com
+               https://www.gstatic.com
+               https://*.googleapis.com
+               https://cdn.jsdelivr.net
+               https://cdnjs.cloudflare.com;
+
+  style-src    'self'
+               'unsafe-inline'
+               https://fonts.googleapis.com;
+
+  font-src     https://fonts.gstatic.com;
+
+  connect-src  https://*.googleapis.com
+               https://*.firebaseio.com
+               https://*.firebaseapp.com
+               https://firestore.googleapis.com
+               https://identitytoolkit.googleapis.com
+               https://securetoken.googleapis.com
+               wss://*.firebaseio.com;
+
+  img-src      'self'
+               data:
+               blob:
+               https://lh3.googleusercontent.com
+               https://www.gstatic.com;
+
+  frame-src    https://bac2027t.firebaseapp.com
+               https://accounts.google.com;
+
+  object-src   'none';
+
+  base-uri     'self';
+
+  form-action  'self';
+">
 <title>BAC 2027 — My Study Guide</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -360,7 +419,7 @@ table td,table th{white-space:nowrap}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;border-top:1px solid #2a3352;padding-top:14px;">
       <button class="bl-back" id="blRefreshBtn" style="background:var(--accent,#3b82f6);color:#fff;border:none;">🔄 تحديث وإعادة المحاولة</button>
-      <button class="bl-back" id="blBackBtn">🚪 تسجيل الخروج أو تبديل الحساب</button>
+      <button class="bl-back" id="blBackBtn">🚪 رجوع لصفحة التسجيل</button>
     </div>
     <div id="blCheckingMsg" style="display:none;margin-top:10px;font-size:0.8rem;color:#94a3b8;">⏳ جارٍ التحقق من حالة الاشتراك...</div>
   </div>
@@ -1268,7 +1327,7 @@ en:{
  "set.title":"Settings","set.profile":"Profile","set.name":"Name","set.stream":"Stream","set.target":"Target Average","set.saveProfile":"Save profile","set.data":"Data Management","set.export":"Export JSON","set.import":"Import JSON","set.reset":"Reset everything","set.dataNote":"All data is stored locally in your browser. Export a backup before the BAC.","set.appearance":"Appearance & Language","set.theme":"Theme","set.language":"Language / اللغة","set.about":"About BAC 2027","set.aboutText":"Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!",
  "footer":"BAC 2027 — My Study Guide • Auto-saving • Made for focus",
  "theme.dark":"Dark","theme.light":"Light","set.mode":"Light / Dark","set.themeColor":"Color Theme","theme.groupClassic":"Classic","theme.groupBoys":"For Boys","theme.groupGirls":"For Girls","theme.active":"Active","toast.themeChanged":"Theme changed to {name}",
- "toast.gradeCap":"Grade capped at 20/20","toast.gradesReset":"All grades were reset","toast.welcome":"Welcome to BAC 2027 — let's start!","toast.levelUp":"Level up! You are now {t} — Level {n}","toast.badge":"Badge unlocked: {t} {i}","toast.streakReset":"Streak reset — you missed a day. Let's rebuild!","toast.enterName":"Please enter your name","toast.fillCard":"Fill both sides of the card","toast.taskTitle":"Enter a task title","toast.fillError":"Fill the topic and description","toast.errorLogged":"Mistake logged","toast.paperSaved":"Paper saved","toast.paperSavedNoFile":"Paper saved, but the file was too large to store","toast.fileTooBig":"File too large (max 4MB)","toast.fileType":"Please attach a PDF or image file","toast.storageFull":"Storage is full — try removing an old attached file","toast.moodSaved":"Mood saved","toast.profileSaved":"Profile saved","toast.exported":"Data exported","toast.invalidFile":"Invalid file","toast.sessionDone":"Study session complete!","toast.focusDone":"Focus session complete! +25 XP","toast.breakDone":"Break over — ready for the next focus?","toast.noCards":"No flashcards to study",
+ "toast.gradeCap":"Grade capped at 20/20","toast.gradesReset":"All grades were reset","toast.welcome":"Welcome to BAC 2027 — let's start!","toast.levelUp":"Level up! You are now {t} — Level {n}","toast.badge":"Badge unlocked: {t} {i}","toast.streakReset":"Streak reset — you missed a day. Let's rebuild!","toast.enterName":"Please enter your name","toast.fillCard":"Fill both sides of the card","toast.taskTitle":"Enter a task title","toast.fillError":"Fill the topic and description","toast.errorLogged":"Mistake logged","toast.paperSaved":"Paper saved","toast.paperSavedNoFile":"Paper saved, but the file was too large to store","toast.fileTooBig":"File too large (max 5MB)","toast.fileType":"Please attach a PDF or image file","toast.storageFull":"Storage is full — try removing an old attached file","toast.moodSaved":"Mood saved","toast.profileSaved":"Profile saved","toast.exported":"Data exported","toast.invalidFile":"Invalid file","toast.sessionDone":"Study session complete!","toast.focusDone":"Focus session complete! +25 XP","toast.breakDone":"Break over — ready for the next focus?","toast.noCards":"No flashcards to study",
  "confirm.resetGrades":"Reset all grades?","confirm.resetAll":"Reset all data? This cannot be undone.",
  "calc.total":"Total","calc.printReport":"Print Report",
  "rep.previewTitle":"Report Preview","rep.print":"Print / PDF","rep.saveImage":"Save Image",
@@ -1325,7 +1384,7 @@ ar:{
  "set.title":"الإعدادات","set.profile":"الملف الشخصي","set.name":"الاسم","set.stream":"الشعبة","set.target":"المعدل المستهدف","set.saveProfile":"حفظ الملف","set.data":"إدارة البيانات","set.export":"تصدير JSON","set.import":"استيراد JSON","set.reset":"حذف كل البيانات","set.dataNote":"كل البيانات محفوظة محلياً في متصفحك. صدّر نسخة احتياطية قبل البكالوريا.","set.appearance":"المظهر واللغة","set.theme":"السمة","set.language":"اللغة / Language","set.about":"حول بكالوريا 2027","set.aboutText":"مصمم لطلبة الثانوي في الجزائر. المعاملات مطابقة للشعب الرسمية. يعمل دون إنترنت ويحفظ تلقائياً. بالتوفيق — أنت قادر!",
  "footer":"بكالوريا 2027 — دليلي للدراسة • حفظ تلقائي • صُنع للتركيز",
  "theme.dark":"داكن","theme.light":"فاتح","set.mode":"فاتح / داكن","set.themeColor":"لون الواجهة","theme.groupClassic":"كلاسيكي","theme.groupBoys":"للأولاد","theme.groupGirls":"للبنات","theme.active":"مفعّل","toast.themeChanged":"تم تغيير التيمة إلى {name}",
- "toast.gradeCap":"تم تحديد العلامة بـ 20/20","toast.gradesReset":"تمت إعادة ضبط العلامات","toast.welcome":"مرحباً بك في بكالوريا 2027 — لنبدأ!","toast.levelUp":"ترقية! أصبحت {t} — المستوى {n}","toast.badge":"شارة جديدة: {t} {i}","toast.streakReset":"انقطعت السلسلة — فاتك يوم. لنعيد البناء!","toast.enterName":"الرجاء إدخال اسمك","toast.fillCard":"املأ وجهي البطاقة","toast.taskTitle":"أدخل عنوان المهمة","toast.fillError":"املأ الموضوع والوصف","toast.errorLogged":"تم تسجيل الخطأ","toast.paperSaved":"تم حفظ الموضوع","toast.paperSavedNoFile":"تم حفظ الموضوع، لكن الملف كان كبيرًا جدًا ولم يُحفظ","toast.fileTooBig":"الملف كبير جدًا (الحد الأقصى 4 ميغابايت)","toast.fileType":"الرجاء إرفاق ملف PDF أو صورة","toast.storageFull":"التخزين ممتلئ — جرّب حذف ملف مرفق قديم","toast.moodSaved":"تم حفظ المزاج","toast.profileSaved":"تم حفظ الملف","toast.exported":"تم تصدير البيانات","toast.invalidFile":"ملف غير صالح","toast.sessionDone":"انتهت جلسة المراجعة!","toast.focusDone":"انتهت جلسة التركيز! +25 نقطة","toast.breakDone":"انتهت الاستراحة — جاهز للتركيز؟","toast.noCards":"لا توجد بطاقات للمراجعة",
+ "toast.gradeCap":"تم تحديد العلامة بـ 20/20","toast.gradesReset":"تمت إعادة ضبط العلامات","toast.welcome":"مرحباً بك في بكالوريا 2027 — لنبدأ!","toast.levelUp":"ترقية! أصبحت {t} — المستوى {n}","toast.badge":"شارة جديدة: {t} {i}","toast.streakReset":"انقطعت السلسلة — فاتك يوم. لنعيد البناء!","toast.enterName":"الرجاء إدخال اسمك","toast.fillCard":"املأ وجهي البطاقة","toast.taskTitle":"أدخل عنوان المهمة","toast.fillError":"املأ الموضوع والوصف","toast.errorLogged":"تم تسجيل الخطأ","toast.paperSaved":"تم حفظ الموضوع","toast.paperSavedNoFile":"تم حفظ الموضوع، لكن الملف كان كبيرًا جدًا ولم يُحفظ","toast.fileTooBig":"الملف كبير جدًا (الحد الأقصى 5 ميغابايت)","toast.fileType":"الرجاء إرفاق ملف PDF أو صورة","toast.storageFull":"التخزين ممتلئ — جرّب حذف ملف مرفق قديم","toast.moodSaved":"تم حفظ المزاج","toast.profileSaved":"تم حفظ الملف","toast.exported":"تم تصدير البيانات","toast.invalidFile":"ملف غير صالح","toast.sessionDone":"انتهت جلسة المراجعة!","toast.focusDone":"انتهت جلسة التركيز! +25 نقطة","toast.breakDone":"انتهت الاستراحة — جاهز للتركيز؟","toast.noCards":"لا توجد بطاقات للمراجعة",
  "confirm.resetGrades":"إعادة ضبط كل العلامات؟","confirm.resetAll":"حذف كل البيانات؟ لا يمكن التراجع.",
  "calc.total":"المجموع","calc.printReport":"طباعة الكشف",
  "rep.previewTitle":"معاينة الكشف","rep.saveImage":"حفظ كصورة",
@@ -1355,6 +1414,12 @@ function mentionFromAvg(a){if(a>=16)return t("mention.excellent");if(a>=14)retur
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 
 /* ============ STATE ============ */
+// ── مطابق تماماً لنظام habittck: لا يوجد أي تخزين محلي (localStorage) لبيانات
+// التطبيق الرئيسية إطلاقاً. الحالة "state" تعيش فقط في الذاكرة وتُقرأ/تُكتب
+// حصرياً من وإلى Firestore (وثيقة users/{uid})، بمخزن Firestore المحلي الخاص
+// (enableMultiTabIndexedDbPersistence) كطبقة عمل بدون إنترنت. هذا يمنع نهائياً
+// أي تسرّب لبيانات حساب على حساب آخر يستعمل نفس الجهاز، لأنه لا توجد أي خانة
+// محلية مشتركة أو حتى مفتاحة بالحساب — لا شيء يبقى محلياً بين الحسابات أصلاً ──
 let state=null;
 function defaultState(){return{
  profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
@@ -1373,8 +1438,11 @@ function defaultState(){return{
  errors:[{id:"e1",subject:"math",topic:"Limits",description:"Forgot to check the indeterminate form",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
  moods:[],
  meta:{updatedAt:0}}}
-function loadState(){try{const r=localStorage.getItem("bac2027_v3");if(!r)return null;const p=JSON.parse(r);const d=defaultState();return Object.assign(d,p,{profile:Object.assign(d.profile,p.profile||{}),settings:Object.assign(d.settings,p.settings||{}),gamification:Object.assign(d.gamification,p.gamification||{}),pomodoro:Object.assign(d.pomodoro,p.pomodoro||{}),meta:Object.assign({updatedAt:0},p.meta||{})})}catch(e){return null}}
-function saveState(){try{localStorage.setItem("bac2027_v3",JSON.stringify(state));return true}catch(e){toast(t("toast.storageFull"),"warn");return false}}
+// habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
+// إطلاقاً. saveState() الآن لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
+// queueCloudSync() (انظر التغليف أسفل الملف) الذي يكتب إلى Firestore فقط.
+function loadState(){return null}
+function saveState(){return true}
 
 /* ============ TOASTS / XP ============ */
 function toast(msg,type){const root=document.getElementById("toastRoot");const el=document.createElement("div");
@@ -1860,14 +1928,86 @@ function deleteTask(id){state.tasks=state.tasks.filter(x=>x.id!==id);saveState()
 
 /* --- Papers --- */
 let paperFileData=null,paperFileType=null,paperFileName=null;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 🖼️ IMAGE COMPRESSION — Canvas-based WebP/JPEG converter
+// الحد الأقصى لحجم الصورة المرفوعة: 5 MB
+// تُضغط الصور تلقائياً إلى WebP (أو JPEG كبديل) بجودة 80%–85%
+// مع تصغير الأبعاد إذا تجاوزت الصورة العرض الأقصى (2400px)
+// ─────────────────────────────────────────────────────────────────────────────
+const IMG_MAX_SIZE_BYTES = 5 * 1024 * 1024;   // 5 MB — الحد الأقصى للرفع
+const IMG_COMPRESS_QUALITY = 0.82;             // جودة الضغط: 82% (بين 80%–85%)
+const IMG_MAX_DIMENSION   = 2400;             // الحد الأقصى لعرض/ارتفاع الصورة (px)
+
+/**
+ * يضغط الصورة باستخدام Canvas ويُحوّلها إلى WebP أو JPEG
+ * @param {string} dataUrl - الصورة الأصلية كـ data URL
+ * @param {string} [hint]  - اسم الملف (لتحديد نوع الإخراج كبديل)
+ * @returns {Promise<string>} dataUrl مضغوطة بصيغة WebP أو JPEG
+ */
+function _compressImageCanvas(dataUrl, hint) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        // ① تحديد الأبعاد مع الحفاظ على النسبة
+        let w = img.naturalWidth, h = img.naturalHeight;
+        if (w > IMG_MAX_DIMENSION || h > IMG_MAX_DIMENSION) {
+          const ratio = Math.min(IMG_MAX_DIMENSION / w, IMG_MAX_DIMENSION / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width  = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        // خلفية بيضاء لمنع الشفافية في JPEG
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // ② حاول WebP أولاً — إذا رفضه المتصفح نتحقق من الناتج
+        const webpResult = canvas.toDataURL("image/webp", IMG_COMPRESS_QUALITY);
+        const supportsWebP = webpResult.startsWith("data:image/webp");
+
+        if (supportsWebP) {
+          console.log("[BAC-IMG] Compressed → WebP", Math.round(webpResult.length * 0.75 / 1024), "KB");
+          resolve(webpResult);
+        } else {
+          // ③ JPEG كبديل للمتصفحات التي لا تدعم WebP في Canvas
+          const jpegResult = canvas.toDataURL("image/jpeg", IMG_COMPRESS_QUALITY);
+          console.log("[BAC-IMG] Compressed → JPEG", Math.round(jpegResult.length * 0.75 / 1024), "KB");
+          resolve(jpegResult);
+        }
+      } catch(err) {
+        console.warn("[BAC-IMG] Canvas compression failed, using original:", err);
+        resolve(dataUrl); // fallback للصورة الأصلية
+      }
+    };
+    img.onerror = () => {
+      console.warn("[BAC-IMG] Image load failed in compressor");
+      resolve(dataUrl); // fallback آمن
+    };
+    img.src = dataUrl;
+  });
+}
+
 function onPaperFileChange(e){
  const f=e.target.files[0];if(!f)return;
- if(f.size>4*1024*1024){toast(t("toast.fileTooBig"),"warn");e.target.value="";return}
+ // 🔒 حد أقصى 5 MB لملفات الصور والـ PDF
+ if(f.size>IMG_MAX_SIZE_BYTES){toast(t("toast.fileTooBig"),"warn");e.target.value="";return}
  const isPdf=f.type==="application/pdf",isImg=f.type.startsWith("image/");
  if(!isPdf&&!isImg){toast(t("toast.fileType"),"warn");e.target.value="";return}
  const reader=new FileReader();
- reader.onload=ev=>{
-  paperFileData=ev.target.result;paperFileType=isPdf?"pdf":"image";paperFileName=f.name;
+ reader.onload=async ev=>{
+  let finalData=ev.target.result;
+  // 🖼️ ضغط الصور تلقائياً (PDF لا يُضغط — يُخزن كما هو)
+  if(isImg){
+    try{ finalData=await _compressImageCanvas(ev.target.result, f.name); }
+    catch(err){ console.warn("[BAC-IMG] Compression error, using original:", err); }
+  }
+  paperFileData=finalData;paperFileType=isPdf?"pdf":"image";paperFileName=f.name;
   const prev=document.getElementById("paperFilePreview");
   prev.innerHTML=isImg?'<img src="'+paperFileData+'" class="w-full h-full object-cover">':'<span>📄</span>';
   document.getElementById("paperFileName").textContent=f.name;
@@ -2330,9 +2470,9 @@ function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="bac2027-"+todayISO()+".json";a.click();URL.revokeObjectURL(url);toast(t("toast.exported"))}
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();
- r.onload=ev=>{try{const d=JSON.parse(ev.target.result);localStorage.setItem("bac2027_v3",JSON.stringify(d));location.reload()}catch(x){toast(t("toast.invalidFile"),"warn")}};
+ r.onload=ev=>{try{const d=JSON.parse(ev.target.result);state=mergeRemoteState(d);renderAllViews();saveState();toast(t("toast.exported"))}catch(x){toast(t("toast.invalidFile"),"warn")}};
  r.readAsText(f)}
-function resetAll(){if(confirm(t("confirm.resetAll"))){localStorage.removeItem("bac2027_v3");location.reload()}}
+function resetAll(){if(confirm(t("confirm.resetAll"))){state=defaultState();renderAllViews();saveState();}}
 
 /* ============ ONBOARDING ============ */
 let onbStep=1;
@@ -2393,7 +2533,7 @@ function initApp(){
  renderNav();applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
- state=loadState()||defaultState();
+ state=defaultState();
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -2426,6 +2566,168 @@ function initApp(){
 })();
 
 /* ============ CLOUD SYNC (Firebase) ============ */
+
+/* ───────────────────────────────────────────────────────────────────────────
+   🔒 SECURITY HARDENING — BAC 2027
+   ─────────────────────────────────────────────────────────────────────────
+   ملاحظة هامة للمطوّر:
+   الـ apiKey في Firebase هو مُعرِّف عام للمشروع وليس "كلمة سر" بمفهومها
+   التقليدي. الحماية الحقيقية تأتي من ثلاثة مستويات مُفعَّلة هنا:
+
+   1. Firebase Security Rules (الأهم — تُطبَّق على السيرفر لا المتصفح):
+      • allowed_emails_tacky/{email}: قراءة فقط إذا auth.token.email == email
+      • users/{uid}: قراءة/كتابة فقط إذا auth.uid == uid
+      • كل شيء آخر: مرفوض تماماً
+      ← انسخ الـ Rules الموجودة في التعليقات أدناه إلى Firebase Console
+
+   2. App Check (موصى به بشدة — يُقيّد الطلبات لتأتي من موقعك فقط):
+      فعّله في Firebase Console → App Check → reCAPTCHA v3
+
+   3. Authorized Domains (مُفعَّل افتراضياً):
+      Firebase Console → Authentication → Settings → Authorized domains
+      تأكد أن فيه فقط نطاقك الرسمي
+
+   ═══════════════════════════════════════════════════════════════════════
+   📋 FIRESTORE SECURITY RULES — انسخها إلى Firebase Console:
+   ═══════════════════════════════════════════════════════════════════════
+
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+
+       // الإيميلات المسموحة: المستخدم يقرأ سجله فقط، لا أحد يكتب من العميل
+       match /allowed_emails_tacky/{email} {
+         allow read: if request.auth != null
+                     && request.auth.token.email.lower() == email;
+         allow write: if false;
+       }
+
+       // بيانات المستخدم: كل مستخدم يصل لملفه فقط
+       match /users/{userId} {
+         allow read, write: if request.auth != null
+                            && request.auth.uid == userId
+                            && request.resource.data.keys().hasOnly([
+                               'meta','grades','tasks','goals','notes',
+                               'gamification','settings','streak',
+                               '_savedAt','_writerId'
+                            ]);
+       }
+
+       // كل شيء آخر مرفوض
+       match /{document=**} {
+         allow read, write: if false;
+       }
+     }
+   }
+
+   ═══════════════════════════════════════════════════════════════════════
+*/
+
+// ✅ [1] Rate Limiting على زر تسجيل الدخول — منع Brute-force
+// حد أقصى 5 محاولات خلال 60 ثانية، بعدها يُجمَّد الزر مع عداد تنازلي مرئي
+const RL_MAX_ATTEMPTS  = 5;    // الحد الأقصى للمحاولات
+const RL_WINDOW_MS     = 60000; // نافذة 60 ثانية
+const RL_STORAGE_KEY   = 'bac2027_rl'; // مفتاح localStorage للثبات عبر reloads
+
+const _authAttempts = { count: 0, windowStart: Date.now() };
+let _rateLimitFrozen = false;
+let _rateLimitCountdownInterval = null;
+
+// ─── استرداد الحالة المحفوظة عند تحميل الصفحة (يمنع تحايل المستخدم بـ Refresh) ───
+(function _restoreRateLimitState() {
+  try {
+    const raw = localStorage.getItem(RL_STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    const age = Date.now() - (saved.windowStart || 0);
+    if (age < RL_WINDOW_MS) {
+      // النافذة لم تنتهِ بعد — نعيد الحالة
+      _authAttempts.count       = saved.count       || 0;
+      _authAttempts.windowStart = saved.windowStart || Date.now();
+      if (_authAttempts.count > RL_MAX_ATTEMPTS) _rateLimitFrozen = true;
+    } else {
+      // النافذة انتهت — نمسح السجل
+      localStorage.removeItem(RL_STORAGE_KEY);
+    }
+  } catch(e) {}
+})();
+
+function _saveRateLimitState() {
+  try {
+    localStorage.setItem(RL_STORAGE_KEY, JSON.stringify({
+      count:       _authAttempts.count,
+      windowStart: _authAttempts.windowStart
+    }));
+  } catch(e) {}
+}
+
+function _checkRateLimit() {
+  const now = Date.now();
+  // إعادة ضبط النافذة الزمنية إذا مضت الدقيقة
+  if (now - _authAttempts.windowStart > RL_WINDOW_MS) {
+    _authAttempts.count       = 0;
+    _authAttempts.windowStart = now;
+    _rateLimitFrozen          = false;
+    localStorage.removeItem(RL_STORAGE_KEY);
+  }
+  // إذا كنا مجمّدين بالفعل (حتى بدون زيادة العداد)
+  if (_rateLimitFrozen) return false;
+  _authAttempts.count++;
+  _saveRateLimitState();
+  if (_authAttempts.count > RL_MAX_ATTEMPTS) {
+    _rateLimitFrozen = true;
+    return false; // تجاوز الحد — ارفض المحاولة
+  }
+  return true;
+}
+
+// ─── عداد تنازلي مرئي يُجمّد الزر ويعرض الوقت المتبقي ───────────────────────
+function _startRateLimitCountdown(btnEl, errorEl, logoHTML) {
+  if (_rateLimitCountdownInterval) return; // لا تبدأ عداداً ثانياً
+  const remaining = () => Math.max(0, Math.ceil((RL_WINDOW_MS - (Date.now() - _authAttempts.windowStart)) / 1000));
+
+  // تجميد الزر فوراً
+  btnEl.disabled = true;
+
+  const _tick = () => {
+    const secs = remaining();
+    if (secs <= 0) {
+      // ─── انتهى العداد — أعد تفعيل كل شيء ───
+      clearInterval(_rateLimitCountdownInterval);
+      _rateLimitCountdownInterval = null;
+      _authAttempts.count       = 0;
+      _authAttempts.windowStart = Date.now();
+      _rateLimitFrozen          = false;
+      localStorage.removeItem(RL_STORAGE_KEY);
+      btnEl.disabled  = false;
+      btnEl.innerHTML = logoHTML;
+      if (errorEl) errorEl.classList.remove('show');
+    } else {
+      // ─── حدّث رسالة الخطأ والزر في كل ثانية ───
+      if (errorEl) {
+        errorEl.textContent = `⚠️ محاولات كثيرة جداً! انتظر ${secs} ثانية قبل المحاولة مجدداً.`;
+        errorEl.classList.add('show');
+      }
+      // شريط تقدم مرئي داخل الزر
+      const pct = Math.round((secs / (RL_WINDOW_MS / 1000)) * 100);
+      btnEl.innerHTML = `
+        <span style="display:flex;flex-direction:column;align-items:center;gap:2px;width:100%">
+          <span style="font-size:0.82rem;font-weight:600">🔒 محظور — انتظر ${secs}ث</span>
+          <span style="width:80%;height:4px;background:rgba(255,255,255,0.25);border-radius:4px;overflow:hidden">
+            <span style="display:block;height:100%;width:${pct}%;background:rgba(255,255,255,0.75);border-radius:4px;transition:width 0.9s linear"></span>
+          </span>
+        </span>`;
+    }
+  };
+
+  _tick(); // تنفيذ فوري قبل انتظار أول ثانية
+  _rateLimitCountdownInterval = setInterval(_tick, 1000);
+}
+
+// ✅ CSP مُطبَّق في <head> كـ <meta> ثابت (السطر الأول من الملف) —
+// المتصفحات تتجاهل أي CSP يُضاف ديناميكياً عبر JS بعد تحميل الصفحة،
+// لذا الـ meta في <head> هو المكان الوحيد الفعّال لملفات HTML المستقلة.
+
 const firebaseConfig={
  apiKey:"AIzaSyCPf-wlq_bWewBnsAIGWnfS5WjMZb_guq4",
  authDomain:"bac2027t.firebaseapp.com",
@@ -2522,7 +2824,6 @@ function mergeRemoteState(remote){
 function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
- try{localStorage.setItem("bac2027_v3",JSON.stringify(state))}catch(e){}
  LANG=state.settings.lang||LANG;
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -2542,15 +2843,196 @@ let _appInitializing=true;
 let _lastLocalWriteTime=0;
 const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','internal'];
 
+// ── Payload Sanitization — تنظيف وتحقق شامل من البيانات قبل رفعها لـ Firestore ──
+//
+// المشكلة: state يتراكم فيه أحياناً حقول مؤقتة أو غير متوقعة (runtime flags، بقايا
+// تجريبية، حقول مُضافة من خارج) وإرسالها للـ Cloud يلوّث البيانات ويكسر Schema
+// Validation الموجودة في Firestore Security Rules.
+//
+// الحل: دالة تنظيف تعمل على مستويين:
+// 1) المستوى الأعلى (top-level): تحتفظ فقط بالمفاتيح المعتمدة (ALLOWED_KEYS)
+// 2) المستوى الداخلي (nested): تنظف كل حقل فرعي حسب Schema محدد مسبقاً،
+//    مع الحفاظ على المرونة للحقول ذات البنية الديناميكية (grades, tasks, إلخ)
+
+const _PAYLOAD_SCHEMA = {
+  // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
+  ALLOWED_TOP_KEYS: ['meta','grades','tasks','goals','notes','gamification','settings','streak'],
+
+  // الحقول المسموح بها داخل كل قسم فرعي
+  meta:         ['updatedAt','version','onboarded'],
+  gamification: ['xp','level','streak','lastActive','streakHistory','badges','mood'],
+  settings:     ['theme','themeName','lang','amazighExempt','epsExempt','targetAvg',
+                 'notifyStreak','notifyGoals','weekStart'],
+  streak:       ['count','lastActive','history','longestStreak'],
+  // grades/tasks/goals/notes/errors: بنية ديناميكية — نتحقق من النوع فقط
+};
+
+/**
+ * ينظف Object من أي مفاتيح غير موجودة في القائمة المسموحة.
+ * @param {Object} obj - الكائن المراد تنظيفه
+ * @param {string[]} allowedKeys - المفاتيح المسموح بها
+ * @param {string} [context] - اسم السياق للـ logging
+ * @returns {Object} كائن نظيف يحتوي فقط على المفاتيح المسموحة
+ */
+function _filterKeys(obj, allowedKeys, context) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+  const cleaned = {};
+  const removedKeys = [];
+  Object.keys(obj).forEach(k => {
+    if (allowedKeys.includes(k)) {
+      cleaned[k] = obj[k];
+    } else {
+      removedKeys.push(k);
+    }
+  });
+  if (removedKeys.length > 0) {
+    console.warn('[BAC-SANITIZE]', context || 'object', '— removed unexpected keys:', removedKeys);
+  }
+  return cleaned;
+}
+
+/**
+ * يتحقق من أن القيمة آمنة للرفع لـ Firestore (لا دوال، لا undefined، إلخ)
+ * ويُحوّل القيم غير الصالحة إلى null.
+ */
+function _sanitizeValue(val) {
+  if (val === undefined) return null;
+  if (typeof val === 'function') return null;
+  if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+    return _sanitizeObject(val);
+  }
+  if (Array.isArray(val)) {
+    return val.map(_sanitizeValue).filter(v => v !== null);
+  }
+  return val;
+}
+
+function _sanitizeObject(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  const result = {};
+  Object.keys(obj).forEach(k => {
+    const cleaned = _sanitizeValue(obj[k]);
+    if (cleaned !== null || obj[k] === null) {
+      result[k] = cleaned;
+    }
+  });
+  return result;
+}
+
+/**
+ * الدالة الرئيسية: تُنظف payload كامل قبل رفعه لـ Firestore.
+ * @param {Object} rawPayload - الـ state الخام
+ * @returns {Object} payload نظيف ومُتحقق منه
+ */
+function sanitizeFirestorePayload(rawPayload) {
+  if (!rawPayload || typeof rawPayload !== 'object') {
+    console.error('[BAC-SANITIZE] Invalid payload type:', typeof rawPayload);
+    return {};
+  }
+
+  // ① احتفظ فقط بالمفاتيح الأعلى المستوى المعتمدة
+  const topLevel = _filterKeys(rawPayload, _PAYLOAD_SCHEMA.ALLOWED_TOP_KEYS, 'top-level');
+
+  // ② نظّف الأقسام ذات Schema محدد
+  ['meta', 'gamification', 'settings', 'streak'].forEach(section => {
+    if (topLevel[section] && _PAYLOAD_SCHEMA[section]) {
+      topLevel[section] = _filterKeys(topLevel[section], _PAYLOAD_SCHEMA[section], section);
+    }
+  });
+
+  // ③ للأقسام ذات البنية الديناميكية (grades, tasks, goals, notes):
+  //    تحقق من النوع فقط واحذف أي قيم undefined/function
+  ['grades', 'tasks', 'goals', 'notes', 'errors'].forEach(section => {
+    if (topLevel[section] !== undefined) {
+      if (typeof topLevel[section] !== 'object' || Array.isArray(topLevel[section])) {
+        console.warn('[BAC-SANITIZE]', section, 'expected object, got:', typeof topLevel[section], '— resetting to {}');
+        topLevel[section] = {};
+      } else {
+        topLevel[section] = _sanitizeObject(topLevel[section]);
+      }
+    }
+  });
+
+  // ④ نظيف شامل نهائي لكامل الـ payload (يلتقط أي شيء فات)
+  const finalPayload = _sanitizeObject(topLevel);
+
+  console.log('[BAC-SANITIZE] Payload sanitized — keys:', Object.keys(finalPayload));
+  return finalPayload;
+}
+
+// ── تجديد Firebase ID Token تلقائياً إذا تجاوز عمره أكثر من ساعة ──
+// Firebase يُجدد الـ Token كل ساعة تقريباً، لكن في بعض السيناريوهات (tab مفتوح
+// طويلاً، وضع Offline ثم العودة، إلخ) قد يصبح Token قديماً ويتسبب في فشل
+// العمليات. هذه الدالة تستدعي getIdToken(true) لإجبار التجديد إذا مضت ساعة
+// أو أكثر منذ آخر تجديد معروف، وتُعيد false إذا فشل التجديد.
+let _lastTokenRefreshTime = 0;
+const _TOKEN_REFRESH_INTERVAL_MS = 55 * 60 * 1000; // 55 دقيقة (قبل انتهاء الساعة بهامش)
+
+async function _ensureFreshToken(user) {
+  if (!user) return false;
+  const now = Date.now();
+  const shouldForceRefresh = (now - _lastTokenRefreshTime) >= _TOKEN_REFRESH_INTERVAL_MS;
+  try {
+    // forceRefresh=true: يُجدد من الخادم حتى لو Token لا يزال صالحاً ظاهرياً
+    await user.getIdToken(shouldForceRefresh);
+    if (shouldForceRefresh) {
+      _lastTokenRefreshTime = now;
+      console.log('[BAC-CLOUD] Firebase token refreshed successfully');
+    }
+    return true;
+  } catch (e) {
+    console.error('[BAC-CLOUD] Token refresh failed:', e && e.code, e && e.message);
+    // إذا فشل التجديد بسبب انتهاء الجلسة — سجّل الخروج بهدوء
+    if (e && (e.code === 'auth/user-token-expired' || e.code === 'auth/invalid-user-token' || e.code === 'auth/user-disabled')) {
+      toast(LANG === 'ar' ? '⚠️ انتهت جلستك — يرجى إعادة تسجيل الدخول' : '⚠️ Session expired — please sign in again', 'warn');
+      fbAuth.signOut();
+    }
+    return false;
+  }
+}
+
 async function _doCloudWrite(uid,retryCount){
  retryCount=retryCount||0;
+
+ // 🔒 تحقق 1: وجود uid صالح فعلاً (وليس undefined/null/فارغ)
+ if(!uid || typeof uid !== "string"){ console.error('[BAC-CLOUD] blocked write: invalid uid'); return; }
+
+ // 🔒 تحقق 2: تطابق uid مع cloudUser المحلي المخزّن في الجلسة
  if(!cloudUser||cloudUser.uid!==uid)return;
+
+ // 🔒 تحقق 3 (مزدوج/إضافي): تأكد أن firebase.auth().currentUser موجود فعلياً
+ // وأن uid الحقيقي القادم من Firebase يطابق uid المطلوب الكتابة له
+ const currentUser = fbAuth.currentUser;
+ if(!currentUser || !currentUser.uid || currentUser.uid !== uid){
+   console.error('[BAC-CLOUD] blocked write: no authenticated currentUser or uid mismatch');
+   setCloudStatus('error');
+   return;
+ }
+
+ // 🔒 تجديد الـ Token إذا اقترب من الانتهاء أو مضت عليه أكثر من 55 دقيقة
+ const tokenOk = await _ensureFreshToken(currentUser);
+ if (!tokenOk) { setCloudStatus('error'); return; }
+
  setCloudStatus("syncing");
- const payload=JSON.parse(JSON.stringify(state));
+ const rawPayload=JSON.parse(JSON.stringify(state));
+
+ // 🔒 تنظيف وتحقق شامل من الـ payload قبل الرفع لـ Firestore
+ const payload = sanitizeFirestorePayload(rawPayload);
+
  payload._savedAt=Date.now();
  payload._writerId=_sessionId;
+
+ // 🔒 حد أقصى لحجم البيانات (1MB) لمنع رفع بيانات ضخمة غير طبيعية
+ const payloadSize = JSON.stringify(payload).length;
+ if(payloadSize > 1048576){
+   console.error('[BAC-CLOUD] payload too large:', payloadSize, 'bytes');
+   setCloudStatus("error");
+   toast(LANG==="ar"?"⚠️ البيانات كبيرة جداً — تواصل مع الدعم":"⚠️ Data too large","warn");
+   return;
+ }
+
  try{
-  await fbDb.collection("users").doc(uid).set(payload);
+  await fbDb.collection("users").doc(uid).update(payload);
   setCloudStatus("synced");
   _pendingLocalEdit=false;
   _lastLocalWriteTime=Date.now();
@@ -2566,7 +3048,14 @@ async function _doCloudWrite(uid,retryCount){
 }
 
 function pushToCloud(){
- if(!cloudUser)return;
+ // 🔒 تحقق مسبق قبل حتى إضافة العملية لطابور الحفظ:
+ // يجب توفر cloudUser محلياً + firebase.auth().currentUser فعلياً + تطابق الـ uid الحقيقي
+ if(!cloudUser || !cloudUser.uid) return;
+ const currentUser = fbAuth.currentUser;
+ if(!currentUser || !currentUser.uid || currentUser.uid !== cloudUser.uid){
+   console.error('[BAC-CLOUD] blocked pushToCloud: firebase.auth().currentUser missing or uid mismatch');
+   return;
+ }
  const uid=cloudUser.uid;
  _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,0));
 }
@@ -2594,9 +3083,57 @@ window.addEventListener('offline',()=>{
  setCloudStatus("offline");
 });
 
+// ── حفظ فوري عند إغلاق الصفحة (beforeunload) — لضمان عدم ضياع تعديل
+// حصل للتو ولم يصل بعد للسحابة (الـ debounce 800ms لم ينتهِ بعد) ──
+window.addEventListener('beforeunload',()=>{
+ if(cloudUser&&(_saveDebounceTimer||_pendingLocalEdit)){
+  clearTimeout(_saveDebounceTimer);
+  _saveDebounceTimer=null;
+  pushToCloud();
+ }
+});
+// ── نفس الفكرة، لكن عبر visibilitychange — أكثر موثوقية على الهاتف
+// (iOS/Android لا يُطلقان beforeunload دائماً عند تبديل التطبيق أو الرجوع
+// للشاشة الرئيسية؛ visibilitychange يُطلَق بشكل أضمن فهاذ الحالة) ──
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden&&cloudUser&&(_saveDebounceTimer||_pendingLocalEdit)){
+  clearTimeout(_saveDebounceTimer);
+  _saveDebounceTimer=null;
+  pushToCloud();
+ }
+});
+
+// ── إعادة فحص "تغيّر اليوم" بدون الحاجة لإعادة تحميل الصفحة يدوياً: إذا
+// تُرك الموقع مفتوحاً فتبويبة وتجاوزنا منتصف الليل (أو رجع المستخدم للتبويبة
+// بعد غياب طويل)، نعيد فحص السلسلة (streak) ونحدّث الواجهة تلقائياً، حتى
+// تبقى حالة "اليوم" و"في خطر" دقيقة دون تدخل يدوي من المستخدم ──
+let _lastKnownDateISO=null;
+function _checkDayRollover(){
+ if(!state)return;
+ const nowISO=todayISO();
+ if(_lastKnownDateISO===null){ _lastKnownDateISO=nowISO; return; }
+ if(nowISO!==_lastKnownDateISO){
+  _lastKnownDateISO=nowISO;
+  checkStreak();
+  renderGamification();
+  renderDashboard();
+  if(typeof renderTools==="function")renderTools();
+ }
+}
+setInterval(_checkDayRollover,60000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden)_checkDayRollover(); });
+window.addEventListener('focus',_checkDayRollover);
+
 // ── مستمع Firestore الكامل: server-first + real-time sync + session guard ──
-function attachCloudListener(uid){
+async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
+
+ // 🔒 تجديد الـ Token فوراً عند بدء الاستماع — يضمن أن أول طلب للخادم يستخدم
+ // token صالحاً حتى لو مضت فترة طويلة منذ تسجيل الدخول
+ const currentUser = fbAuth.currentUser;
+ if (currentUser) {
+   await _ensureFreshToken(currentUser).catch(() => {});
+ }
 
  // STEP 1: فحص الخادم مباشرة (بدون cache) لتحديد حالة المستخدم بدقة
  // هذا يمنع: تطبيق بيانات stale من الـ cache على مستخدم عائد بجهاز جديد
@@ -2606,8 +3143,14 @@ function attachCloudListener(uid){
  fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
   serverCheckDone=true;
   if(!serverSnap.exists){
-   // مستخدم جديد تماماً — ارفع بياناته الحالية للسحابة
+   // مستخدم جديد تماماً بتأكيد مباشر من الخادم (وليس من الـ cache المحلي) —
+   // لا نرفع أبداً أي بيانات "state" قد تكون بقايا حساب آخر استُعمل على
+   // نفس الجهاز/المتصفح؛ بل نبدأ بحالة افتراضية نظيفة 100% ونرفعها هي فقط.
+   // هذا يطابق تماماً منطق تطبيق habittck الناجح: "مستخدم جديد مؤكَّد من
+   // الخادم = بيانات افتراضية جديدة، لا بيانات الذاكرة المحلية الحالية".
    serverConfirmedNew=true;
+   state=defaultState();
+   renderAllViews();
    state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
    pushToCloud();
   } else if(!_pendingLocalEdit){
@@ -2725,6 +3268,11 @@ setTimeout(()=>{ _appInitializing=false; },0);
     lgBtn.disabled = false;
     lgBtn.innerHTML = googleLogoHTML;
     hideError();
+    // 🔒 إذا كان rate-limit لا يزال نشطاً (مثلاً بعد إعادة تحميل الصفحة)،
+    // نعيد تشغيل العداد التنازلي تلقائياً لمنع التحايل بـ Refresh
+    if (_rateLimitFrozen) {
+      _startRateLimitCountdown(lgBtn, lgError, googleLogoHTML);
+    }
   }
 
   // ===== ACCESS CACHE (localStorage) =====
@@ -2762,14 +3310,36 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
   // ===== FIRESTORE ACCESS CHECK =====
   async function _checkUserAccess(user){
-    if(!user || !user.email) return false;
+    if(!user || !user.email || !user.uid) return false;
+
+    // 🔒 تحقق من أن الـ token لم تنتهِ صلاحيته وأن الـ email موثّق
     try {
-      const email = user.email.toLowerCase();
-      console.log('[BAC-AUTH] checking Firestore for:', email);
+      const idToken = await user.getIdTokenResult(/* forceRefresh= */ false);
+      // إذا كان الـ token قديماً أكثر من ساعة، أجبر على تجديده
+      const issuedAt = new Date(idToken.issuedAtTime).getTime();
+      if(Date.now() - issuedAt > 3600000){
+        await user.getIdToken(/* forceRefresh= */ true);
+      }
+    } catch(tokenErr){
+      console.warn('[BAC-AUTH] token refresh error:', tokenErr && tokenErr.code);
+      // لا نرفض — نكمل التحقق من Firestore
+    }
+
+    try {
+      const email = user.email.toLowerCase().trim();
+
+      // 🔒 تحقق بسيط من صيغة الإيميل قبل الإرسال لـ Firestore
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+        console.warn('[BAC-AUTH] invalid email format');
+        return false;
+      }
+
       const doc = await fbDb.collection("allowed_emails_tacky").doc(email).get();
-      console.log('[BAC-AUTH] doc.exists:', doc.exists, doc.exists ? 'active:' + doc.data().active : '');
       if(!doc.exists){ _clearAccessCache(email); return false; }
-      const allowed = doc.data().active === true;
+
+      const data = doc.data();
+      // 🔒 تحقق صارم: يجب أن يكون active === true (وليس truthy فقط)
+      const allowed = data.active === true;
       _setAccessCache(email, allowed);
       return allowed;
     } catch(e){
@@ -2828,10 +3398,29 @@ setTimeout(()=>{ _appInitializing=false; },0);
     }
 
     if(cached === false){
-      console.log('[BAC-AUTH] cached denied → showBlocked');
-      _blockedSignOut = true;
+      // ⚠️ إصلاح: كنّا نثق بالتخزين المؤقت "محظور" لمدة تصل لـ30 دقيقة بدون
+      // أي إعادة تحقق فعلية — فإذا فعّل الأدمن الحساب فهاذ الأثناء، المستخدم
+      // كان يبقى شايف شاشة "غير مفعّل" حتى لو عاود تسجيل الدخول أو عمل Refresh
+      // عادي (بلا ما يضغط تحديداً على زر "تحديث وإعادة المحاولة" داخل الشاشة).
+      // الحل: نعرض شاشة الحظر فوراً (تجربة سريعة)، لكن فنفس الوقت نتحقق من
+      // Firestore مباشرة فالخلفية — وإذا تبيّن أنه مفعّل الآن، نفتح الموقع
+      // تلقائياً بلا ما يحتاج المستخدم يضغط أي زر.
+      console.log('[BAC-AUTH] cached denied — showing blocked screen while re-verifying with server...');
       showBlocked(user.email);
-      fbAuth.signOut();
+      _checkUserAccess(user).then(nowAllowed=>{
+        if(nowAllowed){
+          console.log('[BAC-AUTH] re-check confirms account is now active — unblocking automatically');
+          hideGates();
+          attachCloudListener(user.uid);
+        } else {
+          _blockedSignOut = true;
+          fbAuth.signOut();
+        }
+      }).catch(()=>{
+        // تعذّر التحقق (غالباً بلا إنترنت) — لا نجزم بالحظر، نترك الشاشة
+        // كما هي ونسمح للمستخدم بالضغط على "تحديث وإعادة المحاولة" لاحقاً
+        console.warn('[BAC-AUTH] re-check failed (offline?) — keeping blocked screen without forcing sign-out');
+      });
       return;
     }
 
@@ -2872,21 +3461,63 @@ setTimeout(()=>{ _appInitializing=false; },0);
   let lgLoading = false;
   lgBtn.addEventListener("click", ()=>{
     if(lgLoading) return;
+
+    // 🔒 Rate-limit: منع المحاولات المتكررة السريعة (Brute-force protection)
+    if(!_checkRateLimit()){
+      // شغّل العداد التنازلي المرئي ويُجمّد الزر تلقائياً حتى انقضاء المدة
+      _startRateLimitCountdown(lgBtn, lgError, googleLogoHTML);
+      return;
+    }
+
     lgLoading = true;
     lgBtn.disabled = true;
     lgBtn.innerHTML = `<span class="lg-spinner"></span>`;
     hideError();
 
+    // ⚠️ شبكة أمان: فبعض المتصفحات/الأجهزة، إذا المستخدم سكّر نافذة تسجيل
+    // الدخول المنبثقة بطريقة معينة، وعد signInWithPopup لا يتحقق (resolve)
+    // ولا يُرفض (reject) أبداً — فيبقى الزر عالق فحالة تحميل بلا نهاية حتى
+    // يدير المستخدم Refresh يدوي. نحل هذا بطريقتين معاً:
+    // 1) أول ما النافذة الرئيسية تسترجع التركيز (focus) — غالباً معناها
+    //    المستخدم رجع من النافذة المنبثقة (سكّرها أو أكملها) — نتحقق بعد
+    //    مهلة قصيرة وإذا مازال التحميل عالق بلا تسجيل دخول فعلي، نعيد الزر.
+    // 2) مؤقّت أمان أقصى (60 ثانية) يعيد الزر مهما وقع.
+    const safetyTimer = setTimeout(()=>{
+      if(lgLoading && !fbAuth.currentUser){
+        console.warn('[BAC-AUTH] sign-in promise never settled — resetting button (safety timeout)');
+        lgLoading = false;
+        lgBtn.disabled = false;
+        lgBtn.innerHTML = googleLogoHTML;
+      }
+    }, 60000);
+
+    const onWindowFocusBack = ()=>{
+      setTimeout(()=>{
+        if(lgLoading && !fbAuth.currentUser){
+          console.warn('[BAC-AUTH] window refocused with no signed-in user — likely popup was cancelled, resetting button');
+          lgLoading = false;
+          lgBtn.disabled = false;
+          lgBtn.innerHTML = googleLogoHTML;
+        }
+      }, 1200);
+      window.removeEventListener('focus', onWindowFocusBack);
+    };
+    window.addEventListener('focus', onWindowFocusBack);
+
     fbAuth.signInWithPopup(googleProvider)
       .then(()=>{
         lgLoading = false;
+        clearTimeout(safetyTimer);
+        window.removeEventListener('focus', onWindowFocusBack);
       })
       .catch(err=>{
         console.error('[BAC-AUTH] signInWithPopup error:', err && err.code, err && err.message);
         lgLoading = false;
+        clearTimeout(safetyTimer);
+        window.removeEventListener('focus', onWindowFocusBack);
 
         // إذا المستخدم أغلق النافذة بنفسه، لا نعرض خطأ ولا نجرب redirect
-        if(err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request')){
+        if(err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/user-cancelled')){
           lgBtn.disabled = false;
           lgBtn.innerHTML = googleLogoHTML;
           return;
