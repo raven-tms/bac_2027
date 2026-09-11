@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" id="htmlRoot">
+<html lang="ar" dir="rtl" id="htmlRoot">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -291,7 +291,7 @@ table td,table th{white-space:nowrap}
 .bl-back:hover { background:#2a3352; color:#f1f5f9; }
 </style>
 </head>
-<body class="min-h-screen antialiased overflow-x-hidden lang-en">
+<body class="min-h-screen antialiased overflow-x-hidden lang-ar">
 
 <!-- ===== LOGIN GATE ===== -->
 <div id="loginGate">
@@ -1284,7 +1284,7 @@ ar:{
  "report.imgPanelTitle":"الكشف جاهز — اختر طريقة الحفظ","report.download":"تحميل PNG",
  "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة"
 }};
-let LANG="en";
+let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
 
 /* ============ HELPERS ============ */
@@ -1305,7 +1305,7 @@ let state=null;
 function defaultState(){return{
  profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
  grades:{},
- settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"en"},
+ settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
   {id:"t1",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
@@ -2331,7 +2331,7 @@ function initApp(){
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=loadState()||defaultState();
- LANG=state.settings.lang||"en";
+ LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  document.getElementById("onbTarget").addEventListener("input",updateOnbHint);
