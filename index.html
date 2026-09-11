@@ -453,6 +453,35 @@ table td,table th{white-space:nowrap}
   <span id="offlineMsg">يرجى الاتصال بالإنترنت</span>
 </div>
 <div id="xpRoot" class="fixed inset-0 pointer-events-none z-[90]"></div>
+
+<!-- ===== LEVEL UP MODAL ===== -->
+<div id="levelUpModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
+  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
+    <div id="luStars" class="text-5xl mb-2 animate-bounce">🌟</div>
+    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--primary)">LEVEL UP!</div>
+    <div id="luLevel" class="text-4xl font-black mb-1" style="color:var(--text)"></div>
+    <div id="luTitle" class="text-lg font-bold mb-4" style="color:var(--primary)"></div>
+    <div id="luQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
+    <button onclick="closeLevelUpModal()" class="w-full py-3 rounded-2xl font-black text-base transition hover:scale-105 active:scale-95" style="background:var(--primary);color:#fff" id="luBtn">
+      🚀 Let's go!
+    </button>
+  </div>
+</div>
+
+<!-- ===== POMODORO DONE MODAL ===== -->
+<div id="pomoDoneModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
+  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
+    <div class="text-5xl mb-3">🍅</div>
+    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--accent)">FOCUS COMPLETE!</div>
+    <div id="pdTitle" class="text-2xl font-black mb-3" style="color:var(--text)"></div>
+    <div id="pdQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
+    <div class="flex gap-3">
+      <button onclick="closePomoDoneModal(true)" class="flex-1 py-3 rounded-2xl font-bold text-sm transition hover:scale-105" style="background:var(--bg-soft);color:var(--text);border:1px solid var(--border)" id="pdBreakBtn">☕ Break</button>
+      <button onclick="closePomoDoneModal(false)" class="flex-1 py-3 rounded-2xl font-black text-sm transition hover:scale-105 active:scale-95" style="background:var(--accent);color:#fff" id="pdContinueBtn">⚡ Keep going!</button>
+    </div>
+  </div>
+</div>
+
 <div id="fileViewer" class="fixed inset-0 z-[95] hidden bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onclick="if(event.target===this)closePaperFile()">
   <div class="min-h-full w-full flex items-start justify-center py-8">
     <div class="w-full max-w-[900px] my-auto card rounded-[22px] overflow-hidden">
@@ -803,7 +832,12 @@ table td,table th{white-space:nowrap}
                 <button onclick="togglePomodoro()" id="pomoStart" class="h-[50px] px-8 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="pomo.startFocus">Start Focus</button>
                 <button onclick="resetPomodoro()" class="h-[50px] w-[50px] rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↺</button>
               </div>
-              <div class="mt-6 flex flex-wrap justify-center gap-6 text-sm">
+              <!-- Cycle dots -->
+              <div class="mt-5 flex flex-col items-center gap-2">
+                <div id="pomoCycleDots" class="flex gap-2"></div>
+                <div id="pomoCycleLabel" class="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]"></div>
+              </div>
+              <div class="mt-4 flex flex-wrap justify-center gap-6 text-sm">
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.sessionsToday">Sessions today</span> <span id="pomoCount" class="font-black">0</span></div>
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.totalFocus">Total focus</span> <span id="pomoTotal" class="font-black">0h 0m</span></div>
               </div>
@@ -814,6 +848,8 @@ table td,table th{white-space:nowrap}
                 <div class="mt-4 grid grid-cols-2 gap-3">
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.focusLen">Focus (min)</label><input id="pomoFocusLen" type="number" value="25" min="5" max="90" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.breakLen">Break (min)</label><input id="pomoBreakLen" type="number" value="5" min="1" max="30" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.cyclesLen">Cycles before long break</label><input id="pomoCyclesLen" type="number" value="4" min="2" max="8" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.longBreakLen">Long break (min)</label><input id="pomoLongBreakLen" type="number" value="30" min="10" max="60" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                 </div>
                 <div class="mt-4 p-3 rounded-xl bg-[var(--primary-soft)] text-sm" data-i18n="pomo.tip">Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.</div>
               </div>
@@ -1353,7 +1389,7 @@ en:{
  "sc.normal":"To reach <b>{target}/20</b> you need an average of <b>{need}/20</b> across the remaining <b>{coeff}</b> coefficient points.",
  "mention.excellent":"Excellent","mention.vgood":"Very Good","mention.good":"Good","mention.pass":"Pass","mention.work":"Work needed",
  "tools.title":"Study Tools","tools.pomodoro":"Pomodoro","tools.flashcards":"Flashcards","tools.planner":"Planner","tools.papers":"Past Papers","tools.errors":"Error Log","tools.wellness":"Well-being",
- "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
+ "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.cyclesLen":"Cycles before long break","pomo.longBreakLen":"Long break (min)","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
  "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Tap card to reveal answer","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
  "fc.sideQ":"QUESTION","fc.sideA":"ANSWER",
  "fc.tutTitle":"How spaced repetition works",
@@ -1422,7 +1458,7 @@ ar:{
  "sc.normal":"لبلوغ <b>{target}/20</b> تحتاج معدل <b>{need}/20</b> على <b>{coeff}</b> نقطة معامل متبقية.",
  "mention.excellent":"امتياز","mention.vgood":"جيد جداً","mention.good":"جيد","mention.pass":"مقبول","mention.work":"يحتاج مجهوداً",
  "tools.title":"أدوات الدراسة","tools.pomodoro":"بومودورو","tools.flashcards":"البطاقات","tools.planner":"المخطط","tools.papers":"مواضيع سابقة","tools.errors":"سجل الأخطاء","tools.wellness":"الصحة النفسية",
- "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
+ "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.cyclesLen":"الدورات قبل الاستراحة الطويلة","pomo.longBreakLen":"الاستراحة الطويلة (دقيقة)","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
  "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط على البطاقة لرؤية الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
  "fc.sideQ":"السؤال","fc.sideA":"الجواب",
  "fc.tutTitle":"كيف يعمل التكرار المتباعد",
@@ -1516,7 +1552,7 @@ function showXPToast(text){const root=document.getElementById("xpRoot");const el
  el.style.left=(48+(Math.random()*16-8))+"%";el.style.top=(58+(Math.random()*12))+"%";root.appendChild(el);setTimeout(()=>el.remove(),1250)}
 function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
  const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
- if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,LEVEL_TITLES[LANG].length-1)],n:nl}))}
+ if(nl>old){launchConfetti();const _lvlTitlesArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en;const _lvlTitle=_lvlTitlesArr[Math.min(nl-1,_lvlTitlesArr.length-1)];showLevelUpModal(nl,_lvlTitle);}
  saveState();renderGamification();checkBadges()}
 
 /* ============ STREAK ============ */
@@ -1578,7 +1614,9 @@ function applyStaticI18n(){
  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i18n-ph"))});
  document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
 function applyLang(lang){
- LANG=lang;state.settings.lang=lang;saveState();
+ LANG=lang;state.settings.lang=lang;
+ try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
+ saveState();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -1586,9 +1624,10 @@ function applyLang(lang){
  const other=lang==="ar"?"English":"العربية";
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
- applyStaticI18n();applyTheme(state.settings.theme);
+ applyTheme(state.settings.theme);
  _syncDefaultDataLang(lang);
- renderNav();renderStreamGrid();if(onbVisible())updateOnb();
+ updateDOMTranslations();
+ renderStreamGrid();if(onbVisible())updateOnb();
  renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function _syncDefaultDataLang(lang){
  if(!state)return;
@@ -1601,6 +1640,10 @@ function _syncDefaultDataLang(lang){
  });
 }
 function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
+/* دوال مساعدة بنفس الأسماء المطلوبة — تُغلّف محرك الترجمة الحالي (renderNav/applyStaticI18n)
+   حتى يكون التحديث الفوري صريحًا وسهل الصيانة دون تكرار المنطق. */
+function updateDOMTranslations(){applyStaticI18n();renderNavigation()}
+function renderNavigation(){renderNav()}
 
 /* ============ NAV / VIEWS ============ */
 let currentView="dashboard";
@@ -1636,7 +1679,7 @@ function renderAllViews(){renderGamification();renderDashboard();renderSubjects(
 
 /* ============ GAMIFICATION UI ============ */
 function renderGamification(){
- const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,LEVEL_TITLES[LANG].length-1)];
+ const g=state.gamification,lvl=g.level,_ltArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en,title=_ltArr[Math.min(lvl-1,_ltArr.length-1)];
  document.getElementById("streakNum").textContent=g.streak;
  document.getElementById("levelNum").textContent=lvl;
  document.getElementById("levelTitle").textContent=title;
@@ -1849,7 +1892,9 @@ function renderTools(){
  document.querySelectorAll(".tool-tab").forEach(b=>{
   const on=b.dataset.tool===currentTool;
   b.classList.toggle("chip-active",on);
-  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()}});
+  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()};
+  // re-apply i18n text so language change is reflected immediately
+  const key=b.getAttribute("data-i18n");if(key)b.textContent=t(key);});
  document.querySelectorAll(".tool-view").forEach(v=>v.classList.add("hidden"));
  const cur=document.getElementById("tool-"+currentTool);cur.classList.remove("hidden");cur.classList.add("fade-in-up");
  fillSubjectSelects();
@@ -1872,6 +1917,7 @@ function fillSubjectSelects(){
 let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
 let _pomoStartedAt=null;   // Date.now() لحظة الضغط على Start
 let _pomoTotalSecs=25*60;  // المدة الكاملة للجلسة الحالية بالثواني
+let pomoCycleCount=0;      // عدد جلسات التركيز في الدورة الحالية
 
 // حساب الوقت المتبقي الحقيقي من الـ timestamp
 function _pomoCalcLeft(){
@@ -1886,7 +1932,7 @@ function renderPomodoro(){
  document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
  document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
- updatePomoDisplay();}
+ updatePomoDisplay();renderCycleDots();}
 
 function setPomodoroMode(m){
  if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;_pomoStartedAt=null;}
@@ -1895,15 +1941,23 @@ function setPomodoroMode(m){
   f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.deepWork");
+  document.getElementById("pomoStart").textContent=t("pomo.startFocus");
+ }else if(m==="longbreak"){
+  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=_getLongBreak()*60;
+  document.getElementById("pomoLabel").textContent=LANG==="ar"?"☕ استراحة طويلة":"☕ Long Break";
+  document.getElementById("pomoStart").textContent=LANG==="ar"?"ابدأ الاستراحة الطويلة":"Start Long Break";
  }else{
   b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.breakTime");
+  document.getElementById("pomoStart").textContent=t("pomo.startBreak");
  }
  _pomoTotalSecs=pomoTimeLeft;
- document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
- document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
- updatePomoDisplay();}
+ updatePomoDisplay();renderCycleDots();}
 
 function updatePomoDisplay(){
  const left=_pomoCalcLeft();
@@ -1914,6 +1968,37 @@ function updatePomoDisplay(){
  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
  ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)");}
 
+function _getPomoCycles(){return parseInt(document.getElementById("pomoCyclesLen").value)||4;}
+function _getLongBreak(){return parseInt(document.getElementById("pomoLongBreakLen").value)||30;}
+
+function renderCycleDots(){
+ const total=_getPomoCycles();
+ const dots=document.getElementById("pomoCycleDots");
+ const label=document.getElementById("pomoCycleLabel");
+ if(!dots||!label)return;
+ dots.innerHTML="";
+ for(let i=0;i<total;i++){
+  const d=document.createElement("div");
+  const done=i<pomoCycleCount;
+  const active=(i===pomoCycleCount)&&pomoMode==="focus"&&pomoRunning;
+  d.style.cssText="width:14px;height:14px;border-radius:50%;transition:all .3s ease;"
+   +(done?"background:var(--primary);box-shadow:0 0 6px var(--primary);"
+   :active?"background:var(--primary);opacity:0.5;animation:pulse 1s infinite;"
+   :"background:var(--bg-soft);border:2px solid var(--border);");
+  dots.appendChild(d);
+ }
+ const remaining=total-pomoCycleCount;
+ if(LANG==="ar"){
+  label.textContent=pomoCycleCount===0?"ابدأ الدورة 1"
+   :pomoCycleCount>=total?"🎉 دورة مكتملة — استراحة طويلة!"
+   :remaining+" جلسة حتى الاستراحة الطويلة";
+ }else{
+  label.textContent=pomoCycleCount===0?"Start round 1"
+   :pomoCycleCount>=total?"🎉 Round complete — long break!"
+   :remaining+" session"+(remaining>1?"s":"")+" until long break";
+ }
+}
+
 function _pomoTick(){
  const left=_pomoCalcLeft();
  pomoTimeLeft=left;
@@ -1922,10 +2007,29 @@ function _pomoTick(){
   clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
   if(pomoMode==="focus"){
    state.pomodoro.sessionsCompleted++;
+   pomoCycleCount++;
    state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-   saveState();addXP(25);toast(t("toast.focusDone"));
-   setPomodoroMode("break");renderPomodoro();renderDashboard();
-  }else{toast(t("toast.breakDone"));setPomodoroMode("focus");}}}
+   saveState();addXP(25);
+   renderCycleDots();
+   const maxCycles=_getPomoCycles();
+   if(pomoCycleCount>=maxCycles){
+    // Long break time!
+    showPomoDoneModal(true);
+   }else{
+    showPomoDoneModal(false);
+   }
+   renderDashboard();
+  }else{
+   // Break done
+   if(pomoMode==="longbreak"){
+    pomoCycleCount=0; // reset cycle after long break
+    launchConfetti();
+   }
+   renderCycleDots();
+   toast(t("toast.breakDone"));setPomodoroMode("focus");
+  }
+ }
+}
 
 function togglePomodoro(){
  if(pomoRunning){
@@ -2685,6 +2789,120 @@ function finishOnboarding(){
  saveState();hideOnboarding();initApp();toast(t("toast.welcome"));addXP(20)}
 
 /* ============ CONFETTI ============ */
+
+/* ============ MOTIVATIONAL QUOTES ============ */
+const LEVEL_QUOTES={
+  en:[
+    "Every expert was once a beginner. Keep climbing! 💪",
+    "Success is the sum of small efforts, repeated day in and day out. 🔥",
+    "The harder you work for something, the greater you'll feel when you achieve it. ⭐",
+    "Don't watch the clock; do what it does. Keep going. 🕐",
+    "Education is the most powerful weapon you can use to change the world. 📚",
+    "Believe you can and you're halfway there. 🌟",
+    "You are braver than you believe, stronger than you seem. 💎",
+    "The secret of getting ahead is getting started. 🚀",
+    "It always seems impossible until it's done. 🏆",
+    "Push yourself, because no one else is going to do it for you. ⚡",
+    "Great things never come from comfort zones. 🌍",
+    "Dream big. Work hard. Stay focused. 👑"
+  ],
+  ar:[
+    "كل خبير كان يوماً مبتدئاً. واصل الصعود! 💪",
+    "النجاح هو مجموع جهود صغيرة تُكرَّر يوماً بعد يوم. 🔥",
+    "كلما كافحت أكثر، كلما شعرت بعظمة إنجازك. ⭐",
+    "لا تراقب الساعة، افعل ما تفعله: لا تتوقف. 🕐",
+    "التعليم هو أقوى سلاح يمكنك استخدامه لتغيير العالم. 📚",
+    "آمن بنفسك وستكون في منتصف الطريق. 🌟",
+    "أنت أشجع مما تعتقد وأقوى مما تبدو. 💎",
+    "سر النجاح هو البداية. 🚀",
+    "يبدو كل شيء مستحيلاً حتى يتحقق. 🏆",
+    "ادفع نفسك للأمام، فلن يفعل ذلك أحد عنك. ⚡",
+    "الأشياء العظيمة لا تأتي من مناطق الراحة. 🌍",
+    "احلم بكبر. اعمل بجد. ابقَ مركّزاً. 👑"
+  ]
+};
+
+const POMO_QUOTES={
+  en:[
+    "Focus session crushed! Your brain is getting stronger. 🧠",
+    "25 minutes of pure focus — that's how champions are made. 🏆",
+    "Deep work done! You're building momentum. ⚡",
+    "Session complete! Every minute invested counts. 📈",
+    "You showed up and stayed focused. That's everything. 💪",
+    "Brain fueled, goals one step closer. Rest, then conquer! 🚀",
+    "Consistency is key — and you just proved it. 🔑",
+    "One pomodoro at a time, you're building your future. 🌟"
+  ],
+  ar:[
+    "جلسة تركيز مكتملة! عقلك يصبح أقوى. 🧠",
+    "25 دقيقة من التركيز الكامل — هكذا يُصنع الأبطال. 🏆",
+    "عمل عميق منجز! أنت تبني زخماً رائعاً. ⚡",
+    "الجلسة اكتملت! كل دقيقة تستثمرها تُحسَب. 📈",
+    "حضرت وبقيت مركّزاً. هذا هو كل شيء. 💪",
+    "العقل مشحون والهدف أقرب خطوة. استرح ثم افتح! 🚀",
+    "الاستمرارية هي المفتاح — وأنت أثبتت ذلك للتو. 🔑",
+    "بومودورو واحد في كل مرة، أنت تبني مستقبلك. 🌟"
+  ]
+};
+
+function _randQuote(pool){const arr=pool[LANG]||pool.ar;return arr[Math.floor(Math.random()*arr.length)];}
+
+function showLevelUpModal(level,titleStr){
+  const m=document.getElementById("levelUpModal");if(!m)return;
+  const stars=["🌟","⭐","🔥","💎","🏆","👑","🚀","💫"];
+  document.getElementById("luStars").textContent=stars[Math.min(level-1,stars.length-1)];
+  const lvlLabels={en:"Level ",ar:"المستوى "};
+  document.getElementById("luLevel").textContent=(lvlLabels[LANG]||lvlLabels.ar)+level;
+  document.getElementById("luTitle").textContent=titleStr;
+  document.getElementById("luQuote").textContent=_randQuote(LEVEL_QUOTES);
+  const btnLabels={en:"🚀 Let's go!",ar:"🚀 هيا بنا!"};
+  document.getElementById("luBtn").textContent=btnLabels[LANG]||btnLabels.ar;
+  m.classList.remove("hidden");m.style.display="flex";
+}
+function closeLevelUpModal(){
+  const m=document.getElementById("levelUpModal");if(!m)return;
+  m.style.display="none";m.classList.add("hidden");
+}
+
+function showPomoDoneModal(isLongBreak){
+  const m=document.getElementById("pomoDoneModal");if(!m)return;
+  const cyclesLen=_getPomoCycles();
+  const longMin=_getLongBreak();
+  let title,breakLabel,goLabel,emoji;
+  if(isLongBreak){
+    emoji="🏆";
+    title=LANG==="ar"
+     ?"أكملت "+cyclesLen+" دورات! استراحة "+longMin+" دقيقة 🎉"
+     :"Round of "+cyclesLen+" done! "+longMin+" min long break 🎉";
+    breakLabel=LANG==="ar"?"☕ ابدأ الاستراحة الطويلة":"☕ Take long break ("+longMin+"m)";
+    goLabel=LANG==="ar"?"⚡ تجاهل والمتابعة":"⚡ Skip & keep going";
+    launchConfetti();
+  }else{
+    emoji="🍅";
+    title=LANG==="ar"?"جلسة تركيز مكتملة! +25 نقطة":"Focus session done! +25 XP";
+    breakLabel=LANG==="ar"?"☕ خذ استراحة":"☕ Take a break";
+    goLabel=LANG==="ar"?"⚡ واصل!":"⚡ Keep going!";
+  }
+  document.getElementById("pdTitle").textContent=title;
+  document.getElementById("pdQuote").textContent=_randQuote(POMO_QUOTES);
+  document.getElementById("pdBreakBtn").textContent=breakLabel;
+  document.getElementById("pdContinueBtn").textContent=goLabel;
+  // store whether it's long break for close handler
+  m.dataset.longBreak=isLongBreak?"1":"0";
+  m.classList.remove("hidden");m.style.display="flex";
+}
+function closePomoDoneModal(startBreak){
+  const m=document.getElementById("pomoDoneModal");if(!m)return;
+  const isLong=m.dataset.longBreak==="1";
+  m.style.display="none";m.classList.add("hidden");
+  if(startBreak){
+    setPomodoroMode(isLong?"longbreak":"break");renderPomodoro();
+  }else{
+    if(isLong){pomoCycleCount=0;renderCycleDots();}
+    setPomodoroMode("focus");renderPomodoro();
+  }
+}
+
 function launchConfetti(){
  // Use canvas-confetti library if available
  if(typeof confetti==="function"){
@@ -2709,10 +2927,15 @@ function launchConfetti(){
 
 /* ============ INIT ============ */
 function initApp(){
- renderNav();applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
+ // نعيد مزامنة كل نصوص الواجهة مع اللغة الحالية أولاً (يمنع بقاء نصوص بلغة قديمة
+ // مختلطة مع محتوى جديد عند إعادة التهيئة بعد تسجيل الدخول أو استلام بيانات السحابة).
+ updateDOMTranslations();
+ applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=defaultState();
+ // قراءة اللغة من localStorage فوراً عند البداية (قبل وصول بيانات Firestore)
+ try{const saved=localStorage.getItem('bac2027_lang');if(saved==="ar"||saved==="en")state.settings.lang=saved;}catch(e){}
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -3007,6 +3230,8 @@ function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
  LANG=state.settings.lang||LANG;
+ // مزامنة localStorage مع اللغة القادمة من Firestore
+ try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
@@ -3338,8 +3563,11 @@ async function attachCloudListener(uid){
    // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
+   // نحافظ على تفضيل اللغة الحالي بدل الرجوع للّغة الافتراضية للحالة الجديدة —
+   // هذا هو سبب ظهور خليط عربي/إنجليزي: state.settings.lang كان يُعاد ضبطه دون تحديث LANG أو الواجهة.
+   state.settings.lang=LANG;
    // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
-   if(!state.profile.name){showOnboarding();}else{hideOnboarding();initApp();}
+   if(!state.profile.name){updateDOMTranslations();showOnboarding();}else{hideOnboarding();initApp();}
   } else if(!_pendingLocalEdit){
    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
    applyRemoteState(serverSnap.data());
@@ -3379,7 +3607,7 @@ async function attachCloudListener(uid){
      pushToCloud();
     } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
      // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
-     const wasOnb=onbVisible();hideOnboarding();if(wasOnb)initApp();
+     const wasOnb=onbVisible();updateDOMTranslations();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
