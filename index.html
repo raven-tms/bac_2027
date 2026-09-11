@@ -190,6 +190,23 @@ table td,table th{white-space:nowrap}
 .lo-btn:active { transform:scale(.97); }
 .lo-cancel { background:var(--bg-soft,#f1f5f9); color:var(--text,#111); border:1px solid var(--border,#e5e7eb); }
 .lo-confirm { background:linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
+
+/* ===== ACHIEVEMENT TIERS ===== */
+.badge-card{position:relative;overflow:hidden}
+.badge-icon-circle{background:var(--bg-soft);border:1px solid var(--border)}
+.tier-bronze .badge-icon-circle{background:linear-gradient(135deg,#cd7f32,#8a5a2b);border:none;box-shadow:0 4px 14px rgba(205,127,50,.35)}
+.tier-silver .badge-icon-circle{background:linear-gradient(135deg,#c7cdd6,#8e97a3);border:none;box-shadow:0 4px 14px rgba(148,163,184,.35)}
+.tier-gold .badge-icon-circle{background:linear-gradient(135deg,#fbbf24,#d97706);border:none;box-shadow:0 4px 16px rgba(251,191,36,.4)}
+.tier-platinum .badge-icon-circle{background:linear-gradient(135deg,#93c5fd,#4f46e5);border:none;box-shadow:0 4px 18px rgba(99,102,241,.45)}
+.tier-legendary .badge-icon-circle{background:linear-gradient(135deg,#f472b6,#a855f7,#f59e0b);border:none;box-shadow:0 4px 22px rgba(217,70,239,.5)}
+.tier-legendary.unlocked{animation:legendGlow 2.2s ease-in-out infinite}
+@keyframes legendGlow{0%,100%{box-shadow:0 0 0 rgba(217,70,239,0)}50%{box-shadow:0 0 22px rgba(217,70,239,.35)}}
+.tier-pill{font-size:9px;font-weight:900;letter-spacing:.06em;padding:2px 7px;border-radius:999px;text-transform:uppercase}
+.tier-pill.bronze{background:rgba(205,127,50,.15);color:#b06a2a}
+.tier-pill.silver{background:rgba(148,163,184,.18);color:#64748b}
+.tier-pill.gold{background:rgba(251,191,36,.18);color:#b45309}
+.tier-pill.platinum{background:rgba(99,102,241,.18);color:#4338ca}
+.tier-pill.legendary{background:rgba(217,70,239,.18);color:#a21caf}
 .lg-bg-emoji {
   position: absolute; font-size: 2rem; opacity: 0.10;
   animation: lgFloat linear infinite; user-select: none; pointer-events: none;
@@ -949,7 +966,10 @@ table td,table th{white-space:nowrap}
         <h2 class="text-[28px] font-black tracking-tight" data-i18n="ach.title">Badges & Achievements</h2>
         <p class="text-sm text-[var(--text-muted)] mt-1" data-i18n="ach.sub">Collect XP, keep your streak alive, and unlock milestones.</p>
         <div class="mt-6 grid grid-cols-12 gap-4">
-          <div class="col-span-12 lg:col-span-8"><div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div></div>
+          <div class="col-span-12 lg:col-span-8">
+            <div id="badgesProgressHead" class="card rounded-[18px] p-4 mb-3"></div>
+            <div id="badgesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+          </div>
           <div class="col-span-12 lg:col-span-4 space-y-4">
             <div class="card rounded-[22px] p-5">
               <div class="font-extrabold" data-i18n="ach.levelProgress">Level Progress</div>
@@ -1131,19 +1151,53 @@ const QUOTES=[
 ];
 
 /* ============ BADGES ============ */
+const BADGE_TIER_XP={bronze:15,silver:35,gold:70,platinum:150,legendary:300};
+const BADGE_TIER_LABEL={bronze:{en:"Bronze",ar:"برونزي"},silver:{en:"Silver",ar:"فضي"},gold:{en:"Gold",ar:"ذهبي"},platinum:{en:"Platinum",ar:"بلاتيني"},legendary:{en:"Legendary",ar:"أسطوري"}};
 const BADGES=[
- {id:"first_step",icon:"🚀",en:["First Step","Complete onboarding"],ar:["الخطوة الأولى","إكمال الإعداد الأولي"],check:s=>!!s.profile.name},
- {id:"streak_3",icon:"🔥",en:["Streak Starter","3-day streak"],ar:["بداية السلسلة","3 أيام متتالية"],check:s=>s.gamification.streak>=3},
- {id:"streak_7",icon:"⚡",en:["Week Warrior","7-day streak"],ar:["محارب الأسبوع","7 أيام متتالية"],check:s=>s.gamification.streak>=7},
- {id:"streak_30",icon:"🌋",en:["Unstoppable","30-day streak"],ar:["لا يُوقف","30 يوماً متتالياً"],check:s=>s.gamification.streak>=30},
- {id:"focus_10",icon:"🍅",en:["Focus Master","10 pomodoro sessions"],ar:["سيد التركيز","10 جلسات بومودورو"],check:s=>s.pomodoro.sessionsCompleted>=10},
- {id:"perfect",icon:"💯",en:["Perfect Score","Get 20/20 in any subject"],ar:["العلامة الكاملة","20/20 في أي مادة"],check:s=>Object.values(s.grades).some(g=>g===20)},
- {id:"papers_5",icon:"📄",en:["Paper Hunter","Complete 5 past papers"],ar:["صائد المواضيع","إنهاء 5 مواضيع سابقة"],check:s=>s.papers.filter(p=>p.status==='completed'||p.status==='reviewed').length>=5},
- {id:"error_fixer",icon:"🛠️",en:["Error Fixer","Resolve 10 errors"],ar:["مصلح الأخطاء","تصحيح 10 أخطاء"],check:s=>s.errors.filter(e=>e.status==='resolved').length>=10},
- {id:"flash_50",icon:"🧠",en:["Memory Keeper","Review 50 flashcards"],ar:["حارس الذاكرة","مراجعة 50 بطاقة"],check:s=>s.flashcards.reduce((a,c)=>a+(c.reviews||0),0)>=50},
- {id:"tasks_20",icon:"✅",en:["Task Crusher","Complete 20 tasks"],ar:["منجز المهام","إتمام 20 مهمة"],check:s=>s.tasks.filter(t=>t.completed).length>=20},
- {id:"avg_15",icon:"🎯",en:["Excellence Seeker","Reach a 15+ average"],ar:["باحث عن التميّز","الوصول إلى معدل 15+"],check:s=>calcAverage(s)>=15},
- {id:"mood_7",icon:"💚",en:["Self Aware","Track mood for 7 days"],ar:["وعي بالذات","تتبع المزاج 7 أيام"],check:s=>s.moods.length>=7}
+ // ===== ONBOARDING =====
+ {id:"first_step",icon:"🚀",tier:"bronze",en:["First Step","Complete onboarding"],ar:["الخطوة الأولى","إكمال الإعداد الأولي"],check:s=>!!s.profile.name},
+ // ===== STREAK — the heart of the challenge =====
+ {id:"streak_3",icon:"🔥",tier:"bronze",en:["Streak Starter","3-day streak"],ar:["بداية السلسلة","3 أيام متتالية"],check:s=>s.gamification.streak>=3},
+ {id:"streak_7",icon:"⚡",tier:"silver",en:["Week Warrior","7-day streak"],ar:["محارب الأسبوع","7 أيام متتالية"],check:s=>s.gamification.streak>=7},
+ {id:"streak_14",icon:"🌪️",tier:"silver",en:["Two Weeks Strong","14-day streak — not a single day missed"],ar:["أسبوعان بلا كلل","14 يوماً متتالياً — بلا يوم واحد فائت"],check:s=>s.gamification.streak>=14},
+ {id:"streak_30",icon:"🌋",tier:"gold",en:["Unstoppable","30-day streak — a full month, zero days missed"],ar:["لا يُوقَف","30 يوماً متتالياً — شهر كامل بلا يوم فائت"],check:s=>s.gamification.streak>=30},
+ {id:"streak_60",icon:"🐉",tier:"gold",en:["Iron Will","60-day streak — two months of pure discipline"],ar:["إرادة حديدية","60 يوماً متتالياً — شهران من الانضباط الخالص"],check:s=>s.gamification.streak>=60},
+ {id:"streak_90",icon:"👑",tier:"platinum",en:["Quarter Titan","90-day streak — 3 full months without missing one day!"],ar:["عملاق الثلاثية","90 يوماً متتالياً — 3 أشهر كاملة بلا ما تفوت يوم واحد!"],check:s=>s.gamification.streak>=90},
+ {id:"streak_150",icon:"🏆",tier:"legendary",en:["The Unbreakable","150-day streak — 5 months, not one single day missed. Legendary."],ar:["الذي لا يُكسَر","150 يوماً متتالياً — 5 أشهر بلا ما تفوت يوماً واحداً. أسطورة حقيقية."],check:s=>s.gamification.streak>=150},
+ // ===== FOCUS / POMODORO =====
+ {id:"focus_10",icon:"🍅",tier:"bronze",en:["Focus Rookie","10 pomodoro sessions"],ar:["مبتدئ التركيز","10 جلسات بومودورو"],check:s=>s.pomodoro.sessionsCompleted>=10},
+ {id:"focus_50",icon:"⏱️",tier:"silver",en:["Focus Master","50 pomodoro sessions"],ar:["سيد التركيز","50 جلسة بومودورو"],check:s=>s.pomodoro.sessionsCompleted>=50},
+ {id:"focus_hours_20",icon:"🧘",tier:"gold",en:["Deep Work Beast","20 total hours of focused study"],ar:["وحش العمل العميق","20 ساعة تركيز تراكمية"],check:s=>(s.pomodoro.totalMinutes||0)>=1200},
+ // ===== GRADES =====
+ {id:"perfect",icon:"💯",tier:"silver",en:["Perfect Score","Get 20/20 in any subject"],ar:["العلامة الكاملة","20/20 في أي مادة"],check:s=>Object.values(s.grades).some(g=>g===20)},
+ {id:"perfect_3",icon:"🌟",tier:"gold",en:["Triple Perfect","20/20 in 3 different subjects"],ar:["ثلاثية الكمال","20/20 في 3 مواد مختلفة"],check:s=>Object.values(s.grades).filter(g=>g===20).length>=3},
+ {id:"avg_15",icon:"🎯",tier:"silver",en:["Excellence Seeker","Reach a 15+ average"],ar:["باحث عن التميّز","الوصول إلى معدل 15+"],check:s=>calcAverage(s)>=15},
+ {id:"avg_17",icon:"🥇",tier:"platinum",en:["Near Perfection","Reach a 17+ average — elite territory"],ar:["قريب من الكمال","الوصول إلى معدل 17+ — مستوى النخبة"],check:s=>calcAverage(s)>=17},
+ {id:"full_transcript",icon:"📋",tier:"silver",en:["Full Transcript","Enter grades for every subject"],ar:["السجل الكامل","إدخال العلامات لجميع المواد"],check:s=>{const st=STREAMS[s.profile.streamId];if(!st)return false;return st.subjects.every(sub=>(sub.code==='amazigh'&&s.settings.amazighExempt)||(sub.code==='sport'&&s.settings.epsExempt)||s.grades[sub.code]!=null)}},
+ // ===== PAPERS =====
+ {id:"papers_5",icon:"📄",tier:"bronze",en:["Paper Hunter","Complete 5 past papers"],ar:["صائد المواضيع","إنهاء 5 مواضيع سابقة"],check:s=>s.papers.filter(p=>p.status==='completed'||p.status==='reviewed').length>=5},
+ {id:"papers_20",icon:"📚",tier:"gold",en:["Paper Legend","Complete 20 past papers"],ar:["أسطورة المواضيع","إنهاء 20 موضوعاً سابقاً"],check:s=>s.papers.filter(p=>p.status==='completed'||p.status==='reviewed').length>=20},
+ // ===== ERRORS =====
+ {id:"error_fixer",icon:"🛠️",tier:"bronze",en:["Error Fixer","Resolve 10 errors"],ar:["مصلح الأخطاء","تصحيح 10 أخطاء"],check:s=>s.errors.filter(e=>e.status==='resolved').length>=10},
+ {id:"error_fixer_30",icon:"🔧",tier:"silver",en:["Bug Slayer","Resolve 30 errors"],ar:["قاتل الأخطاء","تصحيح 30 خطأ"],check:s=>s.errors.filter(e=>e.status==='resolved').length>=30},
+ // ===== FLASHCARDS =====
+ {id:"flash_50",icon:"🧠",tier:"bronze",en:["Memory Keeper","Review 50 flashcards"],ar:["حارس الذاكرة","مراجعة 50 بطاقة"],check:s=>s.flashcards.reduce((a,c)=>a+(c.reviews||0),0)>=50},
+ {id:"flash_300",icon:"🧩",tier:"gold",en:["Memory Machine","Review 300 flashcards"],ar:["آلة الذاكرة","مراجعة 300 بطاقة"],check:s=>s.flashcards.reduce((a,c)=>a+(c.reviews||0),0)>=300},
+ // ===== TASKS =====
+ {id:"tasks_20",icon:"✅",tier:"bronze",en:["Task Crusher","Complete 20 tasks"],ar:["منجز المهام","إتمام 20 مهمة"],check:s=>s.tasks.filter(t=>t.completed).length>=20},
+ {id:"tasks_100",icon:"🏅",tier:"silver",en:["Task Terminator","Complete 100 tasks"],ar:["مدمّر المهام","إتمام 100 مهمة"],check:s=>s.tasks.filter(t=>t.completed).length>=100},
+ // ===== WELLBEING =====
+ {id:"mood_7",icon:"💚",tier:"bronze",en:["Self Aware","Track mood for 7 days"],ar:["وعي بالذات","تتبع المزاج 7 أيام"],check:s=>s.moods.length>=7},
+ {id:"mood_30",icon:"🌈",tier:"gold",en:["Mindful Warrior","Track mood for 30 days"],ar:["محارب اليقظة","تتبع المزاج 30 يوماً"],check:s=>s.moods.length>=30},
+ // ===== LEVEL & XP — leveling up is its own achievement =====
+ {id:"level_5",icon:"🥉",tier:"bronze",en:["Rising Star","Reach Level 5"],ar:["نجم صاعد","الوصول للمستوى 5"],check:s=>s.gamification.level>=5},
+ {id:"level_10",icon:"🥈",tier:"silver",en:["High Achiever","Reach Level 10"],ar:["منجز رفيع","الوصول للمستوى 10"],check:s=>s.gamification.level>=10},
+ {id:"level_20",icon:"🥇",tier:"gold",en:["Top Tier","Reach Level 20"],ar:["الفئة العليا","الوصول للمستوى 20"],check:s=>s.gamification.level>=20},
+ {id:"level_30",icon:"💎",tier:"legendary",en:["Living Legend","Reach Level 30 — the elite of the elite"],ar:["أسطورة حية","الوصول للمستوى 30 — نخبة النخبة"],check:s=>s.gamification.level>=30},
+ {id:"xp_1000",icon:"⭐",tier:"bronze",en:["XP Collector","Earn 1,000 total XP"],ar:["جامع النقاط","جمع 1000 نقطة خبرة"],check:s=>s.gamification.xp>=1000},
+ {id:"xp_5000",icon:"🌠",tier:"gold",en:["XP Hoarder","Earn 5,000 total XP"],ar:["كانز النقاط","جمع 5000 نقطة خبرة"],check:s=>s.gamification.xp>=5000},
+ // ===== META =====
+ {id:"collector",icon:"🎖️",tier:"platinum",en:["Badge Collector","Unlock 20 other badges"],ar:["جامع الأوسمة","فتح 20 وسام آخر"],check:s=>s.gamification.badges.length>=20}
 ];
 
 /* ============ UNIVERSITY MAJORS ============ */
@@ -1165,7 +1219,7 @@ const MAJORS=[
  {en:"Psychology",ar:"علم النفس",min:12.5,stream:["letters","sci_exp"]},
  {en:"Journalism",ar:"علوم الإعلام والاتصال",min:13.0,stream:["letters","lang"]}
 ];
-const LEVEL_TITLES={en:["Beginner","Explorer","Learner","Achiever","Scholar","Strategist","Expert","Master","BAC Champion"],ar:["مبتدئ","مستكشف","متعلّم","منجز","دارس","استراتيجي","خبير","متمكّن","بطل البكالوريا"]};
+const LEVEL_TITLES={en:["Beginner","Explorer","Learner","Achiever","Scholar","Strategist","Expert","Master","Elite","Prodigy","Legend","BAC Champion"],ar:["مبتدئ","مستكشف","متعلّم","منجز","دارس","استراتيجي","خبير","متمكّن","نخبة","معجزة","أسطورة","بطل البكالوريا"]};
 const MOOD_EMOJI=["😞","😐","🙂","😊","🤩"];
 
 /* ============ I18N DICTIONARY ============ */
@@ -1331,7 +1385,7 @@ function showXPToast(text){const root=document.getElementById("xpRoot");const el
  el.style.left=(48+(Math.random()*16-8))+"%";el.style.top=(58+(Math.random()*12))+"%";root.appendChild(el);setTimeout(()=>el.remove(),1250)}
 function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
  const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
- if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,8)],n:nl}))}
+ if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,LEVEL_TITLES[LANG].length-1)],n:nl}))}
  saveState();renderGamification();checkBadges()}
 
 /* ============ STREAK ============ */
@@ -1440,7 +1494,7 @@ function renderAllViews(){renderGamification();renderDashboard();renderSubjects(
 
 /* ============ GAMIFICATION UI ============ */
 function renderGamification(){
- const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,8)];
+ const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,LEVEL_TITLES[LANG].length-1)];
  document.getElementById("streakNum").textContent=g.streak;
  document.getElementById("levelNum").textContent=lvl;
  document.getElementById("levelTitle").textContent=title;
@@ -1470,7 +1524,8 @@ function renderGamification(){
  document.getElementById("achBar").style.width=((g.xp%150)/150*100)+"%"}
 function checkBadges(){let changed=false;
  BADGES.forEach(b=>{if(!state.gamification.badges.includes(b.id)&&b.check(state)){state.gamification.badges.push(b.id);changed=true;
-  toast(t("toast.badge",{t:b[LANG][0],i:b.icon}));launchConfetti();state.gamification.xp+=30}});
+  const reward=BADGE_TIER_XP[b.tier]||30;
+  toast(t("toast.badge",{t:b[LANG][0],i:b.icon}));launchConfetti();state.gamification.xp+=reward}});
  if(changed){saveState();renderBadges();renderGamification()}}
 
 /* ============ DASHBOARD ============ */
@@ -1952,11 +2007,19 @@ function saveMood(manual){
 
 /* ============ BADGES ============ */
 function renderBadges(){const grid=document.getElementById("badgesGrid");grid.innerHTML="";
- BADGES.forEach(b=>{const un=state.gamification.badges.includes(b.id);
+ const total=BADGES.length,unlocked=state.gamification.badges.length;
+ const head=document.getElementById("badgesProgressHead");
+ if(head){
+  head.innerHTML='<div class="flex items-center justify-between mb-1"><span class="font-extrabold text-sm">'+(LANG==="ar"?"الأوسمة المفتوحة":"Badges Unlocked")+'</span><span class="font-black text-sm">'+unlocked+' / '+total+'</span></div>'+
+   '<div class="h-2 bg-[var(--bg-soft)] rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400 via-fuchsia-500 to-indigo-500" style="width:'+Math.round(unlocked/total*100)+'%"></div></div>';
+ }
+ const order={bronze:0,silver:1,gold:2,platinum:3,legendary:4};
+ const sorted=[...BADGES].sort((a,b)=>{const au=state.gamification.badges.includes(a.id),bu=state.gamification.badges.includes(b.id);if(au!==bu)return au?-1:1;return order[a.tier]-order[b.tier]});
+ sorted.forEach(b=>{const un=state.gamification.badges.includes(b.id);const tier=b.tier||"bronze";
   const d=document.createElement("div");
-  d.className="p-4 rounded-[18px] border flex gap-3 transition "+(un?"bg-[var(--card)] border-[var(--border)] shadow-sm":"bg-[var(--bg-soft)] border-[var(--border)] opacity-60");
-  d.innerHTML='<div class="w-12 h-12 shrink-0 rounded-xl '+(un?"bg-[var(--text)] text-[var(--bg)]":"bg-[var(--card)] border border-[var(--border)]")+' flex items-center justify-center text-xl">'+b.icon+'</div>'+
-   '<div class="flex-1 min-w-0"><div class="font-bold text-sm flex items-center gap-2">'+b[LANG][0]+(un?" ✅":"")+'</div><div class="text-xs text-[var(--text-muted)] mt-1">'+b[LANG][1]+'</div></div>';
+  d.className="badge-card tier-"+tier+(un?" unlocked":"")+" p-4 rounded-[18px] border flex gap-3 transition "+(un?"bg-[var(--card)] border-[var(--border)] shadow-sm":"bg-[var(--bg-soft)] border-[var(--border)] opacity-60");
+  d.innerHTML='<div class="badge-icon-circle w-12 h-12 shrink-0 rounded-xl flex items-center justify-center text-xl '+(un?"":"grayscale")+'">'+b.icon+'</div>'+
+   '<div class="flex-1 min-w-0"><div class="font-bold text-sm flex items-center gap-2 flex-wrap"><span>'+b[LANG][0]+(un?" ✅":"")+'</span><span class="tier-pill '+tier+'">'+BADGE_TIER_LABEL[tier][LANG]+'</span></div><div class="text-xs text-[var(--text-muted)] mt-1">'+b[LANG][1]+'</div></div>';
   grid.appendChild(d)})}
 
 /* ============ SETTINGS ============ */
