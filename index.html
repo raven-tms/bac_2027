@@ -453,6 +453,35 @@ table td,table th{white-space:nowrap}
   <span id="offlineMsg">يرجى الاتصال بالإنترنت</span>
 </div>
 <div id="xpRoot" class="fixed inset-0 pointer-events-none z-[90]"></div>
+
+<!-- ===== LEVEL UP MODAL ===== -->
+<div id="levelUpModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
+  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
+    <div id="luStars" class="text-5xl mb-2 animate-bounce">🌟</div>
+    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--primary)">LEVEL UP!</div>
+    <div id="luLevel" class="text-4xl font-black mb-1" style="color:var(--text)"></div>
+    <div id="luTitle" class="text-lg font-bold mb-4" style="color:var(--primary)"></div>
+    <div id="luQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
+    <button onclick="closeLevelUpModal()" class="w-full py-3 rounded-2xl font-black text-base transition hover:scale-105 active:scale-95" style="background:var(--primary);color:#fff" id="luBtn">
+      🚀 Let's go!
+    </button>
+  </div>
+</div>
+
+<!-- ===== POMODORO DONE MODAL ===== -->
+<div id="pomoDoneModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
+  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
+    <div class="text-5xl mb-3">🍅</div>
+    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--accent)">FOCUS COMPLETE!</div>
+    <div id="pdTitle" class="text-2xl font-black mb-3" style="color:var(--text)"></div>
+    <div id="pdQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
+    <div class="flex gap-3">
+      <button onclick="closePomoDoneModal(true)" class="flex-1 py-3 rounded-2xl font-bold text-sm transition hover:scale-105" style="background:var(--bg-soft);color:var(--text);border:1px solid var(--border)" id="pdBreakBtn">☕ Break</button>
+      <button onclick="closePomoDoneModal(false)" class="flex-1 py-3 rounded-2xl font-black text-sm transition hover:scale-105 active:scale-95" style="background:var(--accent);color:#fff" id="pdContinueBtn">⚡ Keep going!</button>
+    </div>
+  </div>
+</div>
+
 <div id="fileViewer" class="fixed inset-0 z-[95] hidden bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onclick="if(event.target===this)closePaperFile()">
   <div class="min-h-full w-full flex items-start justify-center py-8">
     <div class="w-full max-w-[900px] my-auto card rounded-[22px] overflow-hidden">
@@ -803,7 +832,12 @@ table td,table th{white-space:nowrap}
                 <button onclick="togglePomodoro()" id="pomoStart" class="h-[50px] px-8 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="pomo.startFocus">Start Focus</button>
                 <button onclick="resetPomodoro()" class="h-[50px] w-[50px] rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↺</button>
               </div>
-              <div class="mt-6 flex flex-wrap justify-center gap-6 text-sm">
+              <!-- Cycle dots -->
+              <div class="mt-5 flex flex-col items-center gap-2">
+                <div id="pomoCycleDots" class="flex gap-2"></div>
+                <div id="pomoCycleLabel" class="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]"></div>
+              </div>
+              <div class="mt-4 flex flex-wrap justify-center gap-6 text-sm">
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.sessionsToday">Sessions today</span> <span id="pomoCount" class="font-black">0</span></div>
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.totalFocus">Total focus</span> <span id="pomoTotal" class="font-black">0h 0m</span></div>
               </div>
@@ -814,6 +848,8 @@ table td,table th{white-space:nowrap}
                 <div class="mt-4 grid grid-cols-2 gap-3">
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.focusLen">Focus (min)</label><input id="pomoFocusLen" type="number" value="25" min="5" max="90" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.breakLen">Break (min)</label><input id="pomoBreakLen" type="number" value="5" min="1" max="30" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.cyclesLen">Cycles before long break</label><input id="pomoCyclesLen" type="number" value="4" min="2" max="8" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.longBreakLen">Long break (min)</label><input id="pomoLongBreakLen" type="number" value="30" min="10" max="60" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                 </div>
                 <div class="mt-4 p-3 rounded-xl bg-[var(--primary-soft)] text-sm" data-i18n="pomo.tip">Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.</div>
               </div>
@@ -827,12 +863,31 @@ table td,table th{white-space:nowrap}
 
         <!-- Flashcards -->
         <div id="tool-flashcards" class="tool-view hidden mt-6">
+          <!-- Tutorial overlay -->
+          <div id="fcTutorial" class="card rounded-[22px] p-6 mb-5 border-2 border-[var(--primary)] bg-[var(--primary-soft)]" style="display:none">
+            <div class="flex justify-between items-start gap-3">
+              <div class="text-2xl">🧠</div>
+              <div class="flex-1">
+                <div class="font-extrabold text-base" data-i18n="fc.tutTitle">How spaced repetition works</div>
+                <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div class="flex gap-2 items-start"><span class="text-lg shrink-0">👆</span><div><b data-i18n="fc.tut1h">Tap the card</b><br><span class="text-[var(--text-muted)]" data-i18n="fc.tut1d">Flip it to see the answer hidden on the back</span></div></div>
+                  <div class="flex gap-2 items-start"><span class="text-lg shrink-0">✅</span><div><b data-i18n="fc.tut2h">Know it?</b><br><span class="text-[var(--text-muted)]" data-i18n="fc.tut2d">Press ✓ — the card comes back in days or weeks</span></div></div>
+                  <div class="flex gap-2 items-start"><span class="text-lg shrink-0">❌</span><div><b data-i18n="fc.tut3h">Don't know it?</b><br><span class="text-[var(--text-muted)]" data-i18n="fc.tut3d">Press ✗ — the card repeats again today until you learn it</span></div></div>
+                  <div class="flex gap-2 items-start"><span class="text-lg shrink-0">📅</span><div><b data-i18n="fc.tut4h">Why it works</b><br><span class="text-[var(--text-muted)]" data-i18n="fc.tut4d">Reviewing just before you forget = 2× stronger memory with half the effort</span></div></div>
+                </div>
+              </div>
+              <button onclick="fcCloseTutorial()" class="w-8 h-8 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)] text-lg leading-none">✕</button>
+            </div>
+          </div>
           <div class="grid grid-cols-12 gap-4">
             <div class="col-span-12 lg:col-span-5">
               <div class="card rounded-[22px] p-5">
                 <div class="flex justify-between items-center gap-2">
                   <div class="font-extrabold" data-i18n="fc.title">My Flashcards</div>
-                  <span id="fcDue" class="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)]"></span>
+                  <div class="flex items-center gap-2">
+                    <span id="fcDue" class="text-xs font-bold px-2.5 py-1 rounded-full bg-[var(--accent-soft)] text-[var(--accent)]"></span>
+                    <button onclick="fcShowTutorial()" class="w-7 h-7 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] text-sm font-black" title="How to use">?</button>
+                  </div>
                 </div>
                 <div class="mt-4 grid grid-cols-1 gap-2">
                   <input id="fcFront" data-i18n-ph="fc.frontPh" placeholder="Front (question)" class="h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-medium">
@@ -847,29 +902,42 @@ table td,table th{white-space:nowrap}
             </div>
             <div class="col-span-12 lg:col-span-7">
               <div class="card rounded-[28px] p-6 md:p-8 min-h-[470px] flex flex-col">
+                <!-- Empty / start state -->
                 <div id="fcEmpty" class="flex-1 flex flex-col items-center justify-center text-center">
                   <div class="w-16 h-16 rounded-2xl bg-[var(--bg-soft)] flex items-center justify-center text-2xl">🧠</div>
                   <div class="font-extrabold mt-4" data-i18n="fc.emptyTitle">Ready to review</div>
                   <p class="text-sm text-[var(--text-muted)] mt-1 max-w-[340px]" data-i18n="fc.emptyDesc">Add cards or start a session. Spaced repetition schedules them for you.</p>
                   <button onclick="startFlashStudy()" class="mt-4 h-11 px-6 rounded-full bg-[var(--primary)] text-white font-bold" data-i18n="fc.studyAll">Study now</button>
                 </div>
+                <!-- Study state -->
                 <div id="fcStudy" class="hidden flex-1 flex-col">
                   <div class="flex justify-between items-center text-[11px] font-bold uppercase tracking-widest text-[var(--text-faint)]">
                     <span id="fcProgress">1 / 10</span>
                     <button onclick="exitFlashStudy()" class="h-8 px-3 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] normal-case tracking-normal" data-i18n="common.exit">Exit</button>
                   </div>
-                  <div class="flex-1 flex flex-col items-center justify-center mt-6">
-                    <div id="fcCard" class="w-full max-w-[470px] min-h-[230px] rounded-[22px] bg-[var(--bg-soft)] border border-[var(--border)] p-8 flex flex-col items-center justify-center text-center cursor-pointer" onclick="flipFlashcard()">
-                      <div id="fcQ" class="text-[20px] font-bold leading-tight"></div>
-                      <div id="fcHint" class="text-xs text-[var(--text-faint)] mt-3" data-i18n="fc.reveal">Click to reveal</div>
-                      <div id="fcA" class="hidden mt-6 pt-6 border-t border-[var(--border)] w-full text-[15px] leading-relaxed"></div>
+                  <div class="flex-1 flex flex-col items-center justify-center mt-4">
+                    <!-- 3D flip card -->
+                    <div id="fcCardScene" style="perspective:1000px;width:100%;max-width:470px;min-height:240px;cursor:pointer" onclick="flipFlashcard()">
+                      <div id="fcCardInner" style="position:relative;width:100%;min-height:240px;transform-style:preserve-3d;transition:transform 0.55s cubic-bezier(.4,0,.2,1)">
+                        <!-- Front face -->
+                        <div id="fcFront3d" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;background:var(--bg-soft);border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;min-height:240px">
+                          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-faint);margin-bottom:14px" data-i18n="fc.sideQ">QUESTION</div>
+                          <div id="fcQ" style="font-size:20px;font-weight:700;line-height:1.35;color:var(--text)"></div>
+                          <div id="fcHint" style="font-size:12px;color:var(--text-faint);margin-top:16px" data-i18n="fc.reveal">Click to reveal</div>
+                        </div>
+                        <!-- Back face -->
+                        <div id="fcBack3d" style="position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:rotateY(180deg);border-radius:22px;background:var(--primary-soft);border:1.5px solid var(--primary);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;min-height:240px">
+                          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--primary);margin-bottom:14px;opacity:.7" data-i18n="fc.sideA">ANSWER</div>
+                          <div id="fcA" style="font-size:18px;font-weight:700;line-height:1.4;color:var(--text)"></div>
+                        </div>
+                      </div>
                     </div>
-                    <div id="fcActions" class="hidden mt-6 grid grid-cols-4 gap-2 w-full max-w-[470px]">
-                      <button onclick="rateFlash('again')" class="h-12 rounded-xl bg-red-50 border border-red-200 text-red-600 dark:bg-red-950/40 dark:border-red-900 dark:text-red-300 font-bold text-xs sm:text-sm" data-i18n="fc.again">Again</button>
-                      <button onclick="rateFlash('hard')" class="h-12 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 dark:bg-amber-950/40 dark:border-amber-900 dark:text-amber-300 font-bold text-xs sm:text-sm" data-i18n="fc.hard">Hard</button>
-                      <button onclick="rateFlash('good')" class="h-12 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-950/40 dark:border-emerald-900 dark:text-emerald-300 font-bold text-xs sm:text-sm" data-i18n="fc.good">Good</button>
-                      <button onclick="rateFlash('easy')" class="h-12 rounded-xl bg-[var(--primary-soft)] border border-[var(--border)] text-[var(--primary)] font-bold text-xs sm:text-sm" data-i18n="fc.easy">Easy</button>
+                    <!-- Rating buttons: ✗ / ✓ only -->
+                    <div id="fcActions" class="hidden mt-6 flex gap-4 w-full max-w-[470px] justify-center">
+                      <button onclick="rateFlash('again')" class="flex-1 h-14 rounded-2xl font-black text-2xl border-2 border-red-300 bg-red-50 text-red-500 dark:bg-red-950/40 dark:border-red-800 dark:text-red-300 transition hover:scale-105 active:scale-95" title="Don't know">✗</button>
+                      <button onclick="rateFlash('good')"  class="flex-1 h-14 rounded-2xl font-black text-2xl border-2 border-emerald-300 bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-300 transition hover:scale-105 active:scale-95" title="Know it">✓</button>
                     </div>
+                    <div id="fcTapHint" class="mt-3 text-xs text-[var(--text-faint)]" data-i18n="fc.reveal">Click to reveal</div>
                   </div>
                 </div>
               </div>
@@ -1084,12 +1152,12 @@ table td,table th{white-space:nowrap}
               <p class="text-xs text-[var(--text-muted)] mt-3" data-i18n="set.dataNote">All data is stored locally in your browser. Export a backup before the BAC.</p>
             </div>
             <div class="card rounded-[22px] p-6">
-              <div class="font-extrabold" id="cloudSyncTitle">Cloud Sync</div>
-              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
+              <div class="font-extrabold" id="cloudSyncTitle" data-i18n="cloud.title">Cloud Sync</div>
+              <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc" data-i18n="cloud.desc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
               <div id="cloudSignedOut" class="mt-4">
                 <button onclick="signInGoogle()" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 48 48" class="shrink-0"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.7 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.7 0-14.4 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 36.5 26.7 37 24 37c-5.2 0-9.7-3.3-11.3-8l-6.5 5C9.5 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C40.5 36.7 45 31 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
-                  <span id="cloudSignInLabel">Sign in with Google</span>
+                  <span id="cloudSignInLabel" data-i18n="cloud.signIn">Sign in with Google</span>
                 </button>
               </div>
               <div id="cloudSignedIn" class="mt-4 hidden">
@@ -1100,7 +1168,7 @@ table td,table th{white-space:nowrap}
                     <div id="cloudSyncStatus" class="text-[11px] text-[var(--text-muted)]">—</div>
                   </div>
                 </div>
-                <button onclick="signOutCloud()" id="cloudSignOutBtn" class="mt-3 h-10 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-xs">Sign out</button>
+                <button onclick="signOutCloud()" id="cloudSignOutBtn" class="mt-3 h-10 px-4 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] font-bold text-xs" data-i18n="cloud.signOut">Sign out</button>
               </div>
             </div>
             <div class="card rounded-[22px] p-6">
@@ -1321,8 +1389,14 @@ en:{
  "sc.normal":"To reach <b>{target}/20</b> you need an average of <b>{need}/20</b> across the remaining <b>{coeff}</b> coefficient points.",
  "mention.excellent":"Excellent","mention.vgood":"Very Good","mention.good":"Good","mention.pass":"Pass","mention.work":"Work needed",
  "tools.title":"Study Tools","tools.pomodoro":"Pomodoro","tools.flashcards":"Flashcards","tools.planner":"Planner","tools.papers":"Past Papers","tools.errors":"Error Log","tools.wellness":"Well-being",
- "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
- "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Click to reveal","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
+ "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.cyclesLen":"Cycles before long break","pomo.longBreakLen":"Long break (min)","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
+ "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Tap card to reveal answer","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
+ "fc.sideQ":"QUESTION","fc.sideA":"ANSWER",
+ "fc.tutTitle":"How spaced repetition works",
+ "fc.tut1h":"Tap the card","fc.tut1d":"Flip it to see the answer hidden on the back",
+ "fc.tut2h":"Know it?","fc.tut2d":"Press ✓ — the card comes back in days or weeks",
+ "fc.tut3h":"Don't know it?","fc.tut3d":"Press ✗ — the card repeats again today until you learn it",
+ "fc.tut4h":"Why it works","fc.tut4d":"Reviewing just before you forget = 2× stronger memory with half the effort",
  "plan.title":"Daily & Weekly Planner","plan.all":"All","plan.today":"Today","plan.week":"Week","plan.taskPh":"What do you need to study?","plan.thisWeek":"This Week","plan.proTip":"Pro tip","plan.proTipText":"Break big subjects into 45-minute tasks. Completing tasks earns XP and protects your streak.","plan.noTasks":"No tasks","plan.empty":"No tasks in this view. Add one above.",
  "pri.low":"Low","pri.med":"Medium","pri.high":"High",
  "pap.title":"Past BAC Papers","pap.add":"+ Add paper","pap.year":"Year","pap.status":"Status","pap.score":"Score","pap.addTitle":"Add Paper","pap.yearPh":"Year e.g., 2023","pap.titlePh":"Title (e.g., BAC 2023 Mathematics)","pap.scorePh":"Score /20","pap.note":"Track every past paper. Reviewing a paper gives +20 XP and helps you fix errors in the Error Log.","pap.empty":"No papers yet.","pap.file":"File","pap.filePh":"Attach subject (PDF or image)","pap.viewFile":"View file","pap.noFile":"No file attached to this paper.",
@@ -1345,7 +1419,13 @@ en:{
  "set.reportOpen":"Open Report",
  "toast.reportImgSaved":"Image ready!","toast.reportImgFail":"Export failed",
  "report.imgPanelTitle":"Report ready — choose how to save","report.download":"Download PNG",
- "report.openTab":"Open in new tab","report.mobileHint":"On mobile: long-press the image above then Save Image"
+ "report.openTab":"Open in new tab","report.mobileHint":"On mobile: long-press the image above then Save Image",
+ "cloud.title":"Cloud Sync","cloud.desc":"Sign in with Google to back up your data to the cloud and sync it across your devices.",
+ "cloud.signIn":"Sign in with Google","cloud.signOut":"Sign out",
+ "auth.errLogin":"Sign-in failed. Check your internet connection and try again.",
+ "auth.errLoginMsg":"Sign-in failed: {msg}","auth.errUnknown":"Unknown error",
+ "auth.errRedirect":"Could not complete sign-in. Please try again.",
+ "bl.checking":"⏳ Checking...","bl.refresh":"🔄 Refresh and retry","bl.notActive":"⛔ Account not activated yet"
 },
 ar:{
  "brand.sub":"دليل الدراسة",
@@ -1378,8 +1458,14 @@ ar:{
  "sc.normal":"لبلوغ <b>{target}/20</b> تحتاج معدل <b>{need}/20</b> على <b>{coeff}</b> نقطة معامل متبقية.",
  "mention.excellent":"امتياز","mention.vgood":"جيد جداً","mention.good":"جيد","mention.pass":"مقبول","mention.work":"يحتاج مجهوداً",
  "tools.title":"أدوات الدراسة","tools.pomodoro":"بومودورو","tools.flashcards":"البطاقات","tools.planner":"المخطط","tools.papers":"مواضيع سابقة","tools.errors":"سجل الأخطاء","tools.wellness":"الصحة النفسية",
- "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
- "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط لكشف الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
+ "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.cyclesLen":"الدورات قبل الاستراحة الطويلة","pomo.longBreakLen":"الاستراحة الطويلة (دقيقة)","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
+ "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط على البطاقة لرؤية الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
+ "fc.sideQ":"السؤال","fc.sideA":"الجواب",
+ "fc.tutTitle":"كيف يعمل التكرار المتباعد",
+ "fc.tut1h":"اضغط على البطاقة","fc.tut1d":"اقلبها لترى الجواب المخفي في الخلف",
+ "fc.tut2h":"تعرف الجواب؟","fc.tut2d":"اضغط ✓ — البطاقة ترجع بعد أيام أو أسابيع",
+ "fc.tut3h":"ما تعرف الجواب؟","fc.tut3d":"اضغط ✗ — البطاقة تتكرر اليوم حتى تحفظها",
+ "fc.tut4h":"لماذا يجدي؟","fc.tut4d":"المراجعة قبل النسيان مباشرة = ذاكرة أقوى ×2 بنصف الجهد",
  "plan.title":"المخطط اليومي والأسبوعي","plan.all":"الكل","plan.today":"اليوم","plan.week":"الأسبوع","plan.taskPh":"ما الذي تريد مراجعته؟","plan.thisWeek":"هذا الأسبوع","plan.proTip":"نصيحة","plan.proTipText":"قسّم المواد الكبيرة إلى مهام من 45 دقيقة. إتمام المهام يمنحك نقاطاً ويحمي سلسلتك.","plan.noTasks":"لا مهام","plan.empty":"لا توجد مهام في هذا العرض. أضف واحدة أعلاه.",
  "pri.low":"منخفضة","pri.med":"متوسطة","pri.high":"عالية",
  "pap.title":"مواضيع البكالوريا السابقة","pap.add":"+ إضافة موضوع","pap.year":"السنة","pap.status":"الحالة","pap.score":"العلامة","pap.addTitle":"إضافة موضوع","pap.yearPh":"السنة مثلاً 2023","pap.titlePh":"العنوان (مثال: بكالوريا 2023 رياضيات)","pap.scorePh":"العلامة /20","pap.note":"تابع كل المواضيع السابقة. مراجعة موضوع تمنحك +20 نقطة وتساعدك على تصحيح أخطائك.","pap.empty":"لا توجد مواضيع بعد.","pap.file":"الملف","pap.filePh":"أرفق الموضوع (PDF أو صورة)","pap.viewFile":"عرض الملف","pap.noFile":"لا يوجد ملف مرفق بهذا الموضوع.",
@@ -1402,7 +1488,13 @@ ar:{
  "set.reportOpen":"فتح الكشف",
  "toast.reportImgSaved":"الصورة جاهزة!","toast.reportImgFail":"فشل التصدير",
  "report.imgPanelTitle":"الكشف جاهز — اختر طريقة الحفظ","report.download":"تحميل PNG",
- "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة"
+ "report.openTab":"فتح في تبويب جديد","report.mobileHint":"على الهاتف: اضغط مطولاً على الصورة ثم اختر حفظ الصورة",
+ "cloud.title":"مزامنة السحابة","cloud.desc":"سجّل دخولك بـ Google لحفظ بياناتك في السحابة ومزامنتها على جميع أجهزتك.",
+ "cloud.signIn":"تسجيل الدخول بـ Google","cloud.signOut":"تسجيل الخروج",
+ "auth.errLogin":"تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.",
+ "auth.errLoginMsg":"تعذر تسجيل الدخول: {msg}","auth.errUnknown":"خطأ غير معروف",
+ "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
+ "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
 let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
@@ -1434,15 +1526,15 @@ function defaultState(){return{
  settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
-  {id:"t1",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
-  {id:"t2",title:"Physics past paper 2022",priority:"med",subject:"physics",dueDate:todayISO(),completed:false},
-  {id:"t3",title:"Outline the philosophy essay",priority:"low",subject:"philosophy",dueDate:todayISO(),completed:true}],
+  {id:"t1",title_en:"Revise Mathematics — Functions",title_ar:"مراجعة الرياضيات — الدوال",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
+  {id:"t2",title_en:"Physics past paper 2022",title_ar:"موضوع الفيزياء 2022",title:"Physics past paper 2022",priority:"med",subject:"physics",dueDate:todayISO(),completed:false},
+  {id:"t3",title_en:"Outline the philosophy essay",title_ar:"تخطيط مقالة الفلسفة",title:"Outline the philosophy essay",priority:"low",subject:"philosophy",dueDate:todayISO(),completed:true}],
  pomodoro:{sessionsCompleted:0,totalMinutes:0},
  flashcards:[
-  {id:"f1",front:"What is Newton's second law?",back:"F = m · a",subject:"physics",interval:0,dueDate:todayISO(),ease:2.5,reviews:0},
-  {id:"f2",front:"Derivative of sin(x)?",back:"cos(x)",subject:"math",interval:1,dueDate:todayISO(),ease:2.5,reviews:2}],
+  {id:"f1",front_en:"What is Newton's second law?",front_ar:"ما هو قانون نيوتن الثاني؟",front:"What is Newton's second law?",back:"F = m · a",subject:"physics",interval:0,dueDate:todayISO(),ease:2.5,reviews:0},
+  {id:"f2",front_en:"Derivative of sin(x)?",front_ar:"مشتقة sin(x)؟",front:"Derivative of sin(x)?",back:"cos(x)",subject:"math",interval:1,dueDate:todayISO(),ease:2.5,reviews:2}],
  papers:[{id:"p1",subject:"math",year:2023,title:"BAC 2023 Mathematics",status:"completed",score:14,date:todayISO()}],
- errors:[{id:"e1",subject:"math",topic:"Limits",description:"Forgot to check the indeterminate form",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
+ errors:[{id:"e1",subject:"math",topic_en:"Limits",topic_ar:"النهايات",topic:"Limits",description_en:"Forgot to check the indeterminate form",description_ar:"نسيت التحقق من الشكل غير المحدد",description:"Forgot to check the indeterminate form",solution_en:"Always test 0/0 and apply L'Hôpital when needed",solution_ar:"دائماً تحقق من 0/0 وطبّق قاعدة لوبيتال عند الحاجة",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
  moods:[],
  meta:{updatedAt:0}}}
 // habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
@@ -1460,7 +1552,7 @@ function showXPToast(text){const root=document.getElementById("xpRoot");const el
  el.style.left=(48+(Math.random()*16-8))+"%";el.style.top=(58+(Math.random()*12))+"%";root.appendChild(el);setTimeout(()=>el.remove(),1250)}
 function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
  const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
- if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,LEVEL_TITLES[LANG].length-1)],n:nl}))}
+ if(nl>old){launchConfetti();const _lvlTitlesArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en;const _lvlTitle=_lvlTitlesArr[Math.min(nl-1,_lvlTitlesArr.length-1)];showLevelUpModal(nl,_lvlTitle);}
  saveState();renderGamification();checkBadges()}
 
 /* ============ STREAK ============ */
@@ -1523,6 +1615,7 @@ function applyStaticI18n(){
  document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
+ // حفظ اللغة في localStorage كطبقة احتياطية فورية مستقلة عن Firestore
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
  saveState();
  const root=document.getElementById("htmlRoot");
@@ -1533,8 +1626,20 @@ function applyLang(lang){
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
  applyStaticI18n();applyTheme(state.settings.theme);
+ _syncDefaultDataLang(lang);
  renderNav();renderStreamGrid();if(onbVisible())updateOnb();
- renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
+ renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}
+ renderNav();}
+function _syncDefaultDataLang(lang){
+ if(!state)return;
+ state.tasks.forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
+ state.flashcards.forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
+ state.errors.forEach(er=>{
+  if(er.topic_en&&er.topic_ar)er.topic=lang==="ar"?er.topic_ar:er.topic_en;
+  if(er.description_en&&er.description_ar)er.description=lang==="ar"?er.description_ar:er.description_en;
+  if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
+ });
+}
 function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 
 /* ============ NAV / VIEWS ============ */
@@ -1571,7 +1676,7 @@ function renderAllViews(){renderGamification();renderDashboard();renderSubjects(
 
 /* ============ GAMIFICATION UI ============ */
 function renderGamification(){
- const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,LEVEL_TITLES[LANG].length-1)];
+ const g=state.gamification,lvl=g.level,_ltArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en,title=_ltArr[Math.min(lvl-1,_ltArr.length-1)];
  document.getElementById("streakNum").textContent=g.streak;
  document.getElementById("levelNum").textContent=lvl;
  document.getElementById("levelTitle").textContent=title;
@@ -1784,7 +1889,9 @@ function renderTools(){
  document.querySelectorAll(".tool-tab").forEach(b=>{
   const on=b.dataset.tool===currentTool;
   b.classList.toggle("chip-active",on);
-  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()}});
+  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()};
+  // re-apply i18n text so language change is reflected immediately
+  const key=b.getAttribute("data-i18n");if(key)b.textContent=t(key);});
  document.querySelectorAll(".tool-view").forEach(v=>v.classList.add("hidden"));
  const cur=document.getElementById("tool-"+currentTool);cur.classList.remove("hidden");cur.classList.add("fade-in-up");
  fillSubjectSelects();
@@ -1802,7 +1909,19 @@ function fillSubjectSelects(){
  const pr=document.getElementById("taskPriority");if(pr){const v=pr.value;pr.querySelectorAll("option").forEach(o=>{o.textContent=t("pri."+o.value)});pr.value=v}}
 
 /* --- Pomodoro --- */
+// ✅ نظام وقت حقيقي: نحفظ timestamp البداية بدل العداد التنازلي
+// هذا يضمن استمرار العمل حتى لو أُغلقت الشاشة أو تجمّد setInterval
 let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
+let _pomoStartedAt=null;   // Date.now() لحظة الضغط على Start
+let _pomoTotalSecs=25*60;  // المدة الكاملة للجلسة الحالية بالثواني
+let pomoCycleCount=0;      // عدد جلسات التركيز في الدورة الحالية
+
+// حساب الوقت المتبقي الحقيقي من الـ timestamp
+function _pomoCalcLeft(){
+ if(!pomoRunning||!_pomoStartedAt) return pomoTimeLeft;
+ const elapsed=Math.floor((Date.now()-_pomoStartedAt)/1000);
+ return Math.max(0,_pomoTotalSecs-elapsed);}
+
 function renderPomodoro(){
  const sel=document.getElementById("pomoTaskSelect");
  sel.innerHTML='<option value="">'+t("pomo.noTask")+'</option>'+state.tasks.filter(x=>!x.completed).map(x=>'<option value="'+x.id+'">'+esc(x.title)+'</option>').join("");
@@ -1810,37 +1929,138 @@ function renderPomodoro(){
  document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
  document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
- updatePomoDisplay()}
+ updatePomoDisplay();renderCycleDots();}
+
 function setPomodoroMode(m){
- if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false}
+ if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;_pomoStartedAt=null;}
  pomoMode=m;const f=document.getElementById("pomoFocusBtn"),b=document.getElementById("pomoBreakBtn");
- if(m==="focus"){f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
-  pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60}
- else{b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
-  pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60}
- document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
- document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
- updatePomoDisplay()}
+ if(m==="focus"){
+  f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.deepWork");
+  document.getElementById("pomoStart").textContent=t("pomo.startFocus");
+ }else if(m==="longbreak"){
+  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=_getLongBreak()*60;
+  document.getElementById("pomoLabel").textContent=LANG==="ar"?"☕ استراحة طويلة":"☕ Long Break";
+  document.getElementById("pomoStart").textContent=LANG==="ar"?"ابدأ الاستراحة الطويلة":"Start Long Break";
+ }else{
+  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.breakTime");
+  document.getElementById("pomoStart").textContent=t("pomo.startBreak");
+ }
+ _pomoTotalSecs=pomoTimeLeft;
+ updatePomoDisplay();renderCycleDots();}
+
 function updatePomoDisplay(){
- const mm=String(Math.floor(Math.max(pomoTimeLeft,0)/60)).padStart(2,"0"),ss=String(Math.max(pomoTimeLeft,0)%60).padStart(2,"0");
+ const left=_pomoCalcLeft();
+ const mm=String(Math.floor(left/60)).padStart(2,"0"),ss=String(left%60).padStart(2,"0");
  document.getElementById("pomoTime").textContent=mm+":"+ss;
- const total=(pomoMode==="focus"?(parseInt(document.getElementById("pomoFocusLen").value)||25):(parseInt(document.getElementById("pomoBreakLen").value)||5))*60;
- const prog=Math.min(Math.max(1-pomoTimeLeft/total,0),1),circ=2*Math.PI*110;
+ const prog=Math.min(Math.max(1-left/_pomoTotalSecs,0),1),circ=2*Math.PI*110;
  const ring=document.getElementById("pomoRing");
  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
- ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)")}
+ ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)");}
+
+function _getPomoCycles(){return parseInt(document.getElementById("pomoCyclesLen").value)||4;}
+function _getLongBreak(){return parseInt(document.getElementById("pomoLongBreakLen").value)||30;}
+
+function renderCycleDots(){
+ const total=_getPomoCycles();
+ const dots=document.getElementById("pomoCycleDots");
+ const label=document.getElementById("pomoCycleLabel");
+ if(!dots||!label)return;
+ dots.innerHTML="";
+ for(let i=0;i<total;i++){
+  const d=document.createElement("div");
+  const done=i<pomoCycleCount;
+  const active=(i===pomoCycleCount)&&pomoMode==="focus"&&pomoRunning;
+  d.style.cssText="width:14px;height:14px;border-radius:50%;transition:all .3s ease;"
+   +(done?"background:var(--primary);box-shadow:0 0 6px var(--primary);"
+   :active?"background:var(--primary);opacity:0.5;animation:pulse 1s infinite;"
+   :"background:var(--bg-soft);border:2px solid var(--border);");
+  dots.appendChild(d);
+ }
+ const remaining=total-pomoCycleCount;
+ if(LANG==="ar"){
+  label.textContent=pomoCycleCount===0?"ابدأ الدورة 1"
+   :pomoCycleCount>=total?"🎉 دورة مكتملة — استراحة طويلة!"
+   :remaining+" جلسة حتى الاستراحة الطويلة";
+ }else{
+  label.textContent=pomoCycleCount===0?"Start round 1"
+   :pomoCycleCount>=total?"🎉 Round complete — long break!"
+   :remaining+" session"+(remaining>1?"s":"")+" until long break";
+ }
+}
+
+function _pomoTick(){
+ const left=_pomoCalcLeft();
+ pomoTimeLeft=left;
+ updatePomoDisplay();
+ if(left<=0){
+  clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
+  if(pomoMode==="focus"){
+   state.pomodoro.sessionsCompleted++;
+   pomoCycleCount++;
+   state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
+   saveState();addXP(25);
+   renderCycleDots();
+   const maxCycles=_getPomoCycles();
+   if(pomoCycleCount>=maxCycles){
+    // Long break time!
+    showPomoDoneModal(true);
+   }else{
+    showPomoDoneModal(false);
+   }
+   renderDashboard();
+  }else{
+   // Break done
+   if(pomoMode==="longbreak"){
+    pomoCycleCount=0; // reset cycle after long break
+    launchConfetti();
+   }
+   renderCycleDots();
+   toast(t("toast.breakDone"));setPomodoroMode("focus");
+  }
+ }
+}
+
 function togglePomodoro(){
- if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;document.getElementById("pomoStart").textContent=t("pomo.resume");return}
- pomoRunning=true;document.getElementById("pomoStart").textContent=t("pomo.pause");
- pomoInterval=setInterval(()=>{pomoTimeLeft--;updatePomoDisplay();
-  if(pomoTimeLeft<=0){clearInterval(pomoInterval);pomoRunning=false;
-   if(pomoMode==="focus"){state.pomodoro.sessionsCompleted++;state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-    saveState();addXP(25);toast(t("toast.focusDone"));setPomodoroMode("break");renderPomodoro();renderDashboard()}
-   else{toast(t("toast.breakDone"));setPomodoroMode("focus")}}},1000)}
-function resetPomodoro(){clearInterval(pomoInterval);pomoRunning=false;setPomodoroMode(pomoMode)}
+ if(pomoRunning){
+  // Pause — نحفظ الوقت المتبقي الحقيقي ونوقف العداد
+  pomoTimeLeft=_pomoCalcLeft();
+  _pomoTotalSecs=pomoTimeLeft;
+  _pomoStartedAt=null;
+  clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;
+  document.getElementById("pomoStart").textContent=t("pomo.resume");
+  updatePomoDisplay();return;
+ }
+ // Start / Resume — نحفظ timestamp البداية
+ _pomoStartedAt=Date.now()-((_pomoTotalSecs-pomoTimeLeft)*1000);
+ pomoRunning=true;
+ document.getElementById("pomoStart").textContent=t("pomo.pause");
+ pomoInterval=setInterval(_pomoTick,500); // 500ms للدقة أفضل
+}
+
+function resetPomodoro(){
+ clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
+ setPomodoroMode(pomoMode);}
+
+// ✅ عند العودة من إغلاق الشاشة / تبديل التبويب — نحسب الوقت الفعلي فوراً
+document.addEventListener("visibilitychange",()=>{
+ if(!document.hidden&&pomoRunning){_pomoTick();}});
+window.addEventListener("focus",()=>{
+ if(pomoRunning){_pomoTick();}});
 
 /* --- Flashcards --- */
-let fcQueue=[],fcIndex=0,fcFlipped=false;
+let fcQueue=[],fcIndex=0,fcFlipped=false,fcAnimating=false;
+
+function fcShowTutorial(){const el=document.getElementById("fcTutorial");if(el)el.style.display="block"}
+function fcCloseTutorial(){const el=document.getElementById("fcTutorial");if(el)el.style.display="none"}
+
 function renderFlashcards(){
  const list=document.getElementById("fcList");list.innerHTML="";
  if(!state.flashcards.length)list.innerHTML='<div class="text-sm text-[var(--text-muted)] p-2">'+t("fc.none")+'</div>';
@@ -1850,45 +2070,96 @@ function renderFlashcards(){
   r.innerHTML='<div class="flex-1 min-w-0"><div class="font-semibold text-sm">'+esc(f.front)+'</div><div class="text-xs text-[var(--text-muted)] mt-1">'+esc(f.back)+'</div><div class="text-[11px] mt-2 flex gap-2 items-center flex-wrap"><span class="px-2 py-0.5 rounded-full bg-[var(--card)] border border-[var(--border)]">'+esc(SN(f.subject))+'</span><span class="text-[var(--text-faint)]">'+(f.reviews||0)+' '+t("common.reviews")+'</span></div></div><button onclick="deleteFlash(\''+f.id+'\')" class="w-7 h-7 shrink-0 rounded-full bg-[var(--card)] border border-[var(--border)]">✕</button>';
   list.appendChild(r)});
  document.getElementById("fcDue").textContent=t("fc.due",{n:state.flashcards.filter(f=>new Date(f.dueDate)<=new Date()).length})}
+
 function addFlashcard(){
  const fr=document.getElementById("fcFront").value.trim(),bk=document.getElementById("fcBack").value.trim(),sj=document.getElementById("fcSubject").value;
  if(!fr||!bk)return toast(t("toast.fillCard"),"warn");
  state.flashcards.push({id:"f"+Date.now(),front:fr,back:bk,subject:sj,interval:0,dueDate:todayISO(),ease:2.5,reviews:0});
  document.getElementById("fcFront").value="";document.getElementById("fcBack").value="";
  saveState();renderFlashcards();addXP(5);renderDashboard()}
+
 function deleteFlash(id){state.flashcards=state.flashcards.filter(f=>f.id!==id);saveState();renderFlashcards();renderDashboard()}
+
 function startFlashStudy(){
  fcQueue=state.flashcards.filter(f=>new Date(f.dueDate)<=new Date());
  if(!fcQueue.length)fcQueue=state.flashcards.slice();
  if(!fcQueue.length)return toast(t("toast.noCards"),"warn");
- fcIndex=0;document.getElementById("fcEmpty").classList.add("hidden");
+ fcIndex=0;
+ document.getElementById("fcEmpty").classList.add("hidden");
  const s=document.getElementById("fcStudy");s.classList.remove("hidden");s.classList.add("flex");
+ // show tutorial first time
+ fcShowTutorial();
  showFlash()}
-function showFlash(){const f=fcQueue[fcIndex];if(!f){exitFlashStudy();return}
+
+function showFlash(){
+ const f=fcQueue[fcIndex];if(!f){exitFlashStudy();return}
+ fcFlipped=false;fcAnimating=false;
+ // reset card to front without animation
+ const inner=document.getElementById("fcCardInner");
+ inner.style.transition="none";
+ inner.style.transform="rotateY(0deg)";
+ // force reflow then re-enable transition
+ inner.getBoundingClientRect();
+ inner.style.transition="transform 0.55s cubic-bezier(.4,0,.2,1)";
  document.getElementById("fcProgress").textContent=(fcIndex+1)+" / "+fcQueue.length;
  document.getElementById("fcQ").textContent=f.front;
  document.getElementById("fcA").textContent=f.back;
- document.getElementById("fcA").classList.add("hidden");
- document.getElementById("fcHint").classList.remove("hidden");
+ document.getElementById("fcHint").style.display="";
  document.getElementById("fcActions").classList.add("hidden");
- fcFlipped=false}
-function flipFlashcard(){if(fcFlipped)return;fcFlipped=true;
- document.getElementById("fcA").classList.remove("hidden");
- document.getElementById("fcHint").classList.add("hidden");
- document.getElementById("fcActions").classList.remove("hidden")}
-function rateFlash(r){const f=fcQueue[fcIndex];if(!f)return;
+ document.getElementById("fcActions").style.display="";
+ const tapHint=document.getElementById("fcTapHint");if(tapHint)tapHint.style.display="";
+}
+
+function flipFlashcard(){
+ if(fcFlipped||fcAnimating)return;
+ fcAnimating=true;
+ const inner=document.getElementById("fcCardInner");
+ inner.style.transform="rotateY(180deg)";
+ fcFlipped=true;
+ setTimeout(()=>{
+  document.getElementById("fcHint").style.display="none";
+  document.getElementById("fcActions").classList.remove("hidden");
+  document.getElementById("fcActions").style.display="flex";
+  const tapHint=document.getElementById("fcTapHint");if(tapHint)tapHint.style.display="none";
+  fcAnimating=false;
+ },300)}
+
+let _lastRateTime=0;let _ratingLocked=false;
+function rateFlash(r){
+ if(!fcFlipped)return;
+ // XP anti-spam: ignore clicks faster than 400ms (animation duration)
+ const now=Date.now();if(_ratingLocked||now-_lastRateTime<400)return;
+ _ratingLocked=true;_lastRateTime=now;
+ const f=fcQueue[fcIndex];if(!f){_ratingLocked=false;return;}
  let ease=f.ease||2.5,iv=f.interval||0;
+ // simplified: ✗ = again (repeat today), ✓ = good (schedule later)
  if(r==="again"){iv=0;ease=Math.max(1.3,ease-0.2)}
- else if(r==="hard"){iv=Math.max(1,Math.round(iv*1.2));ease=Math.max(1.3,ease-0.15)}
- else if(r==="good"){iv=iv===0?1:Math.round(iv*ease)}
- else{iv=iv===0?3:Math.round(iv*ease*1.3);ease+=0.1}
+ else{iv=iv===0?1:Math.round(iv*ease);ease=Math.min(3,ease+0.05)}
  f.ease=ease;f.interval=iv;f.reviews=(f.reviews||0)+1;f.dueDate=isoOffset(iv);
  const i=state.flashcards.findIndex(x=>x.id===f.id);if(i>=0)state.flashcards[i]=f;
- saveState();addXP(5);fcIndex++;
- if(fcIndex>=fcQueue.length){toast(t("toast.sessionDone"));exitFlashStudy()}else showFlash();
- renderFlashcards()}
-function exitFlashStudy(){document.getElementById("fcEmpty").classList.remove("hidden");
- const s=document.getElementById("fcStudy");s.classList.add("hidden");s.classList.remove("flex")}
+ saveState();addXP(5);
+ // slide out animation then show next
+ const inner=document.getElementById("fcCardInner");
+ const dir=r==="again"?"-120px":"120px";
+ inner.style.transition="transform 0.3s ease,opacity 0.3s ease";
+ inner.style.transform="translateX("+dir+") rotateY(180deg)";
+ inner.style.opacity="0";
+ setTimeout(()=>{
+  inner.style.transition="none";
+  inner.style.transform="rotateY(0deg)";
+  inner.style.opacity="1";
+  fcIndex++;
+  if(fcIndex>=fcQueue.length){toast(t("toast.sessionDone"));exitFlashStudy();renderFlashcards();return}
+  _ratingLocked=false;
+  showFlash();renderFlashcards();
+ },320)}
+
+function exitFlashStudy(){
+ document.getElementById("fcEmpty").classList.remove("hidden");
+ const s=document.getElementById("fcStudy");s.classList.add("hidden");s.classList.remove("flex");
+ const inner=document.getElementById("fcCardInner");
+ if(inner){inner.style.transition="none";inner.style.transform="rotateY(0deg)";inner.style.opacity="1";}
+}
 
 /* --- Planner --- */
 let plannerFilter="all";
@@ -2515,6 +2786,120 @@ function finishOnboarding(){
  saveState();hideOnboarding();initApp();toast(t("toast.welcome"));addXP(20)}
 
 /* ============ CONFETTI ============ */
+
+/* ============ MOTIVATIONAL QUOTES ============ */
+const LEVEL_QUOTES={
+  en:[
+    "Every expert was once a beginner. Keep climbing! 💪",
+    "Success is the sum of small efforts, repeated day in and day out. 🔥",
+    "The harder you work for something, the greater you'll feel when you achieve it. ⭐",
+    "Don't watch the clock; do what it does. Keep going. 🕐",
+    "Education is the most powerful weapon you can use to change the world. 📚",
+    "Believe you can and you're halfway there. 🌟",
+    "You are braver than you believe, stronger than you seem. 💎",
+    "The secret of getting ahead is getting started. 🚀",
+    "It always seems impossible until it's done. 🏆",
+    "Push yourself, because no one else is going to do it for you. ⚡",
+    "Great things never come from comfort zones. 🌍",
+    "Dream big. Work hard. Stay focused. 👑"
+  ],
+  ar:[
+    "كل خبير كان يوماً مبتدئاً. واصل الصعود! 💪",
+    "النجاح هو مجموع جهود صغيرة تُكرَّر يوماً بعد يوم. 🔥",
+    "كلما كافحت أكثر، كلما شعرت بعظمة إنجازك. ⭐",
+    "لا تراقب الساعة، افعل ما تفعله: لا تتوقف. 🕐",
+    "التعليم هو أقوى سلاح يمكنك استخدامه لتغيير العالم. 📚",
+    "آمن بنفسك وستكون في منتصف الطريق. 🌟",
+    "أنت أشجع مما تعتقد وأقوى مما تبدو. 💎",
+    "سر النجاح هو البداية. 🚀",
+    "يبدو كل شيء مستحيلاً حتى يتحقق. 🏆",
+    "ادفع نفسك للأمام، فلن يفعل ذلك أحد عنك. ⚡",
+    "الأشياء العظيمة لا تأتي من مناطق الراحة. 🌍",
+    "احلم بكبر. اعمل بجد. ابقَ مركّزاً. 👑"
+  ]
+};
+
+const POMO_QUOTES={
+  en:[
+    "Focus session crushed! Your brain is getting stronger. 🧠",
+    "25 minutes of pure focus — that's how champions are made. 🏆",
+    "Deep work done! You're building momentum. ⚡",
+    "Session complete! Every minute invested counts. 📈",
+    "You showed up and stayed focused. That's everything. 💪",
+    "Brain fueled, goals one step closer. Rest, then conquer! 🚀",
+    "Consistency is key — and you just proved it. 🔑",
+    "One pomodoro at a time, you're building your future. 🌟"
+  ],
+  ar:[
+    "جلسة تركيز مكتملة! عقلك يصبح أقوى. 🧠",
+    "25 دقيقة من التركيز الكامل — هكذا يُصنع الأبطال. 🏆",
+    "عمل عميق منجز! أنت تبني زخماً رائعاً. ⚡",
+    "الجلسة اكتملت! كل دقيقة تستثمرها تُحسَب. 📈",
+    "حضرت وبقيت مركّزاً. هذا هو كل شيء. 💪",
+    "العقل مشحون والهدف أقرب خطوة. استرح ثم افتح! 🚀",
+    "الاستمرارية هي المفتاح — وأنت أثبتت ذلك للتو. 🔑",
+    "بومودورو واحد في كل مرة، أنت تبني مستقبلك. 🌟"
+  ]
+};
+
+function _randQuote(pool){const arr=pool[LANG]||pool.ar;return arr[Math.floor(Math.random()*arr.length)];}
+
+function showLevelUpModal(level,titleStr){
+  const m=document.getElementById("levelUpModal");if(!m)return;
+  const stars=["🌟","⭐","🔥","💎","🏆","👑","🚀","💫"];
+  document.getElementById("luStars").textContent=stars[Math.min(level-1,stars.length-1)];
+  const lvlLabels={en:"Level ",ar:"المستوى "};
+  document.getElementById("luLevel").textContent=(lvlLabels[LANG]||lvlLabels.ar)+level;
+  document.getElementById("luTitle").textContent=titleStr;
+  document.getElementById("luQuote").textContent=_randQuote(LEVEL_QUOTES);
+  const btnLabels={en:"🚀 Let's go!",ar:"🚀 هيا بنا!"};
+  document.getElementById("luBtn").textContent=btnLabels[LANG]||btnLabels.ar;
+  m.classList.remove("hidden");m.style.display="flex";
+}
+function closeLevelUpModal(){
+  const m=document.getElementById("levelUpModal");if(!m)return;
+  m.style.display="none";m.classList.add("hidden");
+}
+
+function showPomoDoneModal(isLongBreak){
+  const m=document.getElementById("pomoDoneModal");if(!m)return;
+  const cyclesLen=_getPomoCycles();
+  const longMin=_getLongBreak();
+  let title,breakLabel,goLabel,emoji;
+  if(isLongBreak){
+    emoji="🏆";
+    title=LANG==="ar"
+     ?"أكملت "+cyclesLen+" دورات! استراحة "+longMin+" دقيقة 🎉"
+     :"Round of "+cyclesLen+" done! "+longMin+" min long break 🎉";
+    breakLabel=LANG==="ar"?"☕ ابدأ الاستراحة الطويلة":"☕ Take long break ("+longMin+"m)";
+    goLabel=LANG==="ar"?"⚡ تجاهل والمتابعة":"⚡ Skip & keep going";
+    launchConfetti();
+  }else{
+    emoji="🍅";
+    title=LANG==="ar"?"جلسة تركيز مكتملة! +25 نقطة":"Focus session done! +25 XP";
+    breakLabel=LANG==="ar"?"☕ خذ استراحة":"☕ Take a break";
+    goLabel=LANG==="ar"?"⚡ واصل!":"⚡ Keep going!";
+  }
+  document.getElementById("pdTitle").textContent=title;
+  document.getElementById("pdQuote").textContent=_randQuote(POMO_QUOTES);
+  document.getElementById("pdBreakBtn").textContent=breakLabel;
+  document.getElementById("pdContinueBtn").textContent=goLabel;
+  // store whether it's long break for close handler
+  m.dataset.longBreak=isLongBreak?"1":"0";
+  m.classList.remove("hidden");m.style.display="flex";
+}
+function closePomoDoneModal(startBreak){
+  const m=document.getElementById("pomoDoneModal");if(!m)return;
+  const isLong=m.dataset.longBreak==="1";
+  m.style.display="none";m.classList.add("hidden");
+  if(startBreak){
+    setPomodoroMode(isLong?"longbreak":"break");renderPomodoro();
+  }else{
+    if(isLong){pomoCycleCount=0;renderCycleDots();}
+    setPomodoroMode("focus");renderPomodoro();
+  }
+}
+
 function launchConfetti(){
  // Use canvas-confetti library if available
  if(typeof confetti==="function"){
@@ -2543,14 +2928,18 @@ function initApp(){
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=defaultState();
- try{const _sl=localStorage.getItem('bac2027_lang');if(_sl==="ar"||_sl==="en")state.settings.lang=_sl;}catch(e){}
+ // قراءة اللغة من localStorage فوراً عند البداية (قبل وصول بيانات Firestore)
+ try{const saved=localStorage.getItem('bac2027_lang');if(saved==="ar"||saved==="en")state.settings.lang=saved;}catch(e){}
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  document.getElementById("onbTarget").addEventListener("input",updateOnbHint);
  ["pomoFocusLen","pomoBreakLen"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{if(!pomoRunning)setPomodoroMode(pomoMode)}));
  window.addEventListener("resize",()=>{const c=document.getElementById("confetti");c.width=window.innerWidth;c.height=window.innerHeight});
- if(!state.profile.name){showOnboarding()}else{hideOnboarding();initApp()}
+ // ⚠️ لا نُظهر الأونبوردينغ هنا — ننتظر Firebase أولاً
+ // (إذا أظهرناه الآن بناء على state المحلي الفارغ، سيظهر عند كل Refresh حتى للمستخدمين القدامى)
+ // showOnboarding/hideOnboarding يُستدعى من _onAuthReady بعد تأكيد الخادم
+ hideOnboarding(); // إخفاء مبدئي، Firebase هو من يقرر
 
  // ===== OFFLINE DETECTION =====
  const offlineBanner=document.getElementById("offlineBanner");
@@ -2835,16 +3224,16 @@ function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
  LANG=state.settings.lang||LANG;
+ // مزامنة localStorage مع اللغة القادمة من Firestore
  try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
- // الحساب موجود مسبقاً وله ملف شخصي محفوظ في السحابة (اسم + شعبة) —
- // لا داعي لإظهار نافذة الإعداد الأولي مجدداً، حتى لو كانت ظاهرة الآن
- // بسبب أن الحالة المحلية الابتدائية (قبل وصول بيانات السحابة) كانت فارغة.
- if(state.profile.name){
-   if(onbVisible()){hideOnboarding();initApp()}
- }
+ // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
+ // سواء كان له اسم أو لا، البيانات السحابية موجودة = مستخدم قديم لا يحتاج أونبوردينغ.
+ const wasOnboarding = onbVisible();
+ hideOnboarding();
+ if(wasOnboarding){initApp();}
  renderNav();renderAllViews();fillSubjectSelects();checkBadges();
  setCloudStatus("synced");
  applyingRemote=false;
@@ -3149,28 +3538,6 @@ window.addEventListener('focus',_checkDayRollover);
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
 
- // 🔒 نُبقي شاشة "جارِ التحقق" (loginGate) ظاهرة إلى أن نعرف يقيناً هل
- // للمستخدم ملف شخصي محفوظ في السحابة أم لا. هذا يمنع "ومضة" نافذة
- // الإعداد الأولي (اسم + شعبة) التي كانت تظهر لجزء من الثانية عند كل
- // Refresh قبل أن تصل بيانات السحابة — لأن hideGates() كان يُستدعى فوراً
- // بينما state ما تزال فارغة (defaultState) إلى حين وصول الشبكة.
- let _gateReleased=false;
- function _releaseGate(){
-  if(_gateReleased)return;
-  _gateReleased=true;
-  if(typeof window.hideGates==="function"){
-   window.hideGates();
-  }else{
-   // خطة بديلة دفاعية إذا لم تُعرَّف window.hideGates بعد لأي سبب
-   const lg=document.getElementById("loginGate"),bg=document.getElementById("blockedGate");
-   if(lg)lg.classList.add("hidden");
-   if(bg)bg.classList.add("hidden");
-  }
- }
- // خطة بديلة أمان: لا نترك المستخدم عالقاً خلف شاشة التحقق إلى الأبد
- // (مثلاً بلا إنترنت وبلا أي cache) — بعد 6 ثوانٍ نحرر الشاشة بأي حال.
- const _gateSafetyTimer=setTimeout(_releaseGate,6000);
-
  // 🔒 تجديد الـ Token فوراً عند بدء الاستماع — يضمن أن أول طلب للخادم يستخدم
  // token صالحاً حتى لو مضت فترة طويلة منذ تسجيل الدخول
  const currentUser = fbAuth.currentUser;
@@ -3186,24 +3553,15 @@ async function attachCloudListener(uid){
  fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
   serverCheckDone=true;
   if(!serverSnap.exists){
-   // مستخدم جديد تماماً بتأكيد مباشر من الخادم (وليس من الـ cache المحلي) —
-   // لا نرفع أبداً أي بيانات "state" قد تكون بقايا حساب آخر استُعمل على
-   // نفس الجهاز/المتصفح؛ بل نبدأ بحالة افتراضية نظيفة 100% ونرفعها هي فقط.
-   // هذا يطابق تماماً منطق تطبيق habittck الناجح: "مستخدم جديد مؤكَّد من
-   // الخادم = بيانات افتراضية جديدة، لا بيانات الذاكرة المحلية الحالية".
+   // مستخدم جديد تماماً بتأكيد مباشر من الخادم —
+   // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
-   renderAllViews();
-   state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
-   pushToCloud();
-   // مستخدم جديد فعلاً — الآن فقط يصح إظهار نافذة الإعداد الأولي (مرة واحدة)
-   _releaseGate();
+   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
+   if(!state.profile.name){showOnboarding();}else{hideOnboarding();initApp();}
   } else if(!_pendingLocalEdit){
    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
    applyRemoteState(serverSnap.data());
-   _releaseGate();
-  } else {
-   _releaseGate();
   }
  }).catch(e=>{
   serverCheckDone=true;
@@ -3216,7 +3574,7 @@ async function attachCloudListener(uid){
 
  cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
   try{
-   if(!snap.exists){isFirstSnapshot=false;_releaseGate();return;}
+   if(!snap.exists){isFirstSnapshot=false;return;}
    const d=snap.data();
 
    // تجاهل snapshot كتبه هذا الجهاز نفسه منذ أقل من 4 ثوانٍ
@@ -3238,8 +3596,10 @@ async function attachCloudListener(uid){
      applyRemoteState(d);
     } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
      pushToCloud();
+    } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
+     // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
+     const wasOnb=onbVisible();hideOnboarding();if(wasOnb)initApp();
     }
-    _releaseGate();
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
     if(!_pendingLocalEdit&&remoteTime>localTime){
@@ -3247,11 +3607,10 @@ async function attachCloudListener(uid){
      toast(LANG==="ar"?"🔄 تم تحديث البيانات من جهاز آخر":"🔄 Data updated from another device");
     }
    }
-  }catch(e){console.error('Snapshot apply error:',e);_releaseGate();}
+  }catch(e){console.error('Snapshot apply error:',e);}
  },err=>{
   setCloudStatus("error");
   console.error('Firestore listener error:',err&&err.code);
-  _releaseGate();
  });
 }
 
@@ -3307,10 +3666,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
     loginGate.classList.add("hidden");
     blockedGate.classList.add("hidden");
   }
-  // attachCloudListener مُعرّفة خارج هذا الـ IIFE (نطاق مختلف)، لذا نعرّض
-  // hideGates على window لتقدر تستدعيها — وإلا فشلت المكالمة بصمت (ReferenceError
-  // داخل .then/catch) وبقيت شاشة "جارِ التحقق" ظاهرة للأبد.
-  window.hideGates = hideGates;
 
   const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
 
@@ -3443,9 +3798,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
     if(cached === true){
       console.log('[BAC-AUTH] fast path — cached allowed');
-      // ملاحظة: لا نستدعي hideGates() هنا — نتركها لـ attachCloudListener
-      // كي تبقى شاشة "جارِ التحقق" ظاهرة إلى أن تصل بيانات السحابة فعلياً،
-      // فلا تظهر نافذة إنشاء الملف الشخصي لومضة قبل أن تُخفى تلقائياً.
+      hideGates();
       attachCloudListener(user.uid);
       _checkUserAccess(user).then(still=>{
         if(!still){ _clearAccessCache(email); _blockedSignOut=true; showBlocked(user.email); fbAuth.signOut(); }
@@ -3466,6 +3819,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       _checkUserAccess(user).then(nowAllowed=>{
         if(nowAllowed){
           console.log('[BAC-AUTH] re-check confirms account is now active — unblocking automatically');
+          hideGates();
           attachCloudListener(user.uid);
         } else {
           _blockedSignOut = true;
@@ -3485,6 +3839,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
     const allowed = await _checkUserAccess(user);
     console.log('[BAC-AUTH] Firestore check result:', allowed);
     if(allowed){
+      hideGates();
       attachCloudListener(user.uid);
     } else {
       _blockedSignOut = true;
@@ -3583,14 +3938,14 @@ setTimeout(()=>{ _appInitializing=false; },0);
           _redirectPending = true;
           fbAuth.signInWithRedirect(googleProvider).catch(err2=>{
             _redirectPending = false;
-            showError("تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.");
+            showError(t("auth.errLogin"));
             lgBtn.disabled = false;
             lgBtn.innerHTML = googleLogoHTML;
           });
           return;
         }
 
-        showError("تعذر تسجيل الدخول: " + (err && err.message ? err.message : "خطأ غير معروف"));
+        showError(t("auth.errLoginMsg",{msg:err&&err.message?err.message:t("auth.errUnknown")}));
         lgBtn.disabled = false;
         lgBtn.innerHTML = googleLogoHTML;
       });
@@ -3608,7 +3963,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       console.error('[BAC-AUTH] getRedirectResult error:', err && err.code, err && err.message);
       _redirectPending = false;
       if(err && err.code && err.code !== 'auth/no-current-user'){
-        showError("تعذر استكمال تسجيل الدخول. حاول مرة أخرى.");
+        showError(t("auth.errRedirect"));
       }
     });
 
@@ -3623,19 +3978,19 @@ setTimeout(()=>{ _appInitializing=false; },0);
     const user = fbAuth.currentUser;
     if(!user){ showLogin(); return; }
     blRefresh.disabled=true;
-    blRefresh.textContent="⏳ جارٍ التحقق...";
+    blRefresh.textContent=t("bl.checking");
     if(blChecking) blChecking.style.display="block";
     _clearAccessCache(user.email);
     const allowed = await _checkUserAccess(user);
     if(blChecking) blChecking.style.display="none";
     blRefresh.disabled=false;
-    blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة";
+    blRefresh.innerHTML=t("bl.refresh");
     if(allowed){
       hideGates();
       attachCloudListener(user.uid);
     } else {
-      blRefresh.textContent="⛔ لا يزال الحساب غير مفعّل";
-      setTimeout(()=>{ blRefresh.innerHTML="🔄 تحديث وإعادة المحاولة"; },2500);
+      blRefresh.textContent=t("bl.notActive");
+      setTimeout(()=>{ blRefresh.innerHTML=t("bl.refresh"); },2500);
     }
   });
 })();
