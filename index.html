@@ -1885,7 +1885,9 @@ function renderTools(){
  document.querySelectorAll(".tool-tab").forEach(b=>{
   const on=b.dataset.tool===currentTool;
   b.classList.toggle("chip-active",on);
-  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()}});
+  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()};
+  // re-apply i18n text so language change is reflected immediately
+  const key=b.getAttribute("data-i18n");if(key)b.textContent=t(key);});
  document.querySelectorAll(".tool-view").forEach(v=>v.classList.add("hidden"));
  const cur=document.getElementById("tool-"+currentTool);cur.classList.remove("hidden");cur.classList.add("fade-in-up");
  fillSubjectSelects();
