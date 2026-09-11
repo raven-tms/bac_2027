@@ -49,6 +49,7 @@
                https://securetoken.googleapis.com
                https://accounts.google.com
                https://apis.google.com
+               https://www.gstatic.com
                wss://*.firebaseio.com;
 
   img-src      'self'
@@ -2746,7 +2747,7 @@ firebase.initializeApp(firebaseConfig);
 const fbAuth=firebase.auth();
 const fbDb=firebase.firestore();
 try{
-  fbDb.settings({cacheSizeBytes:firebase.firestore.CACHE_SIZE_UNLIMITED});
+  fbDb.settings({cacheSizeBytes:firebase.firestore.CACHE_SIZE_UNLIMITED,merge:true});
   fbDb.enableMultiTabIndexedDbPersistence().catch(e=>{
     if(e.code==='failed-precondition'){
       fbDb.enablePersistence({synchronizeTabs:false}).catch(()=>{});
