@@ -137,7 +137,7 @@ table td,table th{white-space:nowrap}
   background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
   overflow: hidden;
 }
-#loginGate.hidden { display: none; } 
+#loginGate.hidden { display: none; }
 .lg-bg-emoji {
   position: absolute; font-size: 2rem; opacity: 0.10;
   animation: lgFloat linear infinite; user-select: none; pointer-events: none;
@@ -1500,7 +1500,11 @@ function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)retu
    inp.addEventListener("input",e=>{const code=e.target.dataset.calc,v=e.target.value;
     if(v===""){delete state.grades[code];saveState();renderCalculatorSummary();renderDashboard();return}
     let c=clampGrade(v);
-    if(parseFloat(v)>20){e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);c=20;toast(t("toast.gradeCap"),"warn")}
+    if(parseFloat(v)>20){
+     e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);
+     c=20;e.target.value=20;toast(t("toast.gradeCap"),"warn");
+    }
+    if(parseFloat(v)<0){e.target.value=0;c=0}
     state.grades[code]=c;saveState();
     renderCalculatorSummary();renderDashboard();
     const wCell=body.querySelector('[data-weight-for="'+code+'"]');
@@ -2381,6 +2385,7 @@ async function _doCloudWrite(uid,retryCount){
   _pendingLocalEdit=false;
   _lastLocalWriteTime=Date.now();
  }catch(e){
+  console.error('[BAC-CLOUD] write error:', e && e.code, e && e.message);
   if(_TRANSIENT.includes(e&&e.code)&&retryCount<3&&cloudUser&&cloudUser.uid===uid){
    setTimeout(()=>{ _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,retryCount+1)); },1000*(retryCount+1));
   }else{
