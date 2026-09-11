@@ -832,7 +832,12 @@ table td,table th{white-space:nowrap}
                 <button onclick="togglePomodoro()" id="pomoStart" class="h-[50px] px-8 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="pomo.startFocus">Start Focus</button>
                 <button onclick="resetPomodoro()" class="h-[50px] w-[50px] rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↺</button>
               </div>
-              <div class="mt-6 flex flex-wrap justify-center gap-6 text-sm">
+              <!-- Cycle dots -->
+              <div class="mt-5 flex flex-col items-center gap-2">
+                <div id="pomoCycleDots" class="flex gap-2"></div>
+                <div id="pomoCycleLabel" class="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]"></div>
+              </div>
+              <div class="mt-4 flex flex-wrap justify-center gap-6 text-sm">
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.sessionsToday">Sessions today</span> <span id="pomoCount" class="font-black">0</span></div>
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.totalFocus">Total focus</span> <span id="pomoTotal" class="font-black">0h 0m</span></div>
               </div>
@@ -843,6 +848,8 @@ table td,table th{white-space:nowrap}
                 <div class="mt-4 grid grid-cols-2 gap-3">
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.focusLen">Focus (min)</label><input id="pomoFocusLen" type="number" value="25" min="5" max="90" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.breakLen">Break (min)</label><input id="pomoBreakLen" type="number" value="5" min="1" max="30" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.cyclesLen">Cycles before long break</label><input id="pomoCyclesLen" type="number" value="4" min="2" max="8" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
+                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.longBreakLen">Long break (min)</label><input id="pomoLongBreakLen" type="number" value="30" min="10" max="60" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                 </div>
                 <div class="mt-4 p-3 rounded-xl bg-[var(--primary-soft)] text-sm" data-i18n="pomo.tip">Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.</div>
               </div>
@@ -1346,7 +1353,7 @@ const MAJORS=[
  {en:"Psychology",ar:"علم النفس",min:12.5,stream:["letters","sci_exp"]},
  {en:"Journalism",ar:"علوم الإعلام والاتصال",min:13.0,stream:["letters","lang"]}
 ];
-const LEVEL_TITLES={en:["Beginner","Explorer","Learner","Achiever","Scholar","Strategist","Expert","Master","Elite","Prodigy","Legend","BAC Champion"],ar:["مبتدئ","مستكشف","متعلّم","منجز","دارس","استراتيجي","خبير","متمكّن","نخبة","معجزة","أسطورة","بطل البكالوريا"],fr:["Débutant","Explorateur","Apprenant","Réalisateur","Érudit","Stratège","Expert","Maître","Élite","Prodige","Légende","Champion du BAC"]};
+const LEVEL_TITLES={en:["Beginner","Explorer","Learner","Achiever","Scholar","Strategist","Expert","Master","Elite","Prodigy","Legend","BAC Champion"],ar:["مبتدئ","مستكشف","متعلّم","منجز","دارس","استراتيجي","خبير","متمكّن","نخبة","معجزة","أسطورة","بطل البكالوريا"]};
 const MOOD_EMOJI=["😞","😐","🙂","😊","🤩"];
 
 /* ============ I18N DICTIONARY ============ */
@@ -1382,7 +1389,7 @@ en:{
  "sc.normal":"To reach <b>{target}/20</b> you need an average of <b>{need}/20</b> across the remaining <b>{coeff}</b> coefficient points.",
  "mention.excellent":"Excellent","mention.vgood":"Very Good","mention.good":"Good","mention.pass":"Pass","mention.work":"Work needed",
  "tools.title":"Study Tools","tools.pomodoro":"Pomodoro","tools.flashcards":"Flashcards","tools.planner":"Planner","tools.papers":"Past Papers","tools.errors":"Error Log","tools.wellness":"Well-being",
- "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
+ "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.cyclesLen":"Cycles before long break","pomo.longBreakLen":"Long break (min)","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
  "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Tap card to reveal answer","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
  "fc.sideQ":"QUESTION","fc.sideA":"ANSWER",
  "fc.tutTitle":"How spaced repetition works",
@@ -1451,7 +1458,7 @@ ar:{
  "sc.normal":"لبلوغ <b>{target}/20</b> تحتاج معدل <b>{need}/20</b> على <b>{coeff}</b> نقطة معامل متبقية.",
  "mention.excellent":"امتياز","mention.vgood":"جيد جداً","mention.good":"جيد","mention.pass":"مقبول","mention.work":"يحتاج مجهوداً",
  "tools.title":"أدوات الدراسة","tools.pomodoro":"بومودورو","tools.flashcards":"البطاقات","tools.planner":"المخطط","tools.papers":"مواضيع سابقة","tools.errors":"سجل الأخطاء","tools.wellness":"الصحة النفسية",
- "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
+ "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.cyclesLen":"الدورات قبل الاستراحة الطويلة","pomo.longBreakLen":"الاستراحة الطويلة (دقيقة)","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
  "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط على البطاقة لرؤية الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
  "fc.sideQ":"السؤال","fc.sideA":"الجواب",
  "fc.tutTitle":"كيف يعمل التكرار المتباعد",
@@ -1487,43 +1494,7 @@ ar:{
  "auth.errLogin":"تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.",
  "auth.errLoginMsg":"تعذر تسجيل الدخول: {msg}","auth.errUnknown":"خطأ غير معروف",
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
- "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل",
-fr:{
- "brand.sub":"Guide de révision",
- "nav.dashboard":"Tableau de bord","nav.subjects":"Mes matières","nav.calculator":"Calculateur","nav.tools":"Outils","nav.achievements":"Succès","nav.settings":"Paramètres",
- "common.continue":"Continuer","common.back":"Retour","common.add":"Ajouter","common.save":"Enregistrer","common.exit":"Quitter","common.manage":"Gérer","common.viewAll":"Voir tout","common.toggle":"Basculer","common.delete":"Supprimer","common.reviews":"révisions",
- "onb.title1":"BAC 2027 —","onb.title2":"Mon Guide de Révision",
- "onb.sub":"Le système complet pour le Baccalauréat algérien. Suis tes matières, calcule ta moyenne avec les vrais coefficients, construis des séries et reste motivé jusqu'au jour J.",
- "onb.f1t":"Planificateur","onb.f1d":"Sache exactement ce qu'il te faut","onb.f2t":"Séries & XP","onb.f2d":"Régularité gamifiée","onb.f3t":"Outils intelligents","onb.f3d":"Pomodoro, flashcards et plus",
- "onb.name":"Ton prénom","onb.stream":"Ta filière","onb.target":"Moyenne cible","onb.start":"Commencer — c'est gratuit",
- "dash.overview":"Aperçu","dash.avg":"Moyenne actuelle","dash.target":"Cible","dash.streak":"Série","dash.days":"jours","dash.level":"Niveau","dash.xp":"XP total","dash.subjects":"Matières saisies","dash.wellbeing":"Bien-être","dash.howFeel":"Comment tu te sens aujourd'hui ?","dash.todayPlan":"Plan du jour","dash.errorsRecent":"Journal d'erreurs • Récent","dash.allDone":"Tout est fait pour aujourd'hui ! 🎉 Ajoute-en dans le Planificateur.","dash.noErrors":"Aucune erreur enregistrée. C'est bon signe !",
- "sub.title":"Mes matières","sub.add":"+ Ajouter une matière","sub.coeff":"Coeff","sub.grade":"Note","sub.clear":"Effacer","sub.empty":"Aucune matière pour le moment.",
- "calc.title":"Calculateur de moyenne","calc.select":"Sélectionner une filière","calc.type":"Type d'examen","calc.final":"Baccalauréat","calc.mock":"Blanc","calc.avg":"Moyenne pondérée","calc.mention":"Mention","calc.toPass":"Pour passer","calc.toMention":"Pour mention","calc.safe":"Tu es en sécurité 🎉","calc.info":"Remplis tes notes dans Mes matières pour une simulation précise.",
- "mention.excellent":"Excellent","mention.vgood":"Très bien","mention.good":"Bien","mention.pass":"Passable","mention.work":"Insuffisant",
- "xp.next":"{n} XP pour le niveau suivant","xp.task":"Terminer une tâche","xp.pomo":"Session Pomodoro","xp.flash":"Révision flashcard","xp.paper":"Sujet terminé","xp.error":"Corriger une erreur","xp.login":"Connexion quotidienne",
- "pomo.focus":"Concentration","pomo.break":"Pause","pomo.deepWork":"Travail en profondeur","pomo.breakTime":"Temps de pause","pomo.startFocus":"Démarrer la concentration","pomo.startBreak":"Démarrer la pause","pomo.pause":"Pause","pomo.resume":"Reprendre","pomo.sessionsToday":"Sessions aujourd'hui","pomo.totalFocus":"Focus total","pomo.settings":"Paramètres de focus","pomo.focusLen":"Focus (min)","pomo.breakLen":"Pause (min)","pomo.tip":"Astuce : complète 4 pomodoros pour gagner +100 XP et débloquer le badge Maître du Focus.","pomo.linkTask":"Lier à une tâche","pomo.noTask":"Aucune tâche liée",
- "fc.title":"Mes flashcards","fc.due":"{n} à réviser","fc.frontPh":"Recto (question)","fc.backPh":"Verso (réponse)","fc.emptyTitle":"Prêt à réviser","fc.emptyDesc":"Ajoute des cartes ou lance une session. La répétition espacée les planifie pour toi.","fc.studyAll":"Étudier maintenant","fc.reveal":"Touche la carte pour voir la réponse","fc.again":"Encore","fc.hard":"Difficile","fc.good":"Bien","fc.easy":"Facile","fc.none":"Aucune flashcard.",
- "fc.sideQ":"Question","fc.sideA":"Réponse",
- "fc.tutTitle":"Comment fonctionne la répétition espacée",
- "fc.tut1h":"Touche la carte","fc.tut1d":"Retourne-la pour voir la réponse cachée au verso",
- "fc.tut2h":"Tu connais ?","fc.tut2d":"Appuie sur ✓ — la carte revient dans quelques jours ou semaines",
- "fc.tut3h":"Tu ne sais pas ?","fc.tut3d":"Appuie sur ✗ — la carte se répète aujourd'hui jusqu'à ce que tu l'apprennes",
- "fc.tut4h":"Pourquoi ça marche","fc.tut4d":"Réviser juste avant d'oublier = mémoire 2× plus forte avec moitié moins d'effort",
- "plan.title":"Planificateur","plan.all":"Tout","plan.today":"Aujourd'hui","plan.week":"Semaine","plan.taskPh":"Que veux-tu réviser ?","plan.thisWeek":"Cette semaine","plan.proTip":"Conseil","plan.proTipText":"Divise les grandes matières en tâches de 45 min. Terminer des tâches te donne des XP et protège ta série.","plan.noTasks":"Aucune tâche","plan.empty":"Aucune tâche dans cette vue. Ajoutes-en une ci-dessus.",
- "pri.low":"Faible","pri.med":"Moyen","pri.high":"Élevé",
- "pap.title":"Sujets BAC précédents","pap.add":"+ Ajouter un sujet","pap.year":"Année","pap.status":"Statut","pap.score":"Note","pap.addTitle":"Ajouter un sujet","pap.yearPh":"Année ex. 2023","pap.titlePh":"Titre (ex. : BAC 2023 Maths)","pap.scorePh":"Note /20","pap.note":"Suis tous les sujets précédents. Réviser un sujet te donne +20 XP et t'aide à corriger tes erreurs.","pap.empty":"Aucun sujet pour le moment.","pap.file":"Fichier","pap.filePh":"Joindre le sujet (PDF ou image)","pap.viewFile":"Voir le fichier","pap.noFile":"Aucun fichier joint.",
- "st.not_started":"Pas commencé","st.in_progress":"En cours","st.completed":"Terminé","st.reviewed":"Révisé",
- "err.title":"Journal d'erreurs","err.log":"Enregistrer une erreur","err.topicPh":"Sujet ex. : Chimie organique","err.descPh":"Quelle est l'erreur ?","err.solPh":"La bonne solution / règle à retenir","err.save":"Enregistrer l'erreur","err.stats":"{n} erreur(s) • {f} corrigée(s)","err.solution":"Solution :","err.markFixed":"Marquer comme corrigé","err.resolved":"Corrigé","err.open":"Ouvert","err.default":"Revoir le cours","err.empty":"Aucune erreur enregistrée. Note tes erreurs pour les maîtriser.",
- "well.title":"Suivi de l'humeur","well.sub":"Ton état mental influence ta compréhension. Suis-le quotidiennement.","well.how":"Comment tu te sens aujourd'hui ?","well.energy":"Niveau d'énergie","well.exhausted":"Épuisé","well.energized":"Plein d'énergie","well.notePh":"Note rapide sur ta journée...","well.save":"Enregistrer l'humeur","well.calendar":"Calendrier d'humeur","well.recent":"Récent","well.noNote":"Sans note","well.energyOf":"Énergie {n}/5","well.today":"Aujourd'hui : {m} — Énergie {e}/5","well.none":"Aucun enregistrement.",
- "mood.1":"Très mauvais","mood.2":"Moyen","mood.3":"Bien","mood.4":"Super","mood.5":"Excellent",
- "ach.title":"Badges & Succès","ach.sub":"Accumule des XP, garde ta série et débloque des succès.","ach.levelProgress":"Progression de niveau","ach.howXp":"Comment gagner des XP","ach.xpTotal":"{n} XP au total",
- "set.title":"Paramètres","set.profile":"Profil","set.name":"Prénom","set.stream":"Filière","set.target":"Moyenne cible","set.saveProfile":"Enregistrer","set.data":"Gestion des données","set.export":"Exporter JSON","set.import":"Importer JSON","set.reset":"Supprimer toutes les données","set.dataNote":"Toutes les données sont sauvegardées localement. Exporte une copie avant le BAC.","set.appearance":"Apparence & langue","set.theme":"Thème","set.language":"Langue / Language","set.about":"À propos de BAC 2027","set.aboutText":"Conçu pour les lycéens algériens. Les coefficients correspondent aux filières officielles. Fonctionne hors ligne et sauvegarde automatiquement. Bonne chance — tu en es capable !",
- "toast.gradeCap":"Note plafonnée à 20/20","toast.gradesReset":"Toutes les notes ont été réinitialisées","toast.welcome":"Bienvenue sur BAC 2027 — commençons !","toast.levelUp":"Niveau supérieur ! Tu es maintenant {t} — Niveau {n}","toast.badge":"Badge débloqué : {t} {i}","toast.streakReset":"Série réinitialisée — tu as manqué un jour. Rebâtissons !","toast.enterName":"Veuillez entrer ton prénom","toast.fillCard":"Remplis les deux faces de la carte","toast.taskTitle":"Entre un titre de tâche","toast.fillError":"Remplis le sujet et la description","toast.errorLogged":"Erreur enregistrée","toast.paperSaved":"Sujet enregistré","toast.paperSavedNoFile":"Sujet enregistré, mais le fichier était trop volumineux","toast.fileTooBig":"Fichier trop volumineux (max 5 Mo)","toast.fileType":"Joins un fichier PDF ou image","toast.storageFull":"Stockage plein — essaie de supprimer un ancien fichier","toast.moodSaved":"Humeur enregistrée","toast.profileSaved":"Profil enregistré","toast.exported":"Données exportées","toast.invalidFile":"Fichier invalide","toast.sessionDone":"Session de révision terminée !","toast.focusDone":"Session de focus terminée ! +25 XP","toast.breakDone":"Pause terminée — prêt pour le prochain focus ?","toast.noCards":"Aucune flashcard à réviser",
- "cloud.title":"Synchronisation cloud","cloud.desc":"Connecte-toi avec Google pour sauvegarder tes données dans le cloud et les synchroniser sur tous tes appareils.","cloud.signIn":"Se connecter avec Google","cloud.signOut":"Se déconnecter",
- "auth.errLogin":"Connexion échouée. Vérifie ta connexion internet et réessaie.","auth.errLoginMsg":"Connexion échouée : {msg}","auth.errUnknown":"Erreur inconnue",
- "auth.errRedirect":"Impossible de finaliser la connexion. Réessaie.",
- "bl.checking":"⏳ Vérification...","bl.refresh":"🔄 Actualiser et réessayer","bl.notActive":"⛔ Le compte n'est pas encore activé"
-}
+ "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
 let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
@@ -1641,17 +1612,16 @@ function renderThemeGrid(){const grid=document.getElementById("themeGrid");if(!g
 function applyStaticI18n(){
  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.getAttribute("data-i18n"))});
  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i18n-ph"))});
- document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":LANG==="fr"?"BAC 2027 — Mon Guide de Révision":"BAC 2027 — My Study Guide"}
+ document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;saveState();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
  document.body.classList.toggle("lang-en",lang!=="ar");
- document.body.classList.toggle("lang-fr",lang==="fr");
- const other=lang==="ar"?"English":lang==="en"?"Français":"العربية";
+ const other=lang==="ar"?"English":"العربية";
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
- const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":lang==="en"?"FR":"ع";
+ const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
  applyStaticI18n();applyTheme(state.settings.theme);
  _syncDefaultDataLang(lang);
  renderNav();renderStreamGrid();if(onbVisible())updateOnb();
@@ -1666,7 +1636,7 @@ function _syncDefaultDataLang(lang){
   if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
  });
 }
-function toggleLang(){applyLang(LANG==="ar"?"en":LANG==="en"?"fr":"ar")}
+function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 
 /* ============ NAV / VIEWS ============ */
 let currentView="dashboard";
@@ -1938,6 +1908,7 @@ function fillSubjectSelects(){
 let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
 let _pomoStartedAt=null;   // Date.now() لحظة الضغط على Start
 let _pomoTotalSecs=25*60;  // المدة الكاملة للجلسة الحالية بالثواني
+let pomoCycleCount=0;      // عدد جلسات التركيز في الدورة الحالية
 
 // حساب الوقت المتبقي الحقيقي من الـ timestamp
 function _pomoCalcLeft(){
@@ -1952,7 +1923,7 @@ function renderPomodoro(){
  document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
  document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
- updatePomoDisplay();}
+ updatePomoDisplay();renderCycleDots();}
 
 function setPomodoroMode(m){
  if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;_pomoStartedAt=null;}
@@ -1961,15 +1932,23 @@ function setPomodoroMode(m){
   f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.deepWork");
+  document.getElementById("pomoStart").textContent=t("pomo.startFocus");
+ }else if(m==="longbreak"){
+  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
+  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
+  pomoTimeLeft=_getLongBreak()*60;
+  document.getElementById("pomoLabel").textContent=LANG==="ar"?"☕ استراحة طويلة":"☕ Long Break";
+  document.getElementById("pomoStart").textContent=LANG==="ar"?"ابدأ الاستراحة الطويلة":"Start Long Break";
  }else{
   b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60;
+  document.getElementById("pomoLabel").textContent=t("pomo.breakTime");
+  document.getElementById("pomoStart").textContent=t("pomo.startBreak");
  }
  _pomoTotalSecs=pomoTimeLeft;
- document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
- document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
- updatePomoDisplay();}
+ updatePomoDisplay();renderCycleDots();}
 
 function updatePomoDisplay(){
  const left=_pomoCalcLeft();
@@ -1980,6 +1959,37 @@ function updatePomoDisplay(){
  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
  ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)");}
 
+function _getPomoCycles(){return parseInt(document.getElementById("pomoCyclesLen").value)||4;}
+function _getLongBreak(){return parseInt(document.getElementById("pomoLongBreakLen").value)||30;}
+
+function renderCycleDots(){
+ const total=_getPomoCycles();
+ const dots=document.getElementById("pomoCycleDots");
+ const label=document.getElementById("pomoCycleLabel");
+ if(!dots||!label)return;
+ dots.innerHTML="";
+ for(let i=0;i<total;i++){
+  const d=document.createElement("div");
+  const done=i<pomoCycleCount;
+  const active=(i===pomoCycleCount)&&pomoMode==="focus"&&pomoRunning;
+  d.style.cssText="width:14px;height:14px;border-radius:50%;transition:all .3s ease;"
+   +(done?"background:var(--primary);box-shadow:0 0 6px var(--primary);"
+   :active?"background:var(--primary);opacity:0.5;animation:pulse 1s infinite;"
+   :"background:var(--bg-soft);border:2px solid var(--border);");
+  dots.appendChild(d);
+ }
+ const remaining=total-pomoCycleCount;
+ if(LANG==="ar"){
+  label.textContent=pomoCycleCount===0?"ابدأ الدورة 1"
+   :pomoCycleCount>=total?"🎉 دورة مكتملة — استراحة طويلة!"
+   :remaining+" جلسة حتى الاستراحة الطويلة";
+ }else{
+  label.textContent=pomoCycleCount===0?"Start round 1"
+   :pomoCycleCount>=total?"🎉 Round complete — long break!"
+   :remaining+" session"+(remaining>1?"s":"")+" until long break";
+ }
+}
+
 function _pomoTick(){
  const left=_pomoCalcLeft();
  pomoTimeLeft=left;
@@ -1988,10 +1998,29 @@ function _pomoTick(){
   clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
   if(pomoMode==="focus"){
    state.pomodoro.sessionsCompleted++;
+   pomoCycleCount++;
    state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-   saveState();addXP(25);showPomoDoneModal();
+   saveState();addXP(25);
+   renderCycleDots();
+   const maxCycles=_getPomoCycles();
+   if(pomoCycleCount>=maxCycles){
+    // Long break time!
+    showPomoDoneModal(true);
+   }else{
+    showPomoDoneModal(false);
+   }
    renderDashboard();
-  }else{toast(t("toast.breakDone"));setPomodoroMode("focus");}}}
+  }else{
+   // Break done
+   if(pomoMode==="longbreak"){
+    pomoCycleCount=0; // reset cycle after long break
+    launchConfetti();
+   }
+   renderCycleDots();
+   toast(t("toast.breakDone"));setPomodoroMode("focus");
+  }
+ }
+}
 
 function togglePomodoro(){
  if(pomoRunning){
@@ -2781,20 +2810,6 @@ const LEVEL_QUOTES={
     "ادفع نفسك للأمام، فلن يفعل ذلك أحد عنك. ⚡",
     "الأشياء العظيمة لا تأتي من مناطق الراحة. 🌍",
     "احلم بكبر. اعمل بجد. ابقَ مركّزاً. 👑"
-  ],
-  fr:[
-    "Chaque expert était autrefois un débutant. Continue à grimper ! 💪",
-    "Le succès est la somme de petits efforts répétés jour après jour. 🔥",
-    "Plus tu travailles dur, plus tu ressentiras la grandeur de ton accomplissement. ⭐",
-    "Ne regarde pas l'horloge, fais comme elle : continue d'avancer. 🕐",
-    "L'éducation est l'arme la plus puissante pour changer le monde. 📚",
-    "Crois en toi et tu seras à mi-chemin. 🌟",
-    "Tu es plus courageux que tu ne le crois et plus fort que tu ne le sembles. 💎",
-    "Le secret du succès, c'est de commencer. 🚀",
-    "Tout semble impossible jusqu'à ce que ce soit accompli. 🏆",
-    "Pousse-toi, car personne d'autre ne le fera pour toi. ⚡",
-    "Les grandes choses ne viennent jamais des zones de confort. 🌍",
-    "Rêve grand. Travaille dur. Reste concentré. 👑"
   ]
 };
 
@@ -2818,16 +2833,6 @@ const POMO_QUOTES={
     "العقل مشحون والهدف أقرب خطوة. استرح ثم افتح! 🚀",
     "الاستمرارية هي المفتاح — وأنت أثبتت ذلك للتو. 🔑",
     "بومودورو واحد في كل مرة، أنت تبني مستقبلك. 🌟"
-  ],
-  fr:[
-    "Session de focus écrasée ! Ton cerveau devient plus fort. 🧠",
-    "25 minutes de concentration pure — c'est comme ça que les champions sont faits. 🏆",
-    "Travail en profondeur accompli ! Tu construis ton élan. ⚡",
-    "Session terminée ! Chaque minute investie compte. 📈",
-    "Tu t'es présenté et tu es resté concentré. C'est tout ce qui compte. 💪",
-    "Cerveau rechargé, objectifs un pas plus proches. Repose-toi, puis conquiers ! 🚀",
-    "La constance est la clé — et tu viens de le prouver. 🔑",
-    "Un pomodoro à la fois, tu construis ton avenir. 🌟"
   ]
 };
 
@@ -2837,11 +2842,11 @@ function showLevelUpModal(level,titleStr){
   const m=document.getElementById("levelUpModal");if(!m)return;
   const stars=["🌟","⭐","🔥","💎","🏆","👑","🚀","💫"];
   document.getElementById("luStars").textContent=stars[Math.min(level-1,stars.length-1)];
-  const lvlLabels={en:"Level ",ar:"المستوى ",fr:"Niveau "};
+  const lvlLabels={en:"Level ",ar:"المستوى "};
   document.getElementById("luLevel").textContent=(lvlLabels[LANG]||lvlLabels.ar)+level;
   document.getElementById("luTitle").textContent=titleStr;
   document.getElementById("luQuote").textContent=_randQuote(LEVEL_QUOTES);
-  const btnLabels={en:"🚀 Let's go!",ar:"🚀 هيا بنا!",fr:"🚀 Allons-y !"};
+  const btnLabels={en:"🚀 Let's go!",ar:"🚀 هيا بنا!"};
   document.getElementById("luBtn").textContent=btnLabels[LANG]||btnLabels.ar;
   m.classList.remove("hidden");m.style.display="flex";
 }
@@ -2850,21 +2855,43 @@ function closeLevelUpModal(){
   m.style.display="none";m.classList.add("hidden");
 }
 
-function showPomoDoneModal(){
+function showPomoDoneModal(isLongBreak){
   const m=document.getElementById("pomoDoneModal");if(!m)return;
-  const titles={en:"Focus session done! +25 XP",ar:"جلسة تركيز مكتملة! +25 نقطة",fr:"Session de focus terminée ! +25 XP"};
-  document.getElementById("pdTitle").textContent=titles[LANG]||titles.ar;
+  const cyclesLen=_getPomoCycles();
+  const longMin=_getLongBreak();
+  let title,breakLabel,goLabel,emoji;
+  if(isLongBreak){
+    emoji="🏆";
+    title=LANG==="ar"
+     ?"أكملت "+cyclesLen+" دورات! استراحة "+longMin+" دقيقة 🎉"
+     :"Round of "+cyclesLen+" done! "+longMin+" min long break 🎉";
+    breakLabel=LANG==="ar"?"☕ ابدأ الاستراحة الطويلة":"☕ Take long break ("+longMin+"m)";
+    goLabel=LANG==="ar"?"⚡ تجاهل والمتابعة":"⚡ Skip & keep going";
+    launchConfetti();
+  }else{
+    emoji="🍅";
+    title=LANG==="ar"?"جلسة تركيز مكتملة! +25 نقطة":"Focus session done! +25 XP";
+    breakLabel=LANG==="ar"?"☕ خذ استراحة":"☕ Take a break";
+    goLabel=LANG==="ar"?"⚡ واصل!":"⚡ Keep going!";
+  }
+  document.getElementById("pdTitle").textContent=title;
   document.getElementById("pdQuote").textContent=_randQuote(POMO_QUOTES);
-  const breakLabels={en:"☕ Take a break",ar:"☕ خذ استراحة",fr:"☕ Prendre une pause"};
-  const goLabels={en:"⚡ Keep going!",ar:"⚡ واصل!",fr:"⚡ Continuer !"};
-  document.getElementById("pdBreakBtn").textContent=breakLabels[LANG]||breakLabels.ar;
-  document.getElementById("pdContinueBtn").textContent=goLabels[LANG]||goLabels.ar;
+  document.getElementById("pdBreakBtn").textContent=breakLabel;
+  document.getElementById("pdContinueBtn").textContent=goLabel;
+  // store whether it's long break for close handler
+  m.dataset.longBreak=isLongBreak?"1":"0";
   m.classList.remove("hidden");m.style.display="flex";
 }
 function closePomoDoneModal(startBreak){
   const m=document.getElementById("pomoDoneModal");if(!m)return;
+  const isLong=m.dataset.longBreak==="1";
   m.style.display="none";m.classList.add("hidden");
-  if(startBreak){setPomodoroMode("break");renderPomodoro();}
+  if(startBreak){
+    setPomodoroMode(isLong?"longbreak":"break");renderPomodoro();
+  }else{
+    if(isLong){pomoCycleCount=0;renderCycleDots();}
+    setPomodoroMode("focus");renderPomodoro();
+  }
 }
 
 function launchConfetti(){
