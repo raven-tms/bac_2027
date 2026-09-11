@@ -268,20 +268,24 @@ table td,table th{white-space:nowrap}
 <div id="blockedGate" class="hidden">
   <div class="bl-card">
     <div class="bl-icon">🔒</div>
-    <h1>الحساب غير مفعّل</h1>
-    <p>البريد الإلكتروني التالي غير مسموح له بالوصول إلى المنصة:</p>
-    <p class="bl-email" id="blEmail"></p>
-    <p style="margin-top:12px;font-size:0.88rem;color:#94a3b8;">إذا تم تفعيل حسابك مؤخراً، اضغط على زر التحديث أدناه.</p>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;">
+    <h1>TACKY <span style="color:var(--accent,#3b82f6)">BAC</span></h1>
+    <p class="bl-msg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:16px 18px;margin-top:14px;color:#f87171;font-weight:600;line-height:1.9;">
+      عذراً، هذا الحساب غير مفعل! أنت لست مشتركاً في الخدمة.<br><br>
+      للاشتراك في الخدمة، يرجى التواصل معنا وإرسال بريدك الإلكتروني عبر الروابط التالية و بعد الدفع سيتم تفعيل حسابك على الفور ⚡
+    </p>
+    <p class="bl-email" id="blEmail" style="margin-top:12px;font-size:0.85rem;color:#f87171;"></p>
+    <div class="bl-contact-label" style="font-size:0.78rem;color:#64748b;font-weight:700;margin:18px 0 10px;">📞 تواصل معنا للاشتراك</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <a href="https://t.me/Tacky_menim" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#229ED9;color:#fff;">✈️ تيليغرام — tacky_menim</a>
+      <a href="https://www.instagram.com/tacky_menim?igsh=ejM3ZGdqamo3NnFh&utm_source=qr" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;">📸 إنستغرام — tacky_menim</a>
+      <a href="tel:+213795104614" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#eff6ff;color:#1d4ed8;border:1.5px solid #bfdbfe;">☎️ الهاتف — ‎+213795104614‎</a>
+      <a href="mailto:tackymenim@gmail.com" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;border-radius:14px;text-decoration:none;font-weight:700;font-size:0.88rem;background:#fff;color:#1e293b;border:1.5px solid #2a3352;">📧 البريد — tackymenim@gmail.com</a>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:18px;border-top:1px solid #2a3352;padding-top:18px;">
       <button class="bl-back" id="blRefreshBtn" style="background:var(--accent,#3b82f6);color:#fff;border:none;">🔄 تحديث وإعادة المحاولة</button>
-      <button class="bl-back" id="blBackBtn">← تسجيل الدخول بحساب آخر</button>
+      <button class="bl-back" id="blBackBtn">🚪 تسجيل الخروج أو تبديل الحساب</button>
     </div>
-    <div class="bl-contact" style="margin-top:20px;">
-      <div class="bl-contact-label">للتفعيل تواصل معنا</div>
-      <a class="bl-contact-email" href="https://t.me/Tacky_menim" target="_blank" rel="noopener" style="display:block;color:var(--accent,#3b82f6);text-decoration:none;margin-top:6px;">✈️ تيليغرام — tacky_menim</a>
-      <a class="bl-contact-email" href="https://www.instagram.com/tacky_menim" target="_blank" rel="noopener" style="display:block;color:var(--accent,#3b82f6);text-decoration:none;margin-top:4px;">📸 إنستغرام — tacky_menim</a>
-    </div>
-    <div id="blCheckingMsg" style="display:none;margin-top:12px;font-size:0.85rem;color:#94a3b8;">⏳ جارٍ التحقق من الحساب...</div>
+    <div id="blCheckingMsg" style="display:none;margin-top:12px;font-size:0.85rem;color:#94a3b8;">⏳ جارٍ التحقق من حالة الاشتراك...</div>
   </div>
 </div>
 
@@ -2533,7 +2537,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
   function hideError(){ lgError.classList.remove("show"); }
 
   function showBlocked(email){
-    blEmail.textContent = email;
+    blEmail.textContent = email ? ("الحساب: " + email) : "";
     loginGate.classList.add("hidden");
     blockedGate.classList.remove("hidden");
   }
@@ -2608,6 +2612,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
   let _authStateFired = 0;
   // نتتبع إذا كنا في انتظار نتيجة redirect (تُستخدم فقط كخطة بديلة عند حجب popup)
   let _redirectPending = false;
+  // نتتبع إذا آخر signOut كان بسبب حظر متعمّد، حتى لا يُظهر _onAuthReady(null)
+  // اللاحق شاشة تسجيل الدخول العادية ويُخفي شاشة "الحساب غير مفعّل"
+  let _blockedSignOut = false;
 
   async function _onAuthReady(user){
     _authStateFired++;
@@ -2617,6 +2624,11 @@ setTimeout(()=>{ _appInitializing=false; },0);
 
     if(!user){
       if(_redirectPending) { console.log('[BAC-AUTH] user=null but redirectPending, waiting...'); return; }
+      if(_blockedSignOut){
+        console.log('[BAC-AUTH] user=null after blocked sign-out — keeping blocked screen');
+        _blockedSignOut = false;
+        return;
+      }
       if(_authStateFired === 1){
         const fired = _authStateFired;
         setTimeout(()=>{
@@ -2640,13 +2652,14 @@ setTimeout(()=>{ _appInitializing=false; },0);
       hideGates();
       attachCloudListener(user.uid);
       _checkUserAccess(user).then(still=>{
-        if(!still){ _clearAccessCache(email); fbAuth.signOut(); }
+        if(!still){ _clearAccessCache(email); _blockedSignOut=true; showBlocked(user.email); fbAuth.signOut(); }
       }).catch(()=>{});
       return;
     }
 
     if(cached === false){
       console.log('[BAC-AUTH] cached denied → showBlocked');
+      _blockedSignOut = true;
       showBlocked(user.email);
       fbAuth.signOut();
       return;
@@ -2661,6 +2674,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       hideGates();
       attachCloudListener(user.uid);
     } else {
+      _blockedSignOut = true;
       showBlocked(user.email);
       await fbAuth.signOut();
       lgBtn.disabled = false;
@@ -2744,6 +2758,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
     });
 
   blBack.addEventListener("click", ()=>{
+    _blockedSignOut = false;
     _clearAccessCache(fbAuth.currentUser&&fbAuth.currentUser.email);
     fbAuth.signOut();
     showLogin();
