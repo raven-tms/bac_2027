@@ -71,7 +71,7 @@
 
   form-action  'self';
 ">
-<title>BAC 2027 — My Study Guide</title>
+<title>BAC 2027 — دليل الدراسة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -215,7 +215,7 @@ table td,table th{white-space:nowrap}
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
   padding: 24px 16px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  background: linear-gradient(135deg, #050d1a 0%, #0f1f3d 50%, #0a1628 100%);
   overflow: hidden;
 }
 #loginGate.hidden { display: none; }
@@ -252,6 +252,14 @@ table td,table th{white-space:nowrap}
 }
 @keyframes lgFade { from{opacity:0} to{opacity:1} }
 #loginGate .lg-card.hidden { display:none; }
+.lg-orb {
+  position:absolute; border-radius:50%; pointer-events:none; filter:blur(80px);
+  animation:lgOrbFloat linear infinite;
+}
+@keyframes lgOrbFloat {
+  0%,100% { transform:translateY(0) scale(1); }
+  50% { transform:translateY(-30px) scale(1.08); }
+}
 
 /* ===== LOGOUT CONFIRM MODAL ===== */
 #logoutConfirmModal { position:fixed; inset:0; z-index:9997; display:flex; align-items:center; justify-content:center; padding:20px; }
@@ -303,11 +311,12 @@ table td,table th{white-space:nowrap}
   50%      { transform: translateY(-22px) rotate(8deg); }
 }
 .lg-card {
-  background: #1e2433; border: 1px solid #2a3352;
-  border-radius: 24px; padding: 40px 36px 36px;
-  max-width: 420px; width: 100%;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
-  animation: lgUp 0.5s ease both; position: relative; z-index: 1;
+  background: rgba(20,28,50,0.92); border: 1px solid rgba(80,120,220,0.18);
+  border-radius: 28px; padding: 44px 40px 40px;
+  max-width: 430px; width: 100%;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(100,150,255,0.06);
+  backdrop-filter: blur(20px);
+  animation: lgUp 0.5s cubic-bezier(.16,1,.3,1) both; position: relative; z-index: 1;
 }
 @keyframes lgUp {
   from { opacity:0; transform:translateY(20px); }
@@ -315,23 +324,29 @@ table td,table th{white-space:nowrap}
 }
 .lg-logo { display:flex; align-items:center; gap:14px; margin-bottom:28px; }
 .lg-logo-icon {
-  width:56px; height:56px; border-radius:16px;
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  width:60px; height:60px; border-radius:18px;
+  background: linear-gradient(135deg, #4f8ef7, #2563eb, #1d4ed8);
   display:flex; align-items:center; justify-content:center;
-  font-size:1.8rem; box-shadow:0 8px 24px rgba(59,130,246,0.4); flex-shrink:0;
+  font-size:1.9rem; box-shadow:0 10px 30px rgba(59,130,246,0.5); flex-shrink:0;
+  position:relative; overflow:hidden;
+}
+.lg-logo-icon::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.18),transparent 60%);
+  border-radius:inherit;
 }
 .lg-logo-text h1 { font-size:1.4rem; font-weight:900; color:#f1f5f9; margin:0; letter-spacing:-0.5px; }
 .lg-logo-text p  { font-size:0.8rem; color:#64748b; margin:4px 0 0; }
 .lg-subtitle { font-size:0.88rem; color:#94a3b8; line-height:1.6; margin-bottom:24px; }
 .lg-google-btn {
-  width:100%; padding:14px 20px; border-radius:12px;
+  width:100%; padding:15px 20px; border-radius:14px;
   background:#ffffff; color:#1e293b; font-size:0.95rem; font-weight:700;
   display:flex; align-items:center; justify-content:center; gap:12px;
-  transition:all 0.2s; box-shadow:0 2px 8px rgba(0,0,0,0.15); cursor:pointer; border:none;
+  transition:all 0.25s cubic-bezier(.16,1,.3,1); box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer; border:none;
 }
-.lg-google-btn:hover  { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,0.25); }
-.lg-google-btn:active { transform:translateY(0); }
-.lg-google-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+.lg-google-btn:hover  { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,0.3); }
+.lg-google-btn:active { transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.2); }
+.lg-google-btn:disabled { opacity:0.55; cursor:not-allowed; transform:none; }
 .lg-google-btn svg { width:22px; height:22px; flex-shrink:0; }
 .lg-error {
   background:#2d0b0b; border:1px solid #ef4444; border-radius:10px;
@@ -357,7 +372,7 @@ table td,table th{white-space:nowrap}
   position:fixed; inset:0; z-index:9999;
   display:flex; align-items:flex-start; justify-content:center;
   padding:24px 16px;
-  background:linear-gradient(135deg, #0f172a 0%, #1c0f0f 100%);
+  background:linear-gradient(135deg, #0a0f1e 0%, #160a0a 60%, #0f0a18 100%);
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
 }
@@ -399,10 +414,12 @@ table td,table th{white-space:nowrap}
 
 <!-- ===== LOGIN GATE ===== -->
 <div id="loginGate">
+  <div style="position:absolute;width:500px;height:500px;top:-100px;left:-100px;background:radial-gradient(circle,rgba(59,130,246,0.15) 0%,transparent 70%);pointer-events:none;border-radius:50%;animation:lgOrbFloat 8s ease-in-out infinite;"></div>
+  <div style="position:absolute;width:400px;height:400px;bottom:-80px;right:-80px;background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);pointer-events:none;border-radius:50%;animation:lgOrbFloat 11s ease-in-out infinite reverse;"></div>
   <div id="lgBgEmojis" style="position:absolute;inset:0;pointer-events:none;"></div>
   <div id="lgCheckingView" class="lg-checking">
     <div class="lg-checking-logo">📚</div>
-    <div class="lg-checking-brand">TACKY <span>BAC</span><small>2027</small></div>
+    <div class="lg-checking-brand">BAC <span>2027</span><small>STUDY GUIDE</small></div>
     <div class="lg-checking-spinner"></div>
   </div>
   <div class="lg-card hidden" id="lgCardView">
@@ -413,7 +430,12 @@ table td,table th{white-space:nowrap}
         <p>منصة امتحانات البكالوريا</p>
       </div>
     </div>
-    <p class="lg-subtitle">سجّل دخولك بحساب Google للمتابعة إلى المنصة والوصول إلى جميع الامتحانات والموارد التعليمية.</p>
+    <p class="lg-subtitle">سجّل دخولك بحساب Google لمزامنة بياناتك تلقائياً عبر أجهزتك والوصول إلى جميع أدوات الدراسة.</p>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      <span style="font-size:0.72rem;color:#475569;white-space:nowrap">آمن ومشفّر</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+    </div>
     <div class="lg-error" id="lgError"></div>
     <button class="lg-google-btn" id="lgGoogleBtn">
       <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -424,7 +446,11 @@ table td,table th{white-space:nowrap}
       </svg>
       <span>تسجيل الدخول بحساب Google</span>
     </button>
-    <div class="lg-footer">بتسجيل الدخول، أنت توافق على شروط الاستخدام وسياسة الخصوصية</div>
+    <div class="lg-footer" style="margin-top:20px;">
+      <span style="opacity:0.6">بتسجيل الدخول، أنت توافق على </span>
+      <span style="color:#5b9bd5">شروط الاستخدام</span>
+      <span style="opacity:0.6"> وسياسة الخصوصية</span>
+    </div>
   </div>
 </div>
 
@@ -432,7 +458,7 @@ table td,table th{white-space:nowrap}
 <div id="blockedGate" class="hidden">
   <div class="bl-card">
     <div class="bl-icon">🔒</div>
-    <h1>TACKY <span style="color:var(--accent,#3b82f6)">BAC</span></h1>
+    <h1>BAC <span style="color:#3b82f6">2027</span></h1>
     <p class="bl-msg" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:14px;padding:14px 16px;margin-top:10px;color:#f87171;font-weight:600;line-height:1.7;font-size:0.85rem;">
       عذراً، هذا الحساب غير مفعل! أنت لست مشتركاً في الخدمة.<br><br>
       للاشتراك في الخدمة، يرجى التواصل معنا وإرسال بريدك الإلكتروني عبر الروابط التالية و بعد الدفع سيتم تفعيل حسابك على الفور ⚡
@@ -471,7 +497,7 @@ table td,table th{white-space:nowrap}
 <div id="toastRoot" class="fixed bottom-5 end-5 z-[100] flex flex-col gap-2 pointer-events-none"></div>
 <div id="offlineBanner" class="fixed bottom-0 inset-x-0 z-[110] flex items-center justify-center gap-2 px-4 py-3 translate-y-full opacity-0 pointer-events-none" style="background:var(--danger);color:#fff;font-weight:700;font-size:14px;transition:transform .4s cubic-bezier(.4,0,.2,1),opacity .4s ease;box-shadow:0 -4px 24px rgba(239,68,68,.35)">
   <span style="font-size:18px">📡</span>
-  <span id="offlineMsg">يرجى الاتصال بالإنترنت</span>
+  <span id="offlineMsg" data-i18n="offline.msg">يرجى الاتصال بالإنترنت</span>
 </div>
 <div id="xpRoot" class="fixed inset-0 pointer-events-none z-[90]"></div>
 
@@ -1446,7 +1472,23 @@ en:{
  "auth.errLogin":"Sign-in failed. Check your internet connection and try again.",
  "auth.errLoginMsg":"Sign-in failed: {msg}","auth.errUnknown":"Unknown error",
  "auth.errRedirect":"Could not complete sign-in. Please try again.",
- "bl.checking":"⏳ Checking...","bl.refresh":"🔄 Refresh and retry","bl.notActive":"⛔ Account not activated yet"
+ "bl.checking":"⏳ Checking...","bl.refresh":"🔄 Refresh and retry","bl.notActive":"⛔ Account not activated yet",
+ "bl.email":"Account: ",
+ "pomo.longBreakLabel":"☕ Long Break","pomo.startLongBreak":"Start Long Break",
+ "pomo.doneTitle.long":"Focus session done! Take a long break.","pomo.doneBreakLong":"☕ Take long break ({m}m)","pomo.doneGoLong":"⚡ Skip & keep going",
+ "pomo.doneTitle":"Focus session done! +25 XP","pomo.doneBreak":"☕ Take a break","pomo.doneGo":"⚡ Keep going!",
+ "sync.syncing":"⏳ Syncing...","sync.synced":"✅ Synced","sync.pending":"⏳ Saving...","sync.offline":"📴 Saved locally only","sync.error":"⚠️ Sync failed",
+ "sync.updated":"🔄 Data updated from another device","sync.back":"✅ Back online","sync.lost":"📴 Offline — will sync when back",
+ "sync.cloudOk":"✅ PDF ready","sync.cloudFail":"⚠️ PDF export failed",
+ "sync.reportOk":"✅ Report ready","sync.reportFail":"⚠️ Export failed",
+ "sync.signOut":"Signed out successfully",
+ "sync.saveBlocked":"⚠️ Save blocked as a precaution: your local data looks empty but your account has saved data — please reload the page",
+ "sync.dataTooLarge":"⚠️ Data too large — contact support",
+ "sync.cloudSaveFail":"⚠️ Cloud save failed — saved locally",
+ "offline.msg":"No internet connection",
+ "ach.badgesUnlocked":"Badges Unlocked",
+ "lg.account":"Account: ",
+ "lo.title":"Sign out","lo.sub":"Are you sure you want to sign out of your account?","lo.cancel":"Cancel","lo.confirm":"Sign out"
 },
 ar:{
  "brand.sub":"دليل الدراسة",
@@ -1515,7 +1557,23 @@ ar:{
  "auth.errLogin":"تعذر تسجيل الدخول. تأكد من اتصالك بالإنترنت وحاول مرة أخرى.",
  "auth.errLoginMsg":"تعذر تسجيل الدخول: {msg}","auth.errUnknown":"خطأ غير معروف",
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
- "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
+ "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل",
+ "bl.email":"الحساب: ",
+ "pomo.longBreakLabel":"☕ استراحة طويلة","pomo.startLongBreak":"ابدأ الاستراحة الطويلة",
+ "pomo.doneTitle.long":"انتهت جلسة التركيز! خذ استراحة طويلة.","pomo.doneBreakLong":"☕ ابدأ الاستراحة الطويلة ({m}د)","pomo.doneGoLong":"⚡ تجاهل والمتابعة",
+ "pomo.doneTitle":"جلسة تركيز مكتملة! +25 نقطة","pomo.doneBreak":"☕ خذ استراحة","pomo.doneGo":"⚡ واصل!",
+ "sync.syncing":"⏳ جارِ المزامنة...","sync.synced":"✅ تمت المزامنة","sync.pending":"⏳ بانتظار الحفظ...","sync.offline":"📴 محفوظ محلياً فقط","sync.error":"⚠️ فشلت المزامنة",
+ "sync.updated":"🔄 تم تحديث البيانات من جهاز آخر","sync.back":"✅ عاد الاتصال بالإنترنت","sync.lost":"📴 انقطع الاتصال — سيُحفظ عند العودة",
+ "sync.cloudOk":"✅ PDF جاهز","sync.cloudFail":"⚠️ فشل تصدير PDF",
+ "sync.reportOk":"✅ الكشف جاهز","sync.reportFail":"⚠️ فشل التصدير",
+ "sync.signOut":"تم تسجيل الخروج بنجاح",
+ "sync.saveBlocked":"⚠️ تم إيقاف الحفظ وقائياً: بياناتك المحلية فارغة وحسابك يحتوي بيانات محفوظة — أعد تحميل الصفحة قبل المتابعة",
+ "sync.dataTooLarge":"⚠️ البيانات كبيرة جداً — تواصل مع الدعم",
+ "sync.cloudSaveFail":"⚠️ فشل الحفظ السحابي — تم الحفظ محلياً",
+ "offline.msg":"يرجى الاتصال بالإنترنت",
+ "ach.badgesUnlocked":"الأوسمة المفتوحة",
+ "lg.account":"الحساب: ",
+ "lo.title":"تسجيل الخروج","lo.sub":"هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟","lo.cancel":"إلغاء","lo.confirm":"تسجيل الخروج"
 }};
 // flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
 let _userLangOverride = false;
@@ -1588,17 +1646,27 @@ function showXPToast(text){const root=document.getElementById("xpRoot");const el
 function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
  const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
  if(nl>old){launchConfetti();const _lvlTitlesArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en;const _lvlTitle=_lvlTitlesArr[Math.min(nl-1,_lvlTitlesArr.length-1)];showLevelUpModal(nl,_lvlTitle);}
- saveState();renderGamification();checkBadges()}
+ // ✅ استخدام _saveImmediate لأن XP والمستوى حقول مهمة يجب حفظها فوراً
+ if(typeof _saveImmediate==="function")_saveImmediate('gamification');
+ else saveState('gamification');
+ renderGamification();checkBadges()}
 
 /* ============ STREAK ============ */
 function checkStreak(){const today=todayISO();const g=state.gamification;const hist=g.streakHistory||{};
- if(!g.lastActive){g.streak=1;g.lastActive=today;hist[today]=true}
- else if(g.lastActive===today){hist[today]=true}
+ let changed=false;
+ if(!g.lastActive){g.streak=1;g.lastActive=today;hist[today]=true;changed=true}
+ else if(g.lastActive===today){ if(!hist[today]){hist[today]=true;changed=true} }
  else{const diff=Math.abs(daysDiff(today,g.lastActive));
-  if(diff===1){g.streak+=1;g.lastActive=today;hist[today]=true;addXP(5)}
-  else if(diff>1){g.streak=1;g.lastActive=today;hist[today]=true;toast(t("toast.streakReset"),"warn")}}
- const cleaned={};for(let i=0;i<45;i++){const iso=isoOffset(-i);if(hist[iso])cleaned[iso]=true}
- g.streakHistory=cleaned;saveState()}
+  if(diff===1){g.streak+=1;g.lastActive=today;hist[today]=true;addXP(5);changed=true}
+  else if(diff>1){g.streak=1;g.lastActive=today;hist[today]=true;toast(t("toast.streakReset"),"warn");changed=true}}
+ // ✅ لا نحفظ/نُعلّم شيئاً كـ dirty إن لم يتغيّر شيء فعلياً — قبل هذا الإصلاح
+ // كانت الدالة تكتب على السحابة في كل استدعاء بلا شرط، حتى لو لم يتغيّر
+ // شيء (كان يُستدعى سابقاً من switchView في كل تبديل تبويبة!).
+ if(changed){
+  const cleaned={};for(let i=0;i<45;i++){const iso=isoOffset(-i);if(hist[iso])cleaned[iso]=true}
+  g.streakHistory=cleaned;saveState('gamification');
+ }
+}
 
 /* ============ THEME & LANG ============ */
 const THEME_COLORS={
@@ -1627,10 +1695,10 @@ function applyTheme(th){document.getElementById("htmlRoot").classList.toggle("da
  const icon=th==="dark"?"☀️":"🌙",label=th==="dark"?t("theme.light"):t("theme.dark");
  if(document.getElementById("themeIcon")){document.getElementById("themeIcon").textContent=icon;document.getElementById("themeLabel").textContent=label}
  if(document.getElementById("themeIcon2")){document.getElementById("themeIcon2").textContent=icon;document.getElementById("themeLabel2").textContent=label}
- state.settings.theme=th;saveState()}
+ state.settings.theme=th;saveState('settings')}
 function toggleTheme(){applyTheme(state.settings.theme==="dark"?"light":"dark")}
 function applyThemeColor(name){document.getElementById("htmlRoot").setAttribute("data-theme",name);
- state.settings.themeName=name;saveState();renderThemeGrid()}
+ state.settings.themeName=name;saveState('settings');renderThemeGrid()}
 function renderThemeGrid(){const grid=document.getElementById("themeGrid");if(!grid)return;grid.innerHTML="";
  const groups=[["n",t("theme.groupClassic")],["b",t("theme.groupBoys")],["g",t("theme.groupGirls")]];
  groups.forEach(([gid,label])=>{
@@ -1651,7 +1719,7 @@ function applyStaticI18n(){
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
- saveState();
+ saveState('settings');
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -1714,7 +1782,12 @@ function switchView(id){currentView=id;
  const el=document.getElementById("view-"+id);if(el)el.classList.add("active");
  renderNav();
  window.scrollTo({top:0,behavior:"smooth"});
- checkStreak();renderGamification();
+ // ✅ FIX: checkStreak() أُزيلت من هنا — كانت تُستدعى عند كل تبديل تبويبة،
+ // فتكتب على السحابة (وأحياناً تضيف XP بالخطأ) لمجرد تنقّل المستخدم بين
+ // الصفحات. checkStreak() تُستدعى الآن فقط مرة عند فتح التطبيق (initApp)
+ // وعند تغيّر اليوم فعلياً (_checkDayRollover) — وهذا كافٍ تماماً، فالسلسلة
+ // (streak) مفهوم "يومي" لا "لكل نقرة".
+ renderGamification();
  if(id==="dashboard")renderDashboard();
  if(id==="subjects")renderSubjects();
  if(id==="calculator")renderCalculator();
@@ -1723,6 +1796,20 @@ function switchView(id){currentView=id;
  if(id==="settings")renderSettings()}
 function toggleMobileNav(){document.getElementById("mobileNav").classList.toggle("open")}
 function renderAllViews(){renderGamification();renderDashboard();renderSubjects();renderCalculator();renderTools();renderBadges();renderSettings()}
+// ✅ renderCurrentView: يُعيد رسم الـ view النشط فقط + الواجهة المشتركة
+// onSnapshot يستدعي هذه بدل renderAllViews لأداء أفضل بكثير
+// habittck: كل تغيير يُعيد رسم كل شيء — BAC: يُعيد فقط ما يراه المستخدم
+function renderCurrentView(){
+ renderGamification();
+ if(currentView==="dashboard")renderDashboard();
+ else if(currentView==="subjects")renderSubjects();
+ else if(currentView==="calculator")renderCalculator();
+ else if(currentView==="tools")renderTools();
+ else if(currentView==="achievements")renderBadges();
+ else if(currentView==="settings")renderSettings();
+ // نحدّث دائماً الـ grades & calculator في الخلفية لأن onSnapshot قد يُغيّر الدرجات
+ if(currentView!=="calculator")renderCalculator();
+}
 
 /* ============ GAMIFICATION UI ============ */
 function renderGamification(){
@@ -1758,7 +1845,7 @@ function checkBadges(){let changed=false;
  BADGES.forEach(b=>{if(!state.gamification.badges.includes(b.id)&&b.check(state)){state.gamification.badges.push(b.id);changed=true;
   const reward=BADGE_TIER_XP[b.tier]||30;
   toast(t("toast.badge",{t:b[LANG][0],i:b.icon}));launchConfetti();state.gamification.xp+=reward}});
- if(changed){saveState();renderBadges();renderGamification()}}
+ if(changed){saveState('gamification');renderBadges();renderGamification()}}
 
 /* ============ DASHBOARD ============ */
 let quoteIdx=Math.floor(Math.random()*QUOTES.length);
@@ -1826,14 +1913,18 @@ function renderSubjects(){const st=STREAMS[state.profile.streamId];if(!st)return
  grid.querySelectorAll(".grade-input").forEach(inp=>{
   inp.addEventListener("input",e=>{
    const code=e.target.dataset.sub,v=e.target.value;
-   if(v===""){delete state.grades[code];saveState();renderDashboard();renderCalculator();return}
+   if(v===""){delete state.grades[code];saveState('grades');renderDashboard();renderCalculator();return}
    let c=clampGrade(v);
    if(parseFloat(v)>20){e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);e.target.value=20;c=20;toast(t("toast.gradeCap"),"warn")}
    if(parseFloat(v)<0){e.target.value=0;c=0}
-   state.grades[code]=c;saveState();renderDashboard();renderCalculator();
+   state.grades[code]=c;
+   // ✅ الكتابة الجزئية: نُسجّل grades كحقل dirty ونحفظ فوراً
+   if(typeof _saveImmediate==="function")_saveImmediate('grades');
+   else saveState('grades');
+   renderDashboard();renderCalculator();
    if(c===20)checkBadges()})})}
-function clearGrade(c){delete state.grades[c];saveState();renderSubjects();renderDashboard();renderCalculator()}
-function resetGrades(){if(confirm(t("confirm.resetGrades"))){state.grades={};saveState();renderSubjects();renderDashboard();renderCalculator();toast(t("toast.gradesReset"))}}
+function clearGrade(c){delete state.grades[c];if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');renderSubjects();renderDashboard();renderCalculator()}
+function resetGrades(){if(confirm(t("confirm.resetGrades"))){state.grades={};saveState('grades');renderSubjects();renderDashboard();renderCalculator();toast(t("toast.gradesReset"))}}
 
 /* ============ CALCULATOR ============ */
 // نبني صفوف الجدول (مع حقول الإدخال) مرة واحدة فقط عند تغيّر المادة النشطة
@@ -1850,8 +1941,8 @@ function _calcSignature(st){
 function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)return;
  const am=document.getElementById("calcAmazigh"),ep=document.getElementById("calcEPS");
  am.checked=!state.settings.amazighExempt;ep.checked=!state.settings.epsExempt;
- am.onchange=e=>{state.settings.amazighExempt=!e.target.checked;saveState();_calcRowsSignature=null;renderCalculator();renderDashboard()};
- ep.onchange=e=>{state.settings.epsExempt=!e.target.checked;saveState();_calcRowsSignature=null;renderCalculator();renderDashboard()};
+ am.onchange=e=>{state.settings.amazighExempt=!e.target.checked;saveState('settings');_calcRowsSignature=null;renderCalculator();renderDashboard()};
+ ep.onchange=e=>{state.settings.epsExempt=!e.target.checked;saveState('settings');_calcRowsSignature=null;renderCalculator();renderDashboard()};
  const body=document.getElementById("calcBody");
  const sig=_calcSignature(st);
  const needsRebuild=(sig!==_calcRowsSignature)||body.children.length===0;
@@ -1870,14 +1961,16 @@ function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)retu
    body.appendChild(tr)});
   body.querySelectorAll(".calc-input").forEach(inp=>{
    inp.addEventListener("input",e=>{const code=e.target.dataset.calc,v=e.target.value;
-    if(v===""){delete state.grades[code];saveState();renderCalculatorSummary();renderDashboard();return}
+    if(v===""){delete state.grades[code];saveState('grades');renderCalculatorSummary();renderDashboard();return}
     let c=clampGrade(v);
     if(parseFloat(v)>20){
      e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);
      c=20;e.target.value=20;toast(t("toast.gradeCap"),"warn");
     }
     if(parseFloat(v)<0){e.target.value=0;c=0}
-    state.grades[code]=c;saveState();
+    state.grades[code]=c;
+    if(typeof _saveImmediate==="function")_saveImmediate('grades');
+    else saveState('grades');
     renderCalculatorSummary();renderDashboard();
     const wCell=body.querySelector('[data-weight-for="'+code+'"]');
     if(wCell)wCell.textContent=(c*STREAMS[state.profile.streamId].subjects.find(s=>s.code===code).coeff).toFixed(1);
@@ -1896,7 +1989,7 @@ function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)retu
  renderCalculatorSummary();
  const ti=document.getElementById("calcTarget"),tl=document.getElementById("calcTargetLabel");
  ti.value=state.profile.targetAvg;tl.textContent=(+state.profile.targetAvg).toFixed(1);
- ti.oninput=e=>{state.profile.targetAvg=parseFloat(e.target.value);tl.textContent=(+e.target.value).toFixed(1);saveState();renderCalculatorSummary()};
+ ti.oninput=e=>{state.profile.targetAvg=parseFloat(e.target.value);tl.textContent=(+e.target.value).toFixed(1);saveState('profile');renderCalculatorSummary()};
 }
 function renderCalculatorSummary(){
  const st=STREAMS[state.profile.streamId];if(!st)return;
@@ -1994,8 +2087,8 @@ function setPomodoroMode(m){
   b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=_getLongBreak()*60;
-  document.getElementById("pomoLabel").textContent=LANG==="ar"?"☕ استراحة طويلة":"☕ Long Break";
-  document.getElementById("pomoStart").textContent=LANG==="ar"?"ابدأ الاستراحة الطويلة":"Start Long Break";
+  document.getElementById("pomoLabel").textContent=t("pomo.longBreakLabel");
+  document.getElementById("pomoStart").textContent=t("pomo.startLongBreak");
  }else{
   b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
@@ -2056,7 +2149,7 @@ function _pomoTick(){
    state.pomodoro.sessionsCompleted++;
    pomoCycleCount++;
    state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-   saveState();addXP(25);
+   saveState('pomodoro');addXP(25);
    renderCycleDots();
    const maxCycles=_getPomoCycles();
    if(pomoCycleCount>=maxCycles){
@@ -2126,9 +2219,9 @@ function addFlashcard(){
  if(!fr||!bk)return toast(t("toast.fillCard"),"warn");
  state.flashcards.push({id:"f"+Date.now(),front:fr,back:bk,subject:sj,interval:0,dueDate:todayISO(),ease:2.5,reviews:0});
  document.getElementById("fcFront").value="";document.getElementById("fcBack").value="";
- saveState();renderFlashcards();addXP(5);renderDashboard()}
+ saveState('flashcards');renderFlashcards();addXP(5);renderDashboard()}
 
-function deleteFlash(id){state.flashcards=state.flashcards.filter(f=>f.id!==id);saveState();renderFlashcards();renderDashboard()}
+function deleteFlash(id){state.flashcards=state.flashcards.filter(f=>f.id!==id);saveState('flashcards');renderFlashcards();renderDashboard()}
 
 function startFlashStudy(){
  fcQueue=state.flashcards.filter(f=>new Date(f.dueDate)<=new Date());
@@ -2187,7 +2280,7 @@ function rateFlash(r){
  else{iv=iv===0?1:Math.round(iv*ease);ease=Math.min(3,ease+0.05)}
  f.ease=ease;f.interval=iv;f.reviews=(f.reviews||0)+1;f.dueDate=isoOffset(iv);
  const i=state.flashcards.findIndex(x=>x.id===f.id);if(i>=0)state.flashcards[i]=f;
- saveState();addXP(5);
+ saveState('flashcards');addXP(5);
  // slide out animation then show next
  const inner=document.getElementById("fcCardInner");
  const dir=r==="again"?"-120px":"120px";
@@ -2244,9 +2337,9 @@ function setPlannerFilter(f){plannerFilter=f;renderPlanner()}
 function addTask(){const ti=document.getElementById("taskTitle"),v=ti.value.trim();
  if(!v)return toast(t("toast.taskTitle"),"warn");
  state.tasks.unshift({id:"t"+Date.now(),title:v,subject:document.getElementById("taskSubject").value,priority:document.getElementById("taskPriority").value,dueDate:todayISO(),completed:false});
- ti.value="";saveState();renderPlanner();renderDashboard();addXP(3)}
+ ti.value="";saveState('tasks');renderPlanner();renderDashboard();addXP(3)}
 function toggleTask(id){const x=state.tasks.find(k=>k.id===id);if(!x)return;
- x.completed=!x.completed;saveState();
+ x.completed=!x.completed;saveState('tasks');
  if(x.completed){
   addXP(10);
   // Launch confetti every 5 completed tasks as a milestone celebration
@@ -2254,7 +2347,7 @@ function toggleTask(id){const x=state.tasks.find(k=>k.id===id);if(!x)return;
   if(doneCount>0&&doneCount%5===0)launchConfetti();
  }else{renderGamification();checkBadges()}
  renderPlanner();renderDashboard()}
-function deleteTask(id){state.tasks=state.tasks.filter(x=>x.id!==id);saveState();renderPlanner();renderDashboard()}
+function deleteTask(id){state.tasks=state.tasks.filter(x=>x.id!==id);saveState('tasks');renderPlanner();renderDashboard()}
 
 /* --- Papers --- */
 let paperFileData=null,paperFileType=null,paperFileName=null;
@@ -2415,12 +2508,12 @@ function savePaperForm(){
  state.papers.unshift(paper);
  document.getElementById("paperTitle").value="";document.getElementById("paperScore").value="";
  clearPaperFile();
- if(!saveState()){paper.fileData=null;paper.fileType=null;saveState();toast(t("toast.paperSavedNoFile"),"warn")}
+ if(!saveState('papers')){paper.fileData=null;paper.fileType=null;saveState('papers');toast(t("toast.paperSavedNoFile"),"warn")}
  else toast(t("toast.paperSaved"));
  renderPapers();
  if(stt==="completed"||stt==="reviewed")addXP(20);else checkBadges()}
 function focusPaperForm(){document.getElementById("paperTitle").focus()}
-function deletePaper(id){state.papers=state.papers.filter(p=>p.id!==id);saveState();renderPapers()}
+function deletePaper(id){state.papers=state.papers.filter(p=>p.id!==id);saveState('papers');renderPapers()}
 
 /* --- Errors --- */
 function renderErrors(){
@@ -2441,12 +2534,12 @@ function addError(){
  if(!topic||!desc)return toast(t("toast.fillError"),"warn");
  state.errors.unshift({id:"e"+Date.now(),subject:document.getElementById("errSubject").value,topic:topic,description:desc,solution:sol||t("err.default"),status:"open",createdAt:todayISO()});
  document.getElementById("errTopic").value="";document.getElementById("errDesc").value="";document.getElementById("errSol").value="";
- saveState();renderErrors();renderDashboard();toast(t("toast.errorLogged"));addXP(5)}
+ saveState('errors');renderErrors();renderDashboard();toast(t("toast.errorLogged"));addXP(5)}
 function toggleError(id){const e=state.errors.find(x=>x.id===id);if(!e)return;
- e.status=e.status==="resolved"?"open":"resolved";saveState();
+ e.status=e.status==="resolved"?"open":"resolved";saveState('errors');
  if(e.status==="resolved")addXP(15);else{renderGamification()}
  renderErrors();renderDashboard()}
-function deleteError(id){state.errors=state.errors.filter(e=>e.id!==id);saveState();renderErrors();renderDashboard()}
+function deleteError(id){state.errors=state.errors.filter(e=>e.id!==id);saveState('errors');renderErrors();renderDashboard()}
 
 /* --- Wellness --- */
 function renderWellness(){
@@ -2473,14 +2566,14 @@ function saveMood(manual){
  const ex=state.moods.find(x=>x.date===today);
  if(ex){ex.mood=mood;ex.energy=energy;if(note)ex.note=note}else state.moods.push({date:today,mood:mood,energy:energy,note:note});
  document.getElementById("moodNoteInput").value="";
- saveState();renderWellness();renderDashboard();toast(t("toast.moodSaved"));addXP(5)}
+ saveState('moods');renderWellness();renderDashboard();toast(t("toast.moodSaved"));addXP(5)}
 
 /* ============ BADGES ============ */
 function renderBadges(){const grid=document.getElementById("badgesGrid");grid.innerHTML="";
  const total=BADGES.length,unlocked=state.gamification.badges.length;
  const head=document.getElementById("badgesProgressHead");
  if(head){
-  head.innerHTML='<div class="flex items-center justify-between mb-1"><span class="font-extrabold text-sm">'+(LANG==="ar"?"الأوسمة المفتوحة":"Badges Unlocked")+'</span><span class="font-black text-sm">'+unlocked+' / '+total+'</span></div>'+
+  head.innerHTML='<div class="flex items-center justify-between mb-1"><span class="font-extrabold text-sm">'+t("ach.badgesUnlocked")+'</span><span class="font-black text-sm">'+unlocked+' / '+total+'</span></div>'+
    '<div class="h-2 bg-[var(--bg-soft)] rounded-full overflow-hidden"><div class="h-full bg-gradient-to-r from-amber-400 via-fuchsia-500 to-indigo-500" style="width:'+Math.round(unlocked/total*100)+'%"></div></div>';
  }
  const order={bronze:0,silver:1,gold:2,platinum:3,legendary:4};
@@ -2503,7 +2596,7 @@ function saveSettings(){
  if(!n)return toast(t("toast.enterName"),"warn");
  state.profile.name=n;state.profile.streamId=document.getElementById("setStream").value;
  state.profile.targetAvg=parseFloat(document.getElementById("setTarget").value)||15;
- saveState();renderAllViews();renderNav();toast(t("toast.profileSaved"))}
+ saveState('profile');renderAllViews();renderNav();toast(t("toast.profileSaved"))}
 
 /* ============ GRADE REPORT (print / image) ============ */
 function _gradeColor(g){
@@ -2723,9 +2816,9 @@ function exportPDF(){
     const doc=new jsPDF({orientation:"portrait",unit:"pt",format:[595.28,pdfH]});
     doc.addImage(imgData,"PNG",0,0,595.28,pdfH);
     doc.save("bac2027-report-"+todayISO()+".pdf");
-    toast(LANG==="ar"?"✅ PDF جاهز":"✅ PDF ready");
+    toast(t("sync.cloudOk"));
    });
-  }).catch(err=>{console.error(err);toast(LANG==="ar"?"⚠️ فشل تصدير PDF":"⚠️ PDF export failed","warn")});
+  }).catch(err=>{console.error(err);toast(t("sync.cloudFail"),"warn")});
  },120)}
 
 /* --- IMAGE EXPORT ---
@@ -2792,8 +2885,8 @@ function saveReportImage(){
   panel.scrollIntoView({behavior:"smooth",block:"nearest"});
   // Also try programmatic download (works on desktop + Android Chrome)
   try{const a=document.createElement("a");a.href=dataUrl;a.download=fname;document.body.appendChild(a);a.click();document.body.removeChild(a)}catch(e){}
-  toast(LANG==="ar"?"✅ الكشف جاهز":"✅ Report ready")
- }).catch(err=>{console.error(err);toast(LANG==="ar"?"⚠️ فشل التصدير":"⚠️ Export failed","warn")})
+  toast(t("sync.reportOk"))
+ }).catch(err=>{console.error(err);toast(t("sync.reportFail"),"warn")})
  .finally(()=>{btn.innerHTML=orig;btn.disabled=false})}
 
 function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
@@ -2998,7 +3091,7 @@ function initApp(){
  // ===== OFFLINE DETECTION =====
  const offlineBanner=document.getElementById("offlineBanner");
  function showOffline(){
-  document.getElementById("offlineMsg").textContent=LANG==="ar"?"يرجى الاتصال بالإنترنت":"No internet connection";
+  document.getElementById("offlineMsg").textContent=t("offline.msg");
   offlineBanner.style.pointerEvents="auto";
   offlineBanner.classList.remove("translate-y-full","opacity-0");
   offlineBanner.classList.add("translate-y-0","opacity-100")}
@@ -3006,7 +3099,7 @@ function initApp(){
   offlineBanner.style.pointerEvents="auto";
   offlineBanner.style.background="var(--accent)";
   offlineBanner.style.boxShadow="0 -4px 24px rgba(16,185,129,.35)";
-  document.getElementById("offlineMsg").textContent=LANG==="ar"?"✅ تم الاتصال بالإنترنت":"✅ Back online";
+  document.getElementById("offlineMsg").textContent=t("sync.back");
   setTimeout(()=>{
    offlineBanner.style.pointerEvents="none";
    offlineBanner.classList.add("translate-y-full","opacity-0");
@@ -3208,6 +3301,11 @@ let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,clou
 // كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
 // البيانات: لن يُسمح لأي خلل عابر أن يمسح حساباً معروفاً أنه يحتوي بيانات.
 let _remoteHadRealData=false;
+// ✅ _remoteDocExists: هل نعلم بشكل مؤكد أن مستند هذا المستخدم موجود فعلاً
+// على الخادم؟ نحتاج هذا لتقرير: update() جزئي (يفشل بـ not-found لو المستند
+// غير موجود) أم set(merge:true) كامل (آمن دائماً، لكنه أثقل). تُضبط true فور
+// تأكيد وجود المستند (cache أو server) أو بعد أول كتابة ناجحة.
+let _remoteDocExists=false;
 function _stateLooksMeaningful(s){
  if(!s)return false;
  const hasName=!!(s.profile&&s.profile.name);
@@ -3246,7 +3344,7 @@ function confirmLogout(){
  try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
  state=defaultState();
  fbAuth.signOut();
- toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
+ toast(t("sync.signOut"));
 }
 function updateCloudUI(){
  const out=document.getElementById("cloudSignedOut"),inn=document.getElementById("cloudSignedIn");
@@ -3259,26 +3357,27 @@ function updateCloudUI(){
  }else{
   out.classList.remove("hidden");inn.classList.add("hidden");
  }
- document.getElementById("cloudSignInLabel").textContent=LANG==="ar"?"تسجيل الدخول بـ Google":"Sign in with Google";
- document.getElementById("cloudSignOutBtn").textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
- document.getElementById("cloudSyncTitle").textContent=LANG==="ar"?"المزامنة السحابية":"Cloud Sync";
+ document.getElementById("cloudSignInLabel").textContent=t("cloud.signIn");
+ document.getElementById("cloudSignOutBtn").textContent=t("cloud.signOut");
+ document.getElementById("cloudSyncTitle").textContent=t("cloud.title");
  const loTitle=document.getElementById("loTitle"),loSub=document.getElementById("loSub"),loCancel=document.getElementById("loCancelBtn"),loConfirm=document.getElementById("loConfirmBtn");
  if(loTitle){
-  loTitle.textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
-  loSub.textContent=LANG==="ar"?"هل أنت متأكد أنك تريد تسجيل الخروج من حسابك؟":"Are you sure you want to sign out of your account?";
+  loTitle.textContent=t("lo.title");
+  loSub.textContent=t("lo.sub");
   loCancel.textContent=LANG==="ar"?"إلغاء":"Cancel";
-  loConfirm.textContent=LANG==="ar"?"تسجيل الخروج":"Sign out";
+  loCancel.textContent=t("lo.cancel");
+  loConfirm.textContent=t("lo.confirm");
  }
- document.getElementById("cloudSyncDesc").textContent=LANG==="ar"?"سجّل الدخول بـ Google لنسخ بياناتك احتياطياً في السحابة ومزامنتها بين أجهزتك.":"Sign in with Google to back up your data to the cloud and sync it across your devices.";
+ document.getElementById("cloudSyncDesc").textContent=t("cloud.desc");
 }
 function setCloudStatus(status){
  const el=document.getElementById("cloudSyncStatus");if(!el)return;
  const map={
-  syncing:LANG==="ar"?"⏳ جارِ المزامنة...":"⏳ Syncing...",
-  synced:LANG==="ar"?"✅ تمت المزامنة":"✅ Synced",
-  pending:LANG==="ar"?"⏳ بانتظار الحفظ...":"⏳ Saving...",
-  offline:LANG==="ar"?"📴 محفوظ محلياً فقط":"📴 Saved locally only",
-  error:LANG==="ar"?"⚠️ فشلت المزامنة":"⚠️ Sync failed"
+  syncing:t("sync.syncing"),
+  synced:t("sync.synced"),
+  pending:t("sync.pending"),
+  offline:t("sync.offline"),
+  error:t("sync.error")
  };
  el.textContent=map[status]||"—";
 }
@@ -3312,7 +3411,7 @@ function applyRemoteState(remote){
  const wasOnboarding = onbVisible();
  hideOnboarding();
  if(wasOnboarding){initApp();}
- renderNav();renderAllViews();fillSubjectSelects();checkBadges();
+ renderNav();renderCurrentView();fillSubjectSelects();checkBadges();
  setCloudStatus("synced");
  applyingRemote=false;
 }
@@ -3425,9 +3524,9 @@ function sanitizeFirestorePayload(rawPayload) {
     }
   });
 
-  // ③ للأقسام ذات البنية الديناميكية (grades, tasks, goals, notes):
+  // ③ للأقسام ذات البنية الديناميكية من نوع Object (grades, goals, notes):
   //    تحقق من النوع فقط واحذف أي قيم undefined/function
-  ['grades', 'tasks', 'goals', 'notes', 'errors'].forEach(section => {
+  ['grades', 'goals', 'notes'].forEach(section => {
     if (topLevel[section] !== undefined) {
       if (typeof topLevel[section] !== 'object' || Array.isArray(topLevel[section])) {
         console.warn('[BAC-SANITIZE]', section, 'expected object, got:', typeof topLevel[section], '— resetting to {}');
@@ -3450,8 +3549,8 @@ function sanitizeFirestorePayload(rawPayload) {
     }
   });
 
-  // ③-c للأقسام ذات البنية الديناميكية من نوع Array (flashcards, papers, moods, wellness):
-  ['flashcards', 'papers', 'moods', 'wellness'].forEach(section => {
+  // ③-c للأقسام ذات البنية الديناميكية من نوع Array (tasks, errors, flashcards, papers, moods, wellness):
+  ['tasks', 'errors', 'flashcards', 'papers', 'moods', 'wellness'].forEach(section => {
     if (topLevel[section] !== undefined) {
       if (!Array.isArray(topLevel[section])) {
         // إذا كان object أو نوع آخر — نحوّله لمصفوفة فارغة بدل حذفه
@@ -3526,10 +3625,15 @@ async function _doCloudWrite(uid,retryCount){
  if (!tokenOk) { setCloudStatus('error'); return; }
 
  setCloudStatus("syncing");
+ // ✅ إصلاح: نسجّل وقت الكتابة مبكراً (optimistic) لضمان تجاهل الـ snapshot
+ // الذي سيصلنا من Firestore قبل أن تنتهي الكتابة الفعلية
+ _lastLocalWriteTime=Date.now();
  const rawPayload=JSON.parse(JSON.stringify(state));
 
  // 🔒 تنظيف وتحقق شامل من الـ payload قبل الرفع لـ Firestore
- const payload = sanitizeFirestorePayload(rawPayload);
+ // (نُنظّف الـ state كاملاً دائماً — حتى عند الكتابة الجزئية، لأن الكتابة
+ // الجزئية تُختار لاحقاً من نفس الناتج المُنظّف، لا حاجة لتنظيف منفصل لكل حقل)
+ const sanitizedFull = sanitizeFirestorePayload(rawPayload);
 
  // 🛡️ حارس حاسم ضد تكرار حادثة فقدان البيانات: إن كنا نعلم أن هذا الحساب
  // يحتوي فعلاً بيانات حقيقية على السحابة (وصلتنا سابقاً في نفس الجلسة)، لكن
@@ -3539,37 +3643,111 @@ async function _doCloudWrite(uid,retryCount){
  if(_remoteHadRealData && !_stateLooksMeaningful(state)){
   console.error('[BAC-CLOUD] blocked write: current state looks empty but the cloud account is known to hold real data. Refusing to overwrite.');
   setCloudStatus('error');
-  toast(LANG==="ar"?"⚠️ تم إيقاف الحفظ وقائياً: بياناتك المحلية فارغة وحسابك يحتوي بيانات محفوظة — أعد تحميل الصفحة قبل المتابعة":"⚠️ Save blocked as a precaution: your local data looks empty but your account has saved data — please reload the page","warn");
+  toast(t("sync.saveBlocked"),"warn");
   return;
  }
 
- payload._savedAt=Date.now();
- payload._writerId=_sessionId;
+ // ✅ كتابة جزئية حقيقية: خذ لقطة من الحقول المتغيّرة الآن وأفرِغ الـ Set
+ // فوراً (حتى لو وصل save() جديد أثناء انتظار الشبكة، يُسجَّل في دورة منفصلة
+ // ولا يضيع ولا يُخلَط مع هذه الكتابة الجارية).
+ const ALLOWED_TOP_KEYS = _PAYLOAD_SCHEMA.ALLOWED_TOP_KEYS;
+ const fieldsToWrite = new Set(_dirtyFields);
+ _clearDirty();
+ // كتابة كاملة إذا: لا نعرف بعد أن المستند موجود على الخادم (مستخدم جديد أو
+ // أول جلسة)، أو لم نسجّل أي حقل متغيّر تحديداً، أو كل الحقول متغيّرة أصلاً —
+ // في هذه الحالات set(merge:true) الكامل أبسط وأضمن من update() الجزئي.
+ let isFullWrite = !_remoteDocExists || fieldsToWrite.size===0 || fieldsToWrite.size>=ALLOWED_TOP_KEYS.length;
+
+ let payload = { _savedAt:Date.now(), _writerId:_sessionId };
+ if(isFullWrite){
+  Object.assign(payload, sanitizedFull);
+ } else {
+  fieldsToWrite.forEach(k=>{ payload[k]=sanitizedFull[k]; });
+ }
 
  // 🔒 حد أقصى لحجم البيانات (1MB) لمنع رفع بيانات ضخمة غير طبيعية
  const payloadSize = JSON.stringify(payload).length;
  if(payloadSize > 1048576){
    console.error('[BAC-CLOUD] payload too large:', payloadSize, 'bytes');
    setCloudStatus("error");
-   toast(LANG==="ar"?"⚠️ البيانات كبيرة جداً — تواصل مع الدعم":"⚠️ Data too large","warn");
+   toast(t("sync.dataTooLarge"),"warn");
    return;
  }
 
  try{
-  // 🔒 استخدام set(merge:true) بدل update: يضمن نجاح الحفظ الأول لحساب جديد
-  // (update يفشل بخطأ not-found إذا لم تكن الوثيقة موجودة أصلاً)، وفي نفس
-  // الوقت لا يمحو أي حقول أخرى غير موجودة في payload عند التحديث اللاحق.
-  await fbDb.collection("users").doc(uid).set(payload,{merge:true});
+  // ✅ إصلاح multi-device: قبل الكتابة، تحقق إذا كان هناك جهاز آخر كتب بيانات
+  // أحدث من الـ state المحلي — إذا نعم، اسحب البيانات أولاً ثم ادمج التعديل المحلي
+  // هذا يمنع الحاسوب من محو تعديلات الهاتف عند كتابته التالية
+  const localUpdatedAt=(state.meta&&state.meta.updatedAt)||0;
+  try{
+   const freshSnap=await fbDb.collection("users").doc(uid).get({source:'server'});
+   if(freshSnap.exists){
+    const fd=freshSnap.data();
+    const remoteUpdatedAt=(fd.meta&&fd.meta.updatedAt)||fd._savedAt||0;
+    if(remoteUpdatedAt>localUpdatedAt&&fd._writerId!==_sessionId){
+     // الجهاز الآخر أحدث — ادمج تعديلنا المحلي فوق بياناته
+     console.log('[BAC-CLOUD] remote is newer, merging local edit on top');
+     const merged=mergeRemoteState(fd);
+     // أعد تطبيق التعديلات المحلية الأخيرة (grades, tasks, إلخ) من state الحالي
+     merged.grades=Object.assign({},fd.grades||{},state.grades);
+     merged.tasks=state.tasks;
+     merged.flashcards=state.flashcards;
+     merged.errors=state.errors;
+     merged.moods=state.moods;
+     merged.papers=state.papers;
+     merged.gamification=state.gamification;
+     merged.profile=state.profile;
+     merged.settings=state.settings;
+     merged.meta={updatedAt:Date.now()};
+     state=merged;
+     // بعد دمج كامل الحالة، نكتب كل شيء — كتابة جزئية هنا خطأ لأنها لن
+     // تحمل التعديلات المدموجة من كل الأقسام الأخرى غير المتتبَّعة كـ dirty.
+     payload = Object.assign({_savedAt:Date.now(),_writerId:_sessionId}, sanitizeFirestorePayload(JSON.parse(JSON.stringify(state))));
+     isFullWrite = true;
+    }
+   }
+  }catch(fetchErr){
+   // إذا فشل الفحص (offline مثلاً) نكتب ما عندنا
+   console.warn('[BAC-CLOUD] pre-write fetch failed, writing local state:',fetchErr&&fetchErr.code);
+  }
+
+  if(isFullWrite){
+   // 🔒 set(merge:true): آمن دائماً سواء كان المستند موجوداً أم لا
+   await fbDb.collection("users").doc(uid).set(payload,{merge:true});
+  } else {
+   try{
+    // ✅ update() جزئي: يكتب فقط الحقول المتغيّرة، لا يلمس أي حقل آخر —
+    // هذا يُلغي تعارض الكتابة الكاملة بين جهازين يعدّلان قسمين مختلفين
+    await fbDb.collection("users").doc(uid).update(payload);
+   }catch(updateErr){
+    // المستند اختفى بين تأكيد الوجود وهذه اللحظة (نادر جداً) — سقوط آمن لكتابة كاملة
+    if(updateErr && (updateErr.code==='not-found'||updateErr.code==='failed-precondition')){
+     console.warn('[BAC-CLOUD] update() failed (doc missing) — falling back to full set():',updateErr.code);
+     payload = Object.assign({_savedAt:Date.now(),_writerId:_sessionId}, sanitizedFull);
+     await fbDb.collection("users").doc(uid).set(payload,{merge:true});
+    } else {
+     throw updateErr;
+    }
+   }
+  }
+
+  _remoteDocExists = true;
   setCloudStatus("synced");
   _pendingLocalEdit=false;
   _lastLocalWriteTime=Date.now();
+  // ✅ _notifyLocalWrite: نُعلم باقي أجزاء التطبيق بوقت آخر كتابة محلية
+  // هذا يتيح لـ _doCloudWrite الصغيرة (مثل _saveImmediate) تجنب التنازع
+  if(typeof window._notifyLocalWrite==="function") window._notifyLocalWrite(_lastLocalWriteTime);
  }catch(e){
   console.error('[BAC-CLOUD] write error:', e && e.code, e && e.message);
+  // ✅ فشل الكتابة (حتى الجزئية) يجب ألا يُفقد الحقول التي حاولنا كتابتها —
+  // أعِد وضعها كـ dirty حتى تُحاول المحاولة القادمة (retry أو تعديل لاحق) من جديد
+  fieldsToWrite.forEach(k=>_dirtyFields.add(k));
   if(_TRANSIENT.includes(e&&e.code)&&retryCount<3&&cloudUser&&cloudUser.uid===uid){
    setTimeout(()=>{ _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,retryCount+1)); },1000*(retryCount+1));
   }else{
    setCloudStatus("error");
-   toast(LANG==="ar"?"⚠️ فشل الحفظ السحابي — تم الحفظ محلياً":"⚠️ Cloud save failed — saved locally","warn");
+   toast(t("sync.cloudSaveFail"),"warn");
   }
  }
 }
@@ -3587,18 +3765,32 @@ function pushToCloud(){
  _saveQueue=_saveQueue.then(()=>_doCloudWrite(uid,0));
 }
 
+// debounce خفيف 300ms فقط لحقول الكتابة الحرة (درجات، target)
+let _inputDebounceTimer=null;
+function queueCloudSyncInput(){
+ if(applyingRemote||!cloudUser)return;
+ if(_appInitializing)return;
+ _pendingLocalEdit=true;
+ setCloudStatus("pending");
+ clearTimeout(_inputDebounceTimer);
+ _inputDebounceTimer=setTimeout(pushToCloud,300);
+}
 function queueCloudSync(){
  if(applyingRemote||!cloudUser)return;
  if(_appInitializing)return;
  _pendingLocalEdit=true;
  setCloudStatus("pending");
+ // ✅ تأخير 800ms: يجمع عدة تعديلات متتالية (مثلاً تفعيل/تعطيل عدة مهام
+ // بسرعة) في كتابة سحابية واحدة بدل كتابة منفصلة لكل نقرة. القسم(الأقسام)
+ // المتغيّرة تراكمت بالفعل في _dirtyFields عبر saveState(field) — فحتى لو
+ // عدّل المستخدم قسمين مختلفين خلال الـ 800ms، سيُكتبان معاً بدقة.
  clearTimeout(_saveDebounceTimer);
  _saveDebounceTimer=setTimeout(pushToCloud,800);
 }
 
 // عند العودة للإنترنت — أرسل التعديلات المعلّقة فقط
 window.addEventListener('online',()=>{
- toast(LANG==="ar"?"✅ عاد الاتصال بالإنترنت":"✅ Back online");
+ toast(t("sync.back"));
  if(_saveDebounceTimer&&cloudUser){
   clearTimeout(_saveDebounceTimer);
   _saveDebounceTimer=null;
@@ -3606,7 +3798,7 @@ window.addEventListener('online',()=>{
  }
 });
 window.addEventListener('offline',()=>{
- toast(LANG==="ar"?"📴 انقطع الاتصال — سيُحفظ عند العودة":"📴 Offline — will sync when back","warn");
+ toast(t("sync.lost"),"warn");
  setCloudStatus("offline");
 });
 
@@ -3663,6 +3855,8 @@ async function attachCloudListener(uid){
    _saveDebounceTimer = null;
    _pendingLocalEdit = false;
    _remoteHadRealData = false;
+   _remoteDocExists = false;
+   _clearDirty();
    _saveQueue = Promise.resolve();
    state = defaultState();
  }
@@ -3675,15 +3869,9 @@ async function attachCloudListener(uid){
    await _ensureFreshToken(currentUser).catch(() => {});
  }
 
- // STEP 1: فحص الخادم مباشرة (بدون cache) لتحديد حالة المستخدم بدقة
- // هذا يمنع: تطبيق بيانات stale من الـ cache على مستخدم عائد بجهاز جديد
  let serverCheckDone=false;
  let serverConfirmedNew=false;
 
- // 🛡️ حماية ضد فقدان البيانات (كل شيء يبقى داخل Firebase — بلا أي تخزين محلي):
- // عدم وجود مستند عند أول فحص قد يكون بسبب مشكلة اتصال/Token مؤقتة وليس لأن
- // الحساب جديد فعلاً. لذلك لا نحسم القرار من فحص واحد: إن جاء الفحص الأول
- // بدون مستند، نعيد المحاولة من الخادم مرة أخرى (بعد تأخير قصير) قبل الحسم.
  function _fetchServerDoc(){return fbDb.collection("users").doc(uid).get({source:'server'})}
  function _confirmNoDocOnServer(){
   return new Promise(resolve=>{
@@ -3692,75 +3880,90 @@ async function attachCloudListener(uid){
    },1500);
   });
  }
+
+ // ✅ STEP 1 — cache فوري: نعرض البيانات المحلية فوراً بدون انتظار الخادم
+ // يحل مشكلة "ثواني لتظهر البيانات عند الدخول"
+ fbDb.collection("users").doc(uid).get({source:'cache'}).then(cacheSnap=>{
+  if(cacheSnap.exists){
+   _remoteDocExists = true; // نعلم الآن أن update() الجزئي آمن لهذا المستخدم
+   if(!_pendingLocalEdit) applyRemoteState(cacheSnap.data());
+  }
+ }).catch(()=>{});
+
+ // ✅ STEP 2 — خادم في الخلفية: يُحدّث البيانات من الخادم الحقيقي ويستبدل الـ cache إذا أحدث
  _fetchServerDoc().then(async serverSnap=>{
   if(!serverSnap.exists){
    const confirmedTwice=await _confirmNoDocOnServer();
    serverCheckDone=true;
    if(!confirmedTwice){
-    // الفحص الثاني وجد مستنداً فعلاً (كان الأول متأخراً/عابراً) — لا نمسح شيئاً،
-    // نطبّق البيانات الحقيقية من الخادم كأي مستخدم موجود.
     const snap2=await _fetchServerDoc().catch(()=>null);
     if(snap2&&snap2.exists&&!_pendingLocalEdit){applyRemoteState(snap2.data());}
     return;
    }
-   // مستخدم جديد تماماً بتأكيد مزدوج من الخادم —
-   // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
+   _remoteDocExists=false; // مؤكَّد من الخادم مرتين: لا مستند بعد لهذا الحساب
    state=defaultState();
-   // نحافظ على تفضيل اللغة الحالي بدل الرجوع للّغة الافتراضية للحالة الجديدة —
-   // هذا هو سبب ظهور خليط عربي/إنجليزي: state.settings.lang كان يُعاد ضبطه دون تحديث LANG أو الواجهة.
    state.settings.lang=LANG;
-   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم (مرتين)
    if(!state.profile.name){updateDOMTranslations();showOnboarding();}else{hideOnboarding();initApp();}
   } else {
    serverCheckDone=true;
+   _remoteDocExists=true;
    if(!_pendingLocalEdit){
-    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
     applyRemoteState(serverSnap.data());
    }
   }
  }).catch(e=>{
   serverCheckDone=true;
-  // offline أو خطأ مؤقت — المستمع أدناه سيتكفل بالباقي من الـ cache
   console.warn('Server check failed, using cache:',e&&e.code);
  });
 
- // STEP 2: المستمع اللحظي — يبدأ فوراً للتزامن بين الأجهزة
+ // ✅ STEP 3 — real-time listener: يستقبل تحديثات الأجهزة الأخرى فوراً بدون refresh
  let isFirstSnapshot=true;
 
  cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
   try{
    if(!snap.exists){isFirstSnapshot=false;return;}
+   _remoteDocExists=true; // شبكة أمان: حتى لو فشل فحص الخادم الأولي (offline)
    const d=snap.data();
 
-   // تجاهل snapshot كتبه هذا الجهاز نفسه منذ أقل من 4 ثوانٍ
-   // (لمنع إعادة رسم غير ضرورية تُعطّل الكتابة النشطة)
+   // تجاهل snapshot كتبه هذا الجهاز فقط — snapshot الجهاز الآخر يُقبل دائماً وفوراً
    const fromThisDevice=(d._writerId===_sessionId);
-   const timeSinceWrite=Date.now()-_lastLocalWriteTime;
-   if(!isFirstSnapshot&&fromThisDevice&&timeSinceWrite<4000){
-    isFirstSnapshot=false;return;
+   if(fromThisDevice){
+    if(isFirstSnapshot) isFirstSnapshot=false;
+    return;
+   }
+
+   // ✅ حارس timeSinceLocalWrite: إذا كتبنا محلياً منذ أقل من 3 ثوانٍ،
+   // نتجاهل الـ snapshot حتى لا يُحدّث Firestore البيانات بنسخة قديمة
+   // (habittck يُجاهل فقط snapshot الجهاز نفسه، BAC يتحقق من الوقت أيضاً)
+   const timeSinceLocalWrite = Date.now() - _lastLocalWriteTime;
+   if(timeSinceLocalWrite < 3000 && _lastLocalWriteTime > 0){
+    if(isFirstSnapshot) isFirstSnapshot=false;
+    return;
    }
 
    const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
    const localTime=(state.meta&&state.meta.updatedAt)||0;
 
+   // snapshot من جهاز آخر أحدث — نُصفّر _pendingLocalEdit حتى لا يحجب التحديث
+   if(remoteTime>_lastLocalWriteTime){
+    _pendingLocalEdit=false;
+   }
+
    if(isFirstSnapshot){
     isFirstSnapshot=false;
-    // أول snapshot: إذا انتهى فحص الخادم وطبّق البيانات — لا نكرر
-    // إذا لم ينته بعد أو كان offline — نطبّق من الـ cache
     if(!serverCheckDone&&!_pendingLocalEdit&&remoteTime>localTime){
      applyRemoteState(d);
     } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
      pushToCloud();
     } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
-     // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
      const wasOnb=onbVisible();updateDOMTranslations();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
-    // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
+    // تحديث فوري من جهاز آخر — طبّقه مباشرة إذا كان أحدث
     if(!_pendingLocalEdit&&remoteTime>localTime){
      applyRemoteState(d);
-     toast(LANG==="ar"?"🔄 تم تحديث البيانات من جهاز آخر":"🔄 Data updated from another device");
+     toast(t("sync.updated"));
     }
    }
   }catch(e){console.error('Snapshot apply error:',e);}
@@ -3770,8 +3973,61 @@ async function attachCloudListener(uid){
  });
 }
 
+// ✅ _notifyLocalWrite: callback مُسجَّل من خارج — يُعلم أجزاء التطبيق الأخرى
+// بوقت آخر كتابة محلية (يُستخدم مثلاً لتزامن timeSinceLocalWrite بين
+// وحدات مختلفة إذا انقسم الكود مستقبلاً)
+window._notifyLocalWrite = function(ts){ _lastLocalWriteTime = ts||Date.now(); };
+
+// ✅ _dirtyFields: تتبع الحقول الأعلى-مستوى (top-level) التي تغيّرت فعلاً —
+// تُستخدم في _doCloudWrite لبناء كتابة جزئية (update) بدل كتابة كامل الـ
+// state في كل مرة. هذا يقلل حجم البيانات المرسلة، ويقلل احتمال تعارض
+// الكتابات بين جهازين يعدّلان قسمين مختلفين في نفس اللحظة (كل جهاز يكتب
+// فقط القسم الذي لمسه، فلا يطمس أحدهما تعديل الآخر حتى بدون انتظار).
+//
+// إذا استُدعيت _markDirty() بدون اسم حقل، أو باسم غير معروف (نداء قديم لم
+// يُحدَّث بعد لتمرير اسم القسم)، فالسلوك الآمن الوحيد هو اعتبار *كل* الحقول
+// متغيّرة — تماماً كما تفعل habittck — بدل المخاطرة بإرسال كتابة جزئية قد
+// تفوت قسماً تغيّر فعلاً.
+let _dirtyFields = new Set();
+function _markDirty(fieldName){
+ const ALLOWED = (typeof _PAYLOAD_SCHEMA!=="undefined"&&_PAYLOAD_SCHEMA.ALLOWED_TOP_KEYS)||[];
+ if(fieldName && ALLOWED.includes(fieldName)){
+  _dirtyFields.add(fieldName);
+  // meta.updatedAt يتغيّر مع كل حفظ (انظر saveState/_saveImmediate أدناه)
+  // فيجب أن يُكتب دائماً مع أي حقل آخر، وإلا يبقى الخادم بطابع زمني قديم
+  _dirtyFields.add('meta');
+ } else {
+  ALLOWED.forEach(f=>_dirtyFields.add(f));
+ }
+}
+function _clearDirty(){ _dirtyFields.clear(); }
+
+// ✅ _saveImmediate(fieldName): حفظ فوري لحقل مهم بدون debounce
+// habittck: save() يُستخدم لكل شيء مع debounce
+// BAC: الحقول المهمة (مثل gamification) تُحفظ فوراً بدون انتظار
+function _saveImmediate(fieldName){
+ _markDirty(fieldName);
+ state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
+ const ok=_origSaveState();
+ // حفظ فوري للسحابة بدون debounce
+ if(cloudUser && !applyingRemote){
+  _pendingLocalEdit=true;
+  setCloudStatus("pending");
+  pushToCloud();
+ }
+ return ok;
+}
+
 const _origSaveState=saveState;
-saveState=function(){
+// ✅ saveState(fieldName) — fieldName اختياري ويطابق أحد ALLOWED_TOP_KEYS
+// (مثل 'grades','tasks','flashcards'...). إن مُرِّر، تُسجَّل الكتابة القادمة
+// كجزئية لهذا القسم فقط. إن لم يُمرَّر (نداءات لم تُحدَّث بعد)، السقوط الآمن
+// هو اعتبار كل الأقسام متغيّرة (انظر _markDirty) — صحيح دائماً، لكنه يفقد
+// فائدة التوفير في الحجم. لهذا حرصنا على تمرير الاسم في كل موضع حفظ حقيقي
+// بالتطبيق (grades, tasks, flashcards, papers, errors, moods, profile,
+// settings, gamification, pomodoro) — انظر مواضع النداء أسفل الملف.
+saveState=function(fieldName){
+ _markDirty(fieldName);
  state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
  const ok=_origSaveState();
  queueCloudSync();
@@ -3813,7 +4069,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
   function hideError(){ lgError.classList.remove("show"); }
 
   function showBlocked(email){
-    blEmail.textContent = email ? ("الحساب: " + email) : "";
+    blEmail.textContent = email ? (t("lg.account") + email) : "";
     loginGate.classList.add("hidden");
     blockedGate.classList.remove("hidden");
   }
@@ -3823,7 +4079,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
     blockedGate.classList.add("hidden");
   }
 
-  const googleLogoHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg><span>تسجيل الدخول بحساب Google</span>`;
+  const _googleSVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>`;
+  // دالة بدل ثابت: تقرأ LANG عند الاستدعاء لضمان صحة الترجمة دائماً
+  function googleLogoHTML(){ return _googleSVG + `<span>${t("cloud.signIn")}</span>`; }
 
   function showLogin(){
     blockedGate.classList.add("hidden");
