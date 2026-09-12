@@ -1963,18 +1963,19 @@ function renderSubjects(){const st=STREAMS[state.profile.streamId];if(!st)return
     if(bar)bar.style.width=(gVal!=null?Math.min(gVal/20*100,100):0)+"%";
     if(contrib)contrib.innerHTML=t("subj.contributes",{n:(gVal!=null?(gVal*coeff).toFixed(1):"0")});
    };
-   if(v===""){delete state.grades[code];if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');_updateCardUI(null);renderDashboard();renderCalculator();return}
+   if(v===""){delete state.grades[code];if(typeof _localGradeChanges!=="undefined")_localGradeChanges[code]=null;if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');_updateCardUI(null);renderDashboard();renderCalculator();return}
    let c=clampGrade(v);
    if(parseFloat(v)>20){e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);e.target.value=20;c=20;toast(t("toast.gradeCap"),"warn")}
    if(parseFloat(v)<0){e.target.value=0;c=0}
    state.grades[code]=c;
+   if(typeof _localGradeChanges!=="undefined")_localGradeChanges[code]=c;
    // ✅ الكتابة الجزئية: نُسجّل grades كحقل dirty ونحفظ فوراً
    if(typeof _saveImmediate==="function")_saveImmediate('grades');
    else saveState('grades');
    _updateCardUI(c);
    renderDashboard();renderCalculator();
    if(c===20)checkBadges()})})}
-function clearGrade(c){delete state.grades[c];if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');renderSubjects();renderDashboard();renderCalculator()}
+function clearGrade(c){delete state.grades[c];if(typeof _localGradeChanges!=="undefined")_localGradeChanges[c]=null;if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');renderSubjects();renderDashboard();renderCalculator()}
 function resetGrades(){if(confirm(t("confirm.resetGrades"))){state.grades={};saveState('grades');renderSubjects();renderDashboard();renderCalculator();toast(t("toast.gradesReset"))}}
 
 /* ============ CALCULATOR ============ */
@@ -3448,6 +3449,8 @@ function mergeRemoteState(remote){
 }
 function applyRemoteState(remote){
  applyingRemote=true;
+ // عند تطبيق بيانات السيرفر، نُصفّر التعديلات المحلية لأنها انعكست على السيرفر
+ if(typeof _localGradeChanges!=="undefined")_localGradeChanges={};
  state=mergeRemoteState(remote);
  if(_stateLooksMeaningful(state))_remoteHadRealData=true;
  // ✅ FIX v17: حفظ نسخة محلية فور استقبال البيانات من Firebase (backup للرفراش)
@@ -3481,6 +3484,8 @@ let _saveDebounceTimer=null;
 let _pendingLocalEdit=false;
 let _appInitializing=true;
 let _lastLocalWriteTime=0;
+// تتبع الدرجات التي غيّرها هذا الجهاز في هذه الجلسة (code -> value أو null لمحذوف)
+let _localGradeChanges={};
 const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','internal'];
 
 // ── Payload Sanitization — تنظيف وتحقق شامل من البيانات قبل رفعها لـ Firestore ──
@@ -3746,7 +3751,16 @@ async function _doCloudWrite(uid,retryCount){
      console.log('[BAC-CLOUD] remote is newer, merging local edit on top');
      const merged=mergeRemoteState(fd);
      // أعد تطبيق التعديلات المحلية الأخيرة (grades, tasks, إلخ) من state الحالي
-     merged.grades=Object.assign({},fd.grades||{},state.grades);
+     // السيرفر أحدث — نبدأ من grades السيرفر ونُطبّق فوقها فقط التعديلات
+     // التي أجراها هذا الجهاز فعلاً في هذه الجلسة (لا نطمس حذف الهاتف للدرجة)
+     const baseGrades=Object.assign({},fd.grades||{});
+     if(typeof _localGradeChanges!=="undefined"){
+      Object.keys(_localGradeChanges).forEach(k=>{
+       if(_localGradeChanges[k]===null){delete baseGrades[k];}
+       else{baseGrades[k]=_localGradeChanges[k];}
+      });
+     }
+     merged.grades=baseGrades;
      merged.tasks=state.tasks;
      merged.flashcards=state.flashcards;
      merged.errors=state.errors;
@@ -3792,6 +3806,8 @@ async function _doCloudWrite(uid,retryCount){
   setCloudStatus("synced");
   _pendingLocalEdit=false;
   _lastLocalWriteTime=Date.now();
+  // بعد كتابة ناجحة، نُصفّر تتبع التعديلات المحلية — السيرفر الآن متزامن
+  if(typeof _localGradeChanges!=="undefined")_localGradeChanges={};
   // ✅ _notifyLocalWrite: نُعلم باقي أجزاء التطبيق بوقت آخر كتابة محلية
   // هذا يتيح لـ _doCloudWrite الصغيرة (مثل _saveImmediate) تجنب التنازع
   if(typeof window._notifyLocalWrite==="function") window._notifyLocalWrite(_lastLocalWriteTime);
@@ -3991,18 +4007,9 @@ async function attachCloudListener(uid){
    _remoteDocExists=true; // شبكة أمان: حتى لو فشل فحص الخادم الأولي (offline)
    const d=snap.data();
 
-   // تجاهل snapshot كتبه هذا الجهاز فقط — snapshot الجهاز الآخر يُقبل دائماً وفوراً
+   // تجاهل snapshot كتبه هذا الجهاز — الجهاز الآخر يُقبل دائماً بدون حارس زمني
    const fromThisDevice=(d._writerId===_sessionId);
    if(fromThisDevice){
-    if(isFirstSnapshot) isFirstSnapshot=false;
-    return;
-   }
-
-   // ✅ حارس timeSinceLocalWrite: إذا كتبنا محلياً منذ أقل من 3 ثوانٍ،
-   // نتجاهل الـ snapshot حتى لا يُحدّث Firestore البيانات بنسخة قديمة
-   // (habittck يُجاهل فقط snapshot الجهاز نفسه، BAC يتحقق من الوقت أيضاً)
-   const timeSinceLocalWrite = Date.now() - _lastLocalWriteTime;
-   if(timeSinceLocalWrite < 3000 && _lastLocalWriteTime > 0){
     if(isFirstSnapshot) isFirstSnapshot=false;
     return;
    }
@@ -4010,7 +4017,7 @@ async function attachCloudListener(uid){
    const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
    const localTime=(state.meta&&state.meta.updatedAt)||0;
 
-   // snapshot من جهاز آخر أحدث — نُصفّر _pendingLocalEdit حتى لا يحجب التحديث
+   // snapshot من جهاز آخر — نُصفّر _pendingLocalEdit دائماً إذا كان أحدث
    if(remoteTime>_lastLocalWriteTime){
     _pendingLocalEdit=false;
    }
