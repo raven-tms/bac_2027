@@ -83,25 +83,6 @@
     _warn.apply(console, args);
   };
 </script>
-<script>
-  // ⚡ تطبيق اللغة المحفوظة فوراً قبل رسم الصفحة — يمنع "وميض" اللغة الخاطئة
-  // هذا السكريبت يعمل قبل أي CSS أو HTML آخر، وقبل Firebase بالطبع.
-  // الأولوية: 1) localStorage → 2) الافتراضي "ar"
-  (function(){
-    try{
-      var lang = localStorage.getItem('bac2027_lang');
-      if(lang !== 'ar' && lang !== 'en') lang = 'ar';
-      var html = document.documentElement;
-      html.setAttribute('lang', lang);
-      html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-      // نضع data-lang حتى يستخدمه باقي الكود مباشرةً عند التهيئة
-      html.setAttribute('data-initial-lang', lang);
-      if(lang === 'ar'){
-        document.body && document.body.classList.add('lang-ar');
-      }
-    }catch(e){}
-  })();
-</script>
 <style>
 :root{
 --bg:#f6f8fc;--bg-soft:#eef2f8;--card:#ffffff;--card-hover:#f8fafc;
@@ -664,7 +645,7 @@ table td,table th{white-space:nowrap}
       <section id="view-dashboard" class="view active">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]"></h1>
+            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]">Good morning</h1>
             <p id="greetSub" class="text-[14px] text-[var(--text-muted)] mt-2 max-w-[600px]"></p>
           </div>
           <div class="flex gap-2">
@@ -1517,18 +1498,7 @@ ar:{
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
  "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
-// flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
-let _userLangOverride = false;
-// قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
-let LANG=(function(){
-  try{
-    var il=document.documentElement.getAttribute('data-initial-lang');
-    if(il==='ar'||il==='en')return il;
-    var ls=localStorage.getItem('bac2027_lang');
-    if(ls==='ar'||ls==='en')return ls;
-  }catch(e){}
-  return 'ar';
-}());
+let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
 
 /* ============ HELPERS ============ */
@@ -1555,7 +1525,7 @@ let state=null;
 function defaultState(){return{
  profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
  grades:{},
- settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:LANG||"ar"},
+ settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
   {id:"t1",title_en:"Revise Mathematics — Functions",title_ar:"مراجعة الرياضيات — الدوال",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
@@ -1651,9 +1621,7 @@ function applyStaticI18n(){
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
- // لا نستدعي saveState() هنا لأنها تُشغّل queueCloudSync → applyRemoteState
- // الذي يُعيد ضبط LANG من Firebase ويكسر التغيير — نحفظ اللغة مباشرة
- if(typeof queueCloudSync==="function")queueCloudSync();
+ saveState();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -1661,34 +1629,22 @@ function applyLang(lang){
  const other=lang==="ar"?"English":"العربية";
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
- // 🛡️ نحدّث كل نصوص الواجهة فوراً، بمعزل تام عن أي خطوة تالية قد تفشل —
- // هذا يمنع بالضبط مشكلة "الاتجاه يتغيّر والنص لا يتغيّر": كل خطوة أدناه معزولة
- // بـ try/catch خاص بها، فلو فشلت واحدة (مثلاً بيانات ناقصة في مهمة أو بطاقة)،
- // لا تمنع باقي الخطوات ولا تُبقي النصوص القديمة ظاهرة.
- try{updateDOMTranslations()}catch(e){console.error('[BAC-I18N] updateDOMTranslations failed:',e)}
- try{applyTheme(state.settings.theme)}catch(e){console.error('[BAC-I18N] applyTheme failed:',e)}
- try{_syncDefaultDataLang(lang)}catch(e){console.error('[BAC-I18N] _syncDefaultDataLang failed:',e)}
- try{renderStreamGrid()}catch(e){console.error('[BAC-I18N] renderStreamGrid failed:',e)}
- try{if(onbVisible())updateOnb()}catch(e){console.error('[BAC-I18N] updateOnb failed:',e)}
- try{renderAllViews()}catch(e){console.error('[BAC-I18N] renderAllViews failed:',e)}
- // تحديث صريح للعناصر التي لا تعتمد على data-i18n وتحتاج LANG محدثاً
- try{renderDashboard()}catch(e){}
- try{renderQuote()}catch(e){}
- // نعيد تطبيق الترجمات الثابتة مرة أخيرة بعد renderAllViews، لأن بعض الواجهات
- // الديناميكية تُعيد بناء عناصر data-i18n جديدة لم تكن موجودة في المرة الأولى.
- try{applyStaticI18n()}catch(e){console.error('[BAC-I18N] applyStaticI18n (2nd pass) failed:',e)}
- if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
+ applyTheme(state.settings.theme);
+ _syncDefaultDataLang(lang);
+ updateDOMTranslations();
+ renderStreamGrid();if(onbVisible())updateOnb();
+ renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function _syncDefaultDataLang(lang){
  if(!state)return;
- (state.tasks||[]).forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
- (state.flashcards||[]).forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
- (state.errors||[]).forEach(er=>{
+ state.tasks.forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
+ state.flashcards.forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
+ state.errors.forEach(er=>{
   if(er.topic_en&&er.topic_ar)er.topic=lang==="ar"?er.topic_ar:er.topic_en;
   if(er.description_en&&er.description_ar)er.description=lang==="ar"?er.description_ar:er.description_en;
   if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
  });
 }
-function toggleLang(){_userLangOverride=true;applyLang(LANG==="ar"?"en":"ar")}
+function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 /* دوال مساعدة بنفس الأسماء المطلوبة — تُغلّف محرك الترجمة الحالي (renderNav/applyStaticI18n)
    حتى يكون التحديث الفوري صريحًا وسهل الصيانة دون تكرار المنطق. */
 function updateDOMTranslations(){applyStaticI18n();renderNavigation()}
@@ -2983,9 +2939,8 @@ function initApp(){
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=defaultState();
- // LANG تم تحديده مبكراً من localStorage (قبل هذه الدالة)، نُزامنه مع state
- // (defaultState يستخدم LANG مباشرةً الآن، لكن نُضيف هذا كحماية مضاعفة)
- state.settings.lang=LANG;
+ // قراءة اللغة من localStorage فوراً عند البداية (قبل وصول بيانات Firestore)
+ try{const saved=localStorage.getItem('bac2027_lang');if(saved==="ar"||saved==="en")state.settings.lang=saved;}catch(e){}
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -3205,19 +3160,6 @@ try{
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
 let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
-// 🛡️ نتذكّر (لمدة الجلسة الحالية فقط، بلا أي تخزين محلي) هل آخر نسخة حقيقية
-// وصلتنا من Firestore كانت تحتوي بيانات فعلية (اسم/علامات/مهام حقيقية). إن كانت
-// كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
-// البيانات: لن يُسمح لأي خلل عابر أن يمسح حساباً معروفاً أنه يحتوي بيانات.
-let _remoteHadRealData=false;
-function _stateLooksMeaningful(s){
- if(!s)return false;
- const hasName=!!(s.profile&&s.profile.name);
- const hasGrades=!!(s.grades&&Object.keys(s.grades).length>0);
- const hasRealTasks=!!(s.tasks&&s.tasks.some(tk=>!["t1","t2","t3"].includes(tk.id)));
- const hasXP=!!(s.gamification&&s.gamification.xp>0);
- return hasName||hasGrades||hasRealTasks||hasXP;
-}
 
 function signInGoogle(){
  fbAuth.signInWithPopup(googleProvider).catch(e=>{
@@ -3241,12 +3183,9 @@ function confirmLogout(){
  clearTimeout(_saveDebounceTimer);
  _saveDebounceTimer=null;
  _pendingLocalEdit=false;
- _remoteHadRealData=false;
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
- // تصفير state فوراً قبل signOut لمنع أي كتابة خاطئة لاحقة
  _lastAttachedUid = null;
  try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
- state=defaultState();
  fbAuth.signOut();
  toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
 }
@@ -3297,16 +3236,10 @@ function mergeRemoteState(remote){
 function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
- if(_stateLooksMeaningful(state))_remoteHadRealData=true;
- // إذا غيّر المستخدم اللغة يدوياً في هذه الجلسة — لا نتجاوزها بقيمة Firebase
- if(!_userLangOverride){
-  LANG=state.settings.lang||LANG;
-  try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
-  applyLang(LANG);
- } else {
-  // نُزامن اللغة المختارة إلى state فقط بدون استدعاء applyLang مجدداً
-  state.settings.lang=LANG;
- }
+ LANG=state.settings.lang||LANG;
+ // مزامنة localStorage مع اللغة القادمة من Firestore
+ try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
+ applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
  // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
@@ -3342,7 +3275,7 @@ const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','inter
 
 const _PAYLOAD_SCHEMA = {
   // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
-  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak','flashcards','papers','errors','moods','pomodoro','wellness'],
+  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak'],
 
   // الحقول المسموح بها داخل كل قسم فرعي
   meta:         ['updatedAt','version','onboarded'],
@@ -3440,33 +3373,6 @@ function sanitizeFirestorePayload(rawPayload) {
     }
   });
 
-  // ③-b للأقسام ذات البنية الديناميكية من نوع Object بسيط (pomodoro):
-  ['pomodoro'].forEach(section => {
-    if (topLevel[section] !== undefined) {
-      if (typeof topLevel[section] !== 'object' || Array.isArray(topLevel[section])) {
-        console.warn('[BAC-SANITIZE]', section, 'expected object, got:', typeof topLevel[section], '— resetting to {}');
-        topLevel[section] = {};
-      } else {
-        topLevel[section] = _sanitizeObject(topLevel[section]);
-      }
-    }
-  });
-
-  // ③-c للأقسام ذات البنية الديناميكية من نوع Array (flashcards, papers, moods, wellness):
-  ['flashcards', 'papers', 'moods', 'wellness'].forEach(section => {
-    if (topLevel[section] !== undefined) {
-      if (!Array.isArray(topLevel[section])) {
-        // إذا كان object أو نوع آخر — نحوّله لمصفوفة فارغة بدل حذفه
-        console.warn('[BAC-SANITIZE]', section, 'expected array, got:', typeof topLevel[section], '— resetting to []');
-        topLevel[section] = [];
-      } else {
-        topLevel[section] = topLevel[section].map(item =>
-          (item && typeof item === 'object') ? _sanitizeObject(item) : item
-        ).filter(item => item !== null && item !== undefined);
-      }
-    }
-  });
-
   // ④ نظيف شامل نهائي لكامل الـ payload (يلتقط أي شيء فات)
   const finalPayload = _sanitizeObject(topLevel);
 
@@ -3532,18 +3438,6 @@ async function _doCloudWrite(uid,retryCount){
 
  // 🔒 تنظيف وتحقق شامل من الـ payload قبل الرفع لـ Firestore
  const payload = sanitizeFirestorePayload(rawPayload);
-
- // 🛡️ حارس حاسم ضد تكرار حادثة فقدان البيانات: إن كنا نعلم أن هذا الحساب
- // يحتوي فعلاً بيانات حقيقية على السحابة (وصلتنا سابقاً في نفس الجلسة)، لكن
- // الحالة الحالية المطلوب رفعها فارغة/افتراضية — نرفض الكتابة فوراً. هذا يمنع
- // أي خلل عابر (LANG غير متزامن، state أُعيد ضبطه بالخطأ...) من محو بيانات
- // حقيقية على الخادم.
- if(_remoteHadRealData && !_stateLooksMeaningful(state)){
-  console.error('[BAC-CLOUD] blocked write: current state looks empty but the cloud account is known to hold real data. Refusing to overwrite.');
-  setCloudStatus('error');
-  toast(LANG==="ar"?"⚠️ تم إيقاف الحفظ وقائياً: بياناتك المحلية فارغة وحسابك يحتوي بيانات محفوظة — أعد تحميل الصفحة قبل المتابعة":"⚠️ Save blocked as a precaution: your local data looks empty but your account has saved data — please reload the page","warn");
-  return;
- }
 
  payload._savedAt=Date.now();
  payload._writerId=_sessionId;
@@ -3655,16 +3549,13 @@ window.addEventListener('focus',_checkDayRollover);
 
 // ── مستمع Firestore الكامل: server-first + real-time sync + session guard ──
 let _lastAttachedUid = null;
-
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
-
- // 🔒 تصفير كامل عند تغيير المستخدم
+ // 🔒 تصفير كامل عند تغيير المستخدم — يمنع تضارب البيانات بين حسابين
  if(_lastAttachedUid && _lastAttachedUid !== uid){
    clearTimeout(_saveDebounceTimer);
    _saveDebounceTimer = null;
    _pendingLocalEdit = false;
-   _remoteHadRealData = false;
    _saveQueue = Promise.resolve();
    state = defaultState();
  }
@@ -3944,12 +3835,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
         return;
       }
       if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
-      // 🔒 تصفير كامل عند تسجيل الخروج لمنع تلوث بيانات المستخدم التالي
-      _remoteHadRealData = false;
-      _pendingLocalEdit = false;
-      clearTimeout(_saveDebounceTimer);
-      _saveDebounceTimer = null;
-      state = defaultState();
+      _lastAttachedUid = null;
+      try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
       showLogin();
       return;
     }
@@ -4029,14 +3916,12 @@ setTimeout(()=>{ _appInitializing=false; },0);
   const _authSafetyTimer = setTimeout(()=>{
     if(!_authReadyFired) showLogin();
   }, 6000);
-
   const _origOnAuthReady = _onAuthReady;
   async function _wrappedOnAuthReady(user){
     _authReadyFired = true;
     clearTimeout(_authSafetyTimer);
     return _origOnAuthReady(user);
   }
-
   // نتحقق فقط إن كان هناك مستخدم مسجل دخوله مسبقًا (session قائمة)
   fbAuth.onAuthStateChanged(_wrappedOnAuthReady);
 
