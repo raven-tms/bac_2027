@@ -4040,25 +4040,28 @@ async function attachCloudListener(uid){
    const fromThisDevice=(d._writerId===_sessionId);
    const timeSinceLocalWrite=Date.now()-_lastLocalWriteTime;
 
-   // تجاهل فقط إذا كتبه هذا الجهاز منذ أقل من 3 ثوانٍ (echo الكتابة الخاصة بنا)
-   // أي حالة أخرى = جهاز آخر أو أول تحميل → طبّق فوراً بلا مقارنة timestamps
+   console.log('[BAC-SYNC] snapshot arrived | fromThisDevice:',fromThisDevice,'| isFirstSnapshot:',isFirstSnapshot,'| timeSinceWrite:',timeSinceLocalWrite,'| writerId:',d._writerId,'| mySession:',_sessionId);
+
    if(!isFirstSnapshot && fromThisDevice && timeSinceLocalWrite<3000){
+    console.log('[BAC-SYNC] ignored: own device echo within 3s');
     isFirstSnapshot=false;
     return;
    }
 
    if(isFirstSnapshot){
-    // أول snapshot: تحقق إذا السيرفر أحدث من المحلي قبل التطبيق
     isFirstSnapshot=false;
     const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
     const localTime=(state.meta&&state.meta.updatedAt)||0;
+    console.log('[BAC-SYNC] firstSnapshot | remoteTime:',remoteTime,'| localTime:',localTime,'| _pendingLocalEdit:',_pendingLocalEdit);
     if(!_pendingLocalEdit&&remoteTime>=localTime){
+     console.log('[BAC-SYNC] firstSnapshot: applying remote');
      applyRemoteState(d);
     } else if(_pendingLocalEdit||localTime>remoteTime){
+     console.log('[BAC-SYNC] firstSnapshot: pushing local to cloud');
      pushToCloud();
     }
    } else {
-    // snapshot لاحق من جهاز آخر — طبّقه مباشرة بلا شروط إضافية
+    console.log('[BAC-SYNC] other device snapshot → applying immediately');
     _pendingLocalEdit=false;
     applyRemoteState(d);
     toast(t("sync.updated"));
@@ -4200,7 +4203,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
     lgChecking.classList.add("hidden");
     lgCard.classList.remove("hidden");
     lgBtn.disabled = false;
-    lgBtn.innerHTML = googleLogoHTML;
+    lgBtn.innerHTML = googleLogoHTML();
     hideError();
     // 🔒 إذا كان rate-limit لا يزال نشطاً (مثلاً بعد إعادة تحميل الصفحة)،
     // نعيد تشغيل العداد التنازلي تلقائياً لمنع التحايل بـ Refresh
@@ -4377,7 +4380,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
       showBlocked(user.email);
       await fbAuth.signOut();
       lgBtn.disabled = false;
-      lgBtn.innerHTML = googleLogoHTML;
+      lgBtn.innerHTML = googleLogoHTML();
     }
   }
 
@@ -4389,7 +4392,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
   // كطريقة أساسية (تعمل ضمن نفس النطاق نافذيًا ولا تحتاج مشاركة storage بين نطاقين).
   _redirectPending = false;
   lgBtn.disabled = false;
-  lgBtn.innerHTML = googleLogoHTML;
+  lgBtn.innerHTML = googleLogoHTML();
 
   // ⏱️ مؤقت أمان: إذا لم يستجب Firebase خلال 6 ثوانٍ، أظهر شاشة تسجيل الدخول
   let _authReadyFired = false;
@@ -4440,7 +4443,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
         console.warn('[BAC-AUTH] sign-in promise never settled — resetting button (safety timeout)');
         lgLoading = false;
         lgBtn.disabled = false;
-        lgBtn.innerHTML = googleLogoHTML;
+        lgBtn.innerHTML = googleLogoHTML();
       }
     }, 60000);
 
@@ -4450,7 +4453,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
           console.warn('[BAC-AUTH] window refocused with no signed-in user — likely popup was cancelled, resetting button');
           lgLoading = false;
           lgBtn.disabled = false;
-          lgBtn.innerHTML = googleLogoHTML;
+          lgBtn.innerHTML = googleLogoHTML();
         }
       }, 1200);
       window.removeEventListener('focus', onWindowFocusBack);
@@ -4472,7 +4475,7 @@ setTimeout(()=>{ _appInitializing=false; },0);
         // إذا المستخدم أغلق النافذة بنفسه، لا نعرض خطأ ولا نجرب redirect
         if(err && (err.code === 'auth/popup-closed-by-user' || err.code === 'auth/cancelled-popup-request' || err.code === 'auth/user-cancelled')){
           lgBtn.disabled = false;
-          lgBtn.innerHTML = googleLogoHTML;
+          lgBtn.innerHTML = googleLogoHTML();
           return;
         }
 
@@ -4484,14 +4487,14 @@ setTimeout(()=>{ _appInitializing=false; },0);
             _redirectPending = false;
             showError(t("auth.errLogin"));
             lgBtn.disabled = false;
-            lgBtn.innerHTML = googleLogoHTML;
+            lgBtn.innerHTML = googleLogoHTML();
           });
           return;
         }
 
         showError(t("auth.errLoginMsg",{msg:err&&err.message?err.message:t("auth.errUnknown")}));
         lgBtn.disabled = false;
-        lgBtn.innerHTML = googleLogoHTML;
+        lgBtn.innerHTML = googleLogoHTML();
       });
   });
 
