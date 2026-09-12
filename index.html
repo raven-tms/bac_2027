@@ -1960,68 +1960,58 @@ function resetGrades(){if(confirm(t("confirm.resetGrades"))){state.grades={};sav
 // (المعامل، الشعبة، الإعفاءات). أثناء الكتابة العادية نحدّث فقط الخلايا
 // النصية والملخصات، بدون لمس عناصر <input> — هذا يمنع فقدان التركيز/المؤشر
 // الذي كان يجعل الكتابة السريعة لرقم من خانتين (مثل 13) تبدو معكوسة.
-let _calcRowsSignature=null;
-function _calcSignature(st){
- return st.subjects.filter(sub=>
-  !(sub.code==='amazigh'&&state.settings.amazighExempt)&&
-  !(sub.code==='sport'&&state.settings.epsExempt)
- ).map(s=>s.code).join(",");
-}
+// ✅ FIX v17c: إلغاء منطق الـ signature — نبني الجدول دائماً من الصفر
+// مع حفظ التركيز (focus) واستعادته لمنع انقطاع الكتابة
 function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)return;
  const am=document.getElementById("calcAmazigh"),ep=document.getElementById("calcEPS");
  am.checked=!state.settings.amazighExempt;ep.checked=!state.settings.epsExempt;
- am.onchange=e=>{state.settings.amazighExempt=!e.target.checked;saveState('settings');_calcRowsSignature=null;renderCalculator();renderDashboard()};
- ep.onchange=e=>{state.settings.epsExempt=!e.target.checked;saveState('settings');_calcRowsSignature=null;renderCalculator();renderDashboard()};
+ am.onchange=e=>{state.settings.amazighExempt=!e.target.checked;saveState('settings');renderCalculator();renderDashboard()};
+ ep.onchange=e=>{state.settings.epsExempt=!e.target.checked;saveState('settings');renderCalculator();renderDashboard()};
  const body=document.getElementById("calcBody");
- const sig=_calcSignature(st);
- const needsRebuild=(sig!==_calcRowsSignature)||body.children.length===0;
 
- if(needsRebuild){
-  body.innerHTML="";
-  st.subjects.forEach(sub=>{
-   if(sub.code==='amazigh'&&state.settings.amazighExempt)return;
-   if(sub.code==='sport'&&state.settings.epsExempt)return;
-   const g=state.grades[sub.code];
-   const tr=document.createElement("tr");tr.className="border-b border-[var(--border)] last:border-0";tr.dataset.rowFor=sub.code;
-   tr.innerHTML='<td class="p-3"><div class="font-semibold">'+esc(SN(sub.code))+'</div></td>'+
-    '<td class="p-3"><span class="inline-flex w-7 h-7 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] items-center justify-center font-black text-xs">'+sub.coeff+'</span></td>'+
-    '<td class="p-3"><input data-calc="'+sub.code+'" type="number" min="0" max="20" step="0.25" value="'+(g!=null?g:"")+'" placeholder="--" class="calc-input w-[92px] h-9 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold outline-none focus:border-[var(--primary)]"></td>'+
-    '<td class="p-3 font-bold" data-weight-for="'+sub.code+'">'+(g!=null?(g*sub.coeff).toFixed(1):"--")+'</td>';
-   body.appendChild(tr)});
-  body.querySelectorAll(".calc-input").forEach(inp=>{
-   inp.addEventListener("input",e=>{const code=e.target.dataset.calc,v=e.target.value;
-    if(v===""){delete state.grades[code];if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');renderCalculatorSummary();renderDashboard();return}
-    let c=clampGrade(v);
-    if(parseFloat(v)>20){
-     e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);
-     c=20;e.target.value=20;toast(t("toast.gradeCap"),"warn");
-    }
-    if(parseFloat(v)<0){e.target.value=0;c=0}
-    state.grades[code]=c;
-    if(typeof _saveImmediate==="function")_saveImmediate('grades');
-    else saveState('grades');
-    renderCalculatorSummary();renderDashboard();
-    const wCell=body.querySelector('[data-weight-for="'+code+'"]');
-    if(wCell)wCell.textContent=(c*STREAMS[state.profile.streamId].subjects.find(s=>s.code===code).coeff).toFixed(1);
-   })});
-  _calcRowsSignature=sig;
- } else {
-  // ✅ FIX v17b: تحديث قيم الحقول وخلايا الموزون دائماً (بغض النظر إن تطابقت القيمة أم لا)
-  // السبب: الحقل قد يحمل القيمة الصحيحة لكن الموزون لا يزال "--" (مثلاً بعد تبديل التبويبة)
-  body.querySelectorAll(".calc-input").forEach(inp=>{
-   if(document.activeElement===inp)return;
-   const code=inp.dataset.calc,g=state.grades[code];
-   const val=g!=null?String(g):"";
-   if(inp.value!==val)inp.value=val;
-   // نُحدّث خلية الموزون دائماً — لا نشترط تغيّر قيمة الحقل
-   const wCell=body.querySelector('[data-weight-for="'+code+'"]');
-   if(wCell){
-    const sub=STREAMS[state.profile.streamId].subjects.find(s=>s.code===code);
-    const newW=(g!=null&&sub)?(g*sub.coeff).toFixed(1):"--";
-    if(wCell.textContent!==newW)wCell.textContent=newW;
+ // حفظ المؤشر والتركيز قبل إعادة البناء
+ const focusedCode=document.activeElement&&document.activeElement.dataset&&document.activeElement.dataset.calc;
+ const focusedVal=focusedCode?document.activeElement.value:null;
+
+ body.innerHTML="";
+ st.subjects.forEach(sub=>{
+  if(sub.code==='amazigh'&&state.settings.amazighExempt)return;
+  if(sub.code==='sport'&&state.settings.epsExempt)return;
+  const g=state.grades[sub.code];
+  // إذا كان هذا الحقل هو المركّز عليه، نستخدم قيمته المكتوبة (قد تكون جزئية)
+  const displayVal=(sub.code===focusedCode&&focusedVal!==null)?focusedVal:(g!=null?g:"");
+  const weightVal=(sub.code===focusedCode&&focusedVal!==null)
+   ?(focusedVal!==""?(parseFloat(focusedVal)*sub.coeff).toFixed(1):"--")
+   :(g!=null?(g*sub.coeff).toFixed(1):"--");
+  const tr=document.createElement("tr");tr.className="border-b border-[var(--border)] last:border-0";tr.dataset.rowFor=sub.code;
+  tr.innerHTML='<td class="p-3"><div class="font-semibold">'+esc(SN(sub.code))+'</div></td>'+
+   '<td class="p-3"><span class="inline-flex w-7 h-7 rounded-full bg-[var(--bg-soft)] border border-[var(--border)] items-center justify-center font-black text-xs">'+sub.coeff+'</span></td>'+
+   '<td class="p-3"><input data-calc="'+sub.code+'" type="number" min="0" max="20" step="0.25" value="'+displayVal+'" placeholder="--" class="calc-input w-[92px] h-9 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold outline-none focus:border-[var(--primary)]"></td>'+
+   '<td class="p-3 font-bold" data-weight-for="'+sub.code+'">'+weightVal+'</td>';
+  body.appendChild(tr)});
+
+ body.querySelectorAll(".calc-input").forEach(inp=>{
+  // استعادة التركيز إذا كان هذا الحقل هو المركّز سابقاً
+  if(inp.dataset.calc===focusedCode){
+   inp.focus();
+   // ضع المؤشر في نهاية النص
+   try{const l=inp.value.length;inp.setSelectionRange(l,l);}catch(e){}
+  }
+  inp.addEventListener("input",e=>{const code=e.target.dataset.calc,v=e.target.value;
+   if(v===""){delete state.grades[code];if(typeof _saveImmediate==="function")_saveImmediate('grades');else saveState('grades');renderCalculatorSummary();renderDashboard();return}
+   let c=clampGrade(v);
+   if(parseFloat(v)>20){
+    e.target.classList.add("grade-warn");setTimeout(()=>e.target.classList.remove("grade-warn"),450);
+    c=20;e.target.value=20;toast(t("toast.gradeCap"),"warn");
    }
-  });
- }
+   if(parseFloat(v)<0){e.target.value=0;c=0}
+   state.grades[code]=c;
+   if(typeof _saveImmediate==="function")_saveImmediate('grades');
+   else saveState('grades');
+   renderCalculatorSummary();renderDashboard();
+   const wCell=body.querySelector('[data-weight-for="'+code+'"]');
+   if(wCell)wCell.textContent=(c*STREAMS[state.profile.streamId].subjects.find(s=>s.code===code).coeff).toFixed(1);
+  })});
 
  renderCalculatorSummary();
  const ti=document.getElementById("calcTarget"),tl=document.getElementById("calcTargetLabel");
