@@ -662,7 +662,7 @@ table td,table th{white-space:nowrap}
       <section id="view-dashboard" class="view active">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]">Good morning</h1>
+            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]"></h1>
             <p id="greetSub" class="text-[14px] text-[var(--text-muted)] mt-2 max-w-[600px]"></p>
           </div>
           <div class="flex gap-2">
@@ -1515,6 +1515,8 @@ ar:{
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
  "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
+// flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
+let _userLangOverride = false;
 // قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
 let LANG=(function(){
   try{
@@ -1647,7 +1649,9 @@ function applyStaticI18n(){
 function applyLang(lang){
  LANG=lang;state.settings.lang=lang;
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
- saveState();
+ // لا نستدعي saveState() هنا لأنها تُشغّل queueCloudSync → applyRemoteState
+ // الذي يُعيد ضبط LANG من Firebase ويكسر التغيير — نحفظ اللغة مباشرة
+ if(typeof queueCloudSync==="function")queueCloudSync();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -1665,6 +1669,9 @@ function applyLang(lang){
  try{renderStreamGrid()}catch(e){console.error('[BAC-I18N] renderStreamGrid failed:',e)}
  try{if(onbVisible())updateOnb()}catch(e){console.error('[BAC-I18N] updateOnb failed:',e)}
  try{renderAllViews()}catch(e){console.error('[BAC-I18N] renderAllViews failed:',e)}
+ // تحديث صريح للعناصر التي لا تعتمد على data-i18n وتحتاج LANG محدثاً
+ try{renderDashboard()}catch(e){}
+ try{renderQuote()}catch(e){}
  // نعيد تطبيق الترجمات الثابتة مرة أخيرة بعد renderAllViews، لأن بعض الواجهات
  // الديناميكية تُعيد بناء عناصر data-i18n جديدة لم تكن موجودة في المرة الأولى.
  try{applyStaticI18n()}catch(e){console.error('[BAC-I18N] applyStaticI18n (2nd pass) failed:',e)}
@@ -1679,7 +1686,7 @@ function _syncDefaultDataLang(lang){
   if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
  });
 }
-function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
+function toggleLang(){_userLangOverride=true;applyLang(LANG==="ar"?"en":"ar")}
 /* دوال مساعدة بنفس الأسماء المطلوبة — تُغلّف محرك الترجمة الحالي (renderNav/applyStaticI18n)
    حتى يكون التحديث الفوري صريحًا وسهل الصيانة دون تكرار المنطق. */
 function updateDOMTranslations(){applyStaticI18n();renderNavigation()}
@@ -3232,7 +3239,10 @@ function confirmLogout(){
  clearTimeout(_saveDebounceTimer);
  _saveDebounceTimer=null;
  _pendingLocalEdit=false;
+ _remoteHadRealData=false;
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
+ // تصفير state فوراً قبل signOut لمنع أي كتابة خاطئة لاحقة
+ state=defaultState();
  fbAuth.signOut();
  toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
 }
@@ -3284,10 +3294,15 @@ function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
  if(_stateLooksMeaningful(state))_remoteHadRealData=true;
- LANG=state.settings.lang||LANG;
- // مزامنة localStorage مع اللغة القادمة من Firestore
- try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
- applyLang(LANG);
+ // إذا غيّر المستخدم اللغة يدوياً في هذه الجلسة — لا نتجاوزها بقيمة Firebase
+ if(!_userLangOverride){
+  LANG=state.settings.lang||LANG;
+  try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
+  applyLang(LANG);
+ } else {
+  // نُزامن اللغة المختارة إلى state فقط بدون استدعاء applyLang مجدداً
+  state.settings.lang=LANG;
+ }
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
  // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
@@ -3912,6 +3927,12 @@ setTimeout(()=>{ _appInitializing=false; },0);
         return;
       }
       if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
+      // 🔒 تصفير كامل عند تسجيل الخروج لمنع تلوث بيانات المستخدم التالي
+      _remoteHadRealData = false;
+      _pendingLocalEdit = false;
+      clearTimeout(_saveDebounceTimer);
+      _saveDebounceTimer = null;
+      state = defaultState();
       showLogin();
       return;
     }
