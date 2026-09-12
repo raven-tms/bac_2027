@@ -1924,9 +1924,13 @@ function newQuote(){quoteIdx=(quoteIdx+1+Math.floor(Math.random()*3))%QUOTES.len
 /* ============ SUBJECTS ============ */
 let _subjectsTyping=false;
 function renderSubjects(){const st=STREAMS[state.profile.streamId];if(!st)return;
- document.getElementById("subjCount").textContent=t("subj.count",{n:st.subjects.length});
+ const visibleCount=st.subjects.filter(s=>!(s.code==='amazigh'&&state.settings.amazighExempt)&&!(s.code==='sport'&&state.settings.epsExempt)).length;
+ document.getElementById("subjCount").textContent=t("subj.count",{n:visibleCount});
  const grid=document.getElementById("subjectsGrid");grid.innerHTML="";
- st.subjects.forEach(sub=>{const g=state.grades[sub.code];
+ st.subjects.forEach(sub=>{
+  if(sub.code==='amazigh'&&state.settings.amazighExempt)return;
+  if(sub.code==='sport'&&state.settings.epsExempt)return;
+  const g=state.grades[sub.code];
   const card=document.createElement("div");
   card.className="col-span-12 md:col-span-6 xl:col-span-4 card rounded-[22px] p-5 lift";
   const badgeCls=g!=null?(g>=10?"bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:border-emerald-900":"bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/50 dark:text-amber-100 dark:border-amber-900"):"bg-[var(--bg-soft)] border border-[var(--border)] text-[var(--text-faint)]";
