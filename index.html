@@ -149,10 +149,25 @@
 .theme-card:hover{transform:translateY(-2px)}
 .theme-card.theme-active{border-color:var(--text)!important;box-shadow:0 0 0 2px var(--text)}
 .tabbar{padding-bottom:env(safe-area-inset-bottom,0px)}
-.tabbtn{transition:color .2s ease,transform .15s ease}
+.tabbtn{transition:color .25s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1)}
+.tabbtn:hover{transform:scale(1.12);color:var(--primary)}
 .tabbtn:active{transform:scale(.92)}
 .tabbtn.tab-active{color:var(--primary)}
-.tabbtn .tabdot{transition:opacity .2s ease,transform .2s ease}
+.tabbtn .tabdot{transition:opacity .25s ease,transform .25s cubic-bezier(.16,1,.3,1)}
+.tabbtn:hover .tabdot{opacity:.6;transform:scale(1.3)}
+.tabicon{
+  display:flex;align-items:center;justify-content:center;
+  width:40px;height:32px;border-radius:14px;
+  background:transparent;box-shadow:none;
+  transition:background-color .35s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s cubic-bezier(.16,1,.3,1);
+}
+.tabbtn.tab-active .tabicon{
+  background:var(--primary-soft);
+  transform:translateY(-10px);
+  box-shadow:0 8px 18px -4px color-mix(in srgb, var(--primary) 45%, transparent);
+}
+.tabbtn:hover .tabicon{transform:translateY(-10px) scale(1.08)}
+.tabbtn.tab-active:hover .tabicon{transform:translateY(-10px) scale(1.12)}
 @media (max-width:400px){.tabbtn{font-size:10px}}
 #fileViewerBody{touch-action:none}
 #fileViewerBody img{max-width:100%;max-height:70vh;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform .06s linear;cursor:grab}
@@ -202,9 +217,24 @@ body.lang-ar,body.lang-ar *{font-family:'Cairo','Inter',sans-serif}
 .range-slider{accent-color:var(--primary);height:6px}
 .mobile-panel{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
 .mobile-panel.open{max-height:520px}
-.navbtn{transition:background .2s ease,color .2s ease,transform .2s ease}
-.navbtn:active{transform:scale(.98)}
+.navbtn{transition:background .25s cubic-bezier(.16,1,.3,1),color .25s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1)}
+.navbtn:hover{transform:scale(1.03);background:var(--bg-soft)}
+.navbtn:active{transform:scale(.97)}
 .nav-active{background:var(--text)!important;color:var(--bg)!important}
+.pl-filter{transition:all .25s cubic-bezier(.16,1,.3,1)}
+.pl-filter:hover{transform:translateY(-2px);border-color:var(--border-strong);box-shadow:var(--shadow)}
+.pl-filter:active{transform:scale(.95)}
+.tool-tab{transition:all .25s cubic-bezier(.16,1,.3,1)}
+.tool-tab:hover{transform:translateY(-2px);border-color:var(--border-strong);box-shadow:var(--shadow)}
+.tool-tab:active{transform:scale(.95)}
+.social-link{transition:transform .25s cubic-bezier(.16,1,.3,1),box-shadow .25s cubic-bezier(.16,1,.3,1),filter .25s ease}
+.social-link:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);filter:brightness(1.06)}
+.social-link:active{transform:translateY(0) scale(.96)}
+#cloudSignInBtn,#cloudSignOutBtn{transition:all .25s cubic-bezier(.16,1,.3,1)!important}
+#cloudSignInBtn:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+#cloudSignInBtn:active{transform:translateY(0) scale(.97)}
+#cloudSignOutBtn:hover{transform:translateY(-2px);background:var(--card-hover)!important;border-color:var(--border-strong)!important}
+#cloudSignOutBtn:active{transform:translateY(0) scale(.96)}
 .chip-active{background:var(--text)!important;color:var(--bg)!important;border-color:var(--text)!important}
 .grad-text{background:linear-gradient(120deg,var(--text),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent}
 table td,table th{white-space:nowrap}
@@ -238,12 +268,23 @@ table td,table th{white-space:nowrap}
   color: #f1f5f9; text-align: center; line-height: 1.3;
   font-family: 'Inter', sans-serif;
 }
-.lg-checking-brand span {
-  color: #3b82f6;
-}
+
 .lg-checking-brand small {
   display: block; font-size: 0.85rem; font-weight: 700; color: #64748b;
   letter-spacing: 2px; margin-top: 4px;
+}
+.lg-tacky-word{
+  background:linear-gradient(90deg,#60a5fa,#ffffff 45%,#3b82f6);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 22px rgba(59,130,246,0.5);
+  animation:tackyShine 3.2s ease-in-out infinite;
+  background-size:220% auto;
+}
+.lg-bac-word{ color:#3b82f6; }
+@keyframes tackyShine{
+  0%{background-position:0% center}
+  50%{background-position:100% center}
+  100%{background-position:0% center}
 }
 .lg-checking-spinner {
   width:26px; height:26px; border:3px solid rgba(255,255,255,0.15);
@@ -281,8 +322,9 @@ table td,table th{white-space:nowrap}
 .lo-title { font-weight:900; font-size:1.05rem; color:var(--text,#111); margin-bottom:6px; }
 .lo-sub { font-size:0.85rem; color:var(--text-muted,#6b7280); line-height:1.6; margin-bottom:20px; }
 .lo-actions { display:flex; gap:10px; }
-.lo-btn { flex:1; padding:11px 14px; border-radius:12px; font-weight:700; font-size:0.88rem; cursor:pointer; transition:transform .15s ease, opacity .15s ease; border:none; }
-.lo-btn:active { transform:scale(.97); }
+.lo-btn { flex:1; padding:11px 14px; border-radius:12px; font-weight:700; font-size:0.88rem; cursor:pointer; transition:transform .25s cubic-bezier(.16,1,.3,1), opacity .2s ease, box-shadow .25s ease, filter .25s ease; border:none; }
+.lo-btn:hover { transform:translateY(-2px); filter:brightness(1.08); box-shadow:0 8px 20px rgba(0,0,0,.25); }
+.lo-btn:active { transform:scale(.97); transition-duration:.12s; }
 .lo-cancel { background:var(--bg-soft,#f1f5f9); color:var(--text,#111); border:1px solid var(--border,#e5e7eb); }
 .lo-confirm { background:linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
 
@@ -342,10 +384,11 @@ table td,table th{white-space:nowrap}
   width:100%; padding:15px 20px; border-radius:14px;
   background:#ffffff; color:#1e293b; font-size:0.95rem; font-weight:700;
   display:flex; align-items:center; justify-content:center; gap:12px;
-  transition:all 0.25s cubic-bezier(.16,1,.3,1); box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer; border:none;
+  transition:transform 0.3s cubic-bezier(.16,1,.3,1),box-shadow 0.3s cubic-bezier(.16,1,.3,1),background-color .25s ease;
+  box-shadow:0 4px 16px rgba(0,0,0,0.2); cursor:pointer; border:none; will-change:transform;
 }
-.lg-google-btn:hover  { transform:translateY(-3px); box-shadow:0 10px 28px rgba(0,0,0,0.3); }
-.lg-google-btn:active { transform:translateY(-1px); box-shadow:0 4px 14px rgba(0,0,0,0.2); }
+.lg-google-btn:hover  { transform:translateY(-4px) scale(1.015); box-shadow:0 14px 32px rgba(0,0,0,0.35); }
+.lg-google-btn:active { transform:translateY(-1px) scale(.99); box-shadow:0 4px 14px rgba(0,0,0,0.2); transition-duration:.12s; }
 .lg-google-btn:disabled { opacity:0.55; cursor:not-allowed; transform:none; }
 .lg-google-btn svg { width:22px; height:22px; flex-shrink:0; }
 .lg-error {
@@ -405,9 +448,11 @@ table td,table th{white-space:nowrap}
   width:100%; margin-top:16px; padding:12px;
   border-radius:12px; background:transparent;
   border:1px solid #2a3352; color:#94a3b8;
-  font-size:0.88rem; cursor:pointer; transition:all 0.2s;
+  font-size:0.88rem; cursor:pointer;
+  transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .25s ease,color .25s ease,border-color .25s ease;
 }
-.bl-back:hover { background:#2a3352; color:#f1f5f9; }
+.bl-back:hover { background:#2a3352; color:#f1f5f9; border-color:#3b4f7a; transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,0.35); }
+.bl-back:active { transform:translateY(-1px) scale(.98); transition-duration:.12s; }
 </style>
 </head>
 <body class="min-h-screen antialiased overflow-x-hidden lang-ar">
@@ -419,7 +464,7 @@ table td,table th{white-space:nowrap}
   <div id="lgBgEmojis" style="position:absolute;inset:0;pointer-events:none;"></div>
   <div id="lgCheckingView" class="lg-checking">
     <div class="lg-checking-logo">📚</div>
-    <div class="lg-checking-brand">BAC <span>2027</span><small>STUDY GUIDE</small></div>
+    <div class="lg-checking-brand"><span class="lg-tacky-word">TACKY</span> <span class="lg-bac-word">BAC</span><small>STUDY GUIDE</small></div>
     <div class="lg-checking-spinner"></div>
   </div>
   <div class="lg-card hidden" id="lgCardView">
@@ -473,7 +518,6 @@ table td,table th{white-space:nowrap}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;border-top:1px solid #2a3352;padding-top:14px;">
       <button class="bl-back" id="blRefreshBtn" style="background:var(--accent,#3b82f6);color:#fff;border:none;">🔄 تحديث وإعادة المحاولة</button>
-      <button class="bl-back" id="blBackBtn">🚪 رجوع لصفحة التسجيل</button>
     </div>
     <div id="blCheckingMsg" style="display:none;margin-top:10px;font-size:0.8rem;color:#94a3b8;">⏳ جارٍ التحقق من حالة الاشتراك...</div>
   </div>
@@ -699,7 +743,7 @@ table td,table th{white-space:nowrap}
           </div>
         </div>
 
-        <div class="grid grid-cols-12 gap-4 mt-6">
+        <div class="grid grid-cols-12 gap-4 mt-6 items-start">
           <div class="col-span-12 lg:col-span-8">
             <div class="grid grid-cols-12 gap-4">
               <div class="col-span-12 md:col-span-7 card rounded-[22px] p-5">
@@ -1202,7 +1246,7 @@ table td,table th{white-space:nowrap}
               <div class="font-extrabold" id="cloudSyncTitle" data-i18n="cloud.title">Cloud Sync</div>
               <p class="text-xs text-[var(--text-muted)] mt-2 leading-relaxed" id="cloudSyncDesc" data-i18n="cloud.desc">Sign in with Google to back up your data to the cloud and sync it across your devices.</p>
               <div id="cloudSignedOut" class="mt-4">
-                <button onclick="signInGoogle()" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-2">
+                <button onclick="signInGoogle()" id="cloudSignInBtn" class="h-11 px-5 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold text-sm flex items-center gap-2">
                   <svg width="16" height="16" viewBox="0 0 48 48" class="shrink-0"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21 21-9.4 21-21c0-1.4-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 15.7 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.1 29.5 3 24 3c-7.7 0-14.4 4.3-17.7 10.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.5-5.2l-6.2-5.2C29.2 36.5 26.7 37 24 37c-5.2 0-9.7-3.3-11.3-8l-6.5 5C9.5 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C40.5 36.7 45 31 45 24c0-1.4-.1-2.7-.4-3.5z"/></svg>
                   <span id="cloudSignInLabel" data-i18n="cloud.signIn">Sign in with Google</span>
                 </button>
@@ -1245,6 +1289,10 @@ table td,table th{white-space:nowrap}
             <div class="card rounded-[22px] p-6">
               <div class="font-extrabold" data-i18n="set.about">About BAC 2027</div>
               <p class="text-sm text-[var(--text-muted)] mt-2 leading-relaxed" data-i18n="set.aboutText">Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <a href="https://t.me/Tacky_menim" target="_blank" rel="noopener" class="social-link h-9 px-4 rounded-full font-bold text-xs flex items-center gap-1.5" style="background:#229ED9;color:#fff;">✈️ <span data-i18n="set.telegram">Telegram</span></a>
+                <a href="https://www.instagram.com/tacky_menim?igsh=ejM3ZGdqamo3NnFh&utm_source=qr" target="_blank" rel="noopener" class="social-link h-9 px-4 rounded-full font-bold text-xs flex items-center gap-1.5" style="background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);color:#fff;">📸 <span data-i18n="set.instagram">Instagram</span></a>
+              </div>
               <div class="mt-4 text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]">Version 3.0 • Study OS</div>
             </div>
           </div>
@@ -1452,7 +1500,7 @@ en:{
  "well.title":"Well-being & Mood Tracker","well.sub":"Your mental state drives retention. Track it daily.","well.how":"How do you feel today?","well.energy":"Energy level","well.exhausted":"Exhausted","well.energized":"Energized","well.notePh":"Quick note about today...","well.save":"Save today's mood","well.calendar":"Mood Calendar","well.recent":"Recent entries","well.noNote":"No note","well.energyOf":"Energy {n}/5","well.today":"Today: {m} — Energy {e}/5","well.none":"No entries yet.",
  "mood.1":"Awful","mood.2":"Okay","mood.3":"Good","mood.4":"Great","mood.5":"Amazing",
  "ach.title":"Badges & Achievements","ach.sub":"Collect XP, keep your streak alive, and unlock milestones.","ach.levelProgress":"Level Progress","ach.howXp":"How to earn XP","ach.xpTotal":"{n} XP total",
- "set.title":"Settings","set.profile":"Profile","set.name":"Name","set.stream":"Stream","set.target":"Target Average","set.saveProfile":"Save profile","set.data":"Data Management","set.export":"Export JSON","set.import":"Import JSON","set.reset":"Reset everything","set.dataNote":"All data is stored locally in your browser. Export a backup before the BAC.","set.appearance":"Appearance & Language","set.theme":"Theme","set.language":"Language / اللغة","set.about":"About BAC 2027","set.aboutText":"Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!",
+ "set.title":"Settings","set.profile":"Profile","set.name":"Name","set.stream":"Stream","set.target":"Target Average","set.saveProfile":"Save profile","set.data":"Data Management","set.export":"Export JSON","set.import":"Import JSON","set.reset":"Reset everything","set.dataNote":"All data is stored locally in your browser. Export a backup before the BAC.","set.appearance":"Appearance & Language","set.theme":"Theme","set.language":"Language / اللغة","set.about":"About BAC 2027","set.aboutText":"Built for Algerian high school students. Coefficients follow official BAC streams. Works offline and auto-saves. Good luck — you've got this!","set.telegram":"Telegram","set.instagram":"Instagram",
  "footer":"BAC 2027 — My Study Guide • Auto-saving • Made for focus",
  "theme.dark":"Dark","theme.light":"Light","set.mode":"Light / Dark","set.themeColor":"Color Theme","theme.groupClassic":"Classic","theme.groupBoys":"For Boys","theme.groupGirls":"For Girls","theme.active":"Active","toast.themeChanged":"Theme changed to {name}",
  "toast.gradeCap":"Grade capped at 20/20","toast.gradesReset":"All grades were reset","toast.welcome":"Welcome to BAC 2027 — let's start!","toast.levelUp":"Level up! You are now {t} — Level {n}","toast.badge":"Badge unlocked: {t} {i}","toast.streakReset":"Streak reset — you missed a day. Let's rebuild!","toast.enterName":"Please enter your name","toast.fillCard":"Fill both sides of the card","toast.taskTitle":"Enter a task title","toast.fillError":"Fill the topic and description","toast.errorLogged":"Mistake logged","toast.paperSaved":"Paper saved","toast.paperSavedNoFile":"Paper saved, but the file was too large to store","toast.fileTooBig":"File too large (max 5MB)","toast.fileType":"Please attach a PDF or image file","toast.storageFull":"Storage is full — try removing an old attached file","toast.moodSaved":"Mood saved","toast.profileSaved":"Profile saved","toast.exported":"Data exported","toast.invalidFile":"Invalid file","toast.sessionDone":"Study session complete!","toast.focusDone":"Focus session complete! +25 XP","toast.breakDone":"Break over — ready for the next focus?","toast.noCards":"No flashcards to study",
@@ -1537,7 +1585,7 @@ ar:{
  "well.title":"متتبع المزاج والصحة النفسية","well.sub":"حالتك النفسية تؤثر على استيعابك. تابعها يومياً.","well.how":"كيف تشعر اليوم؟","well.energy":"مستوى الطاقة","well.exhausted":"منهك","well.energized":"مفعم بالطاقة","well.notePh":"ملاحظة سريعة عن يومك...","well.save":"حفظ مزاج اليوم","well.calendar":"تقويم المزاج","well.recent":"آخر التسجيلات","well.noNote":"بدون ملاحظة","well.energyOf":"الطاقة {n}/5","well.today":"اليوم: {m} — الطاقة {e}/5","well.none":"لا تسجيلات بعد.",
  "mood.1":"سيء جداً","mood.2":"عادي","mood.3":"جيد","mood.4":"رائع","mood.5":"ممتاز",
  "ach.title":"الشارات والإنجازات","ach.sub":"اجمع النقاط، حافظ على سلسلتك، وافتح الإنجازات.","ach.levelProgress":"تقدم المستوى","ach.howXp":"كيف تربح النقاط","ach.xpTotal":"{n} نقطة إجمالاً",
- "set.title":"الإعدادات","set.profile":"الملف الشخصي","set.name":"الاسم","set.stream":"الشعبة","set.target":"المعدل المستهدف","set.saveProfile":"حفظ الملف","set.data":"إدارة البيانات","set.export":"تصدير JSON","set.import":"استيراد JSON","set.reset":"حذف كل البيانات","set.dataNote":"كل البيانات محفوظة محلياً في متصفحك. صدّر نسخة احتياطية قبل البكالوريا.","set.appearance":"المظهر واللغة","set.theme":"السمة","set.language":"اللغة / Language","set.about":"حول بكالوريا 2027","set.aboutText":"مصمم لطلبة الثانوي في الجزائر. المعاملات مطابقة للشعب الرسمية. يعمل دون إنترنت ويحفظ تلقائياً. بالتوفيق — أنت قادر!",
+ "set.title":"الإعدادات","set.profile":"الملف الشخصي","set.name":"الاسم","set.stream":"الشعبة","set.target":"المعدل المستهدف","set.saveProfile":"حفظ الملف","set.data":"إدارة البيانات","set.export":"تصدير JSON","set.import":"استيراد JSON","set.reset":"حذف كل البيانات","set.dataNote":"كل البيانات محفوظة محلياً في متصفحك. صدّر نسخة احتياطية قبل البكالوريا.","set.appearance":"المظهر واللغة","set.theme":"السمة","set.language":"اللغة / Language","set.about":"حول بكالوريا 2027","set.aboutText":"مصمم لطلبة الثانوي في الجزائر. المعاملات مطابقة للشعب الرسمية. يعمل دون إنترنت ويحفظ تلقائياً. بالتوفيق — أنت قادر!","set.telegram":"تيليغرام","set.instagram":"إنستغرام",
  "footer":"بكالوريا 2027 — دليلي للدراسة • حفظ تلقائي • صُنع للتركيز",
  "theme.dark":"داكن","theme.light":"فاتح","set.mode":"فاتح / داكن","set.themeColor":"لون الواجهة","theme.groupClassic":"كلاسيكي","theme.groupBoys":"للأولاد","theme.groupGirls":"للبنات","theme.active":"مفعّل","toast.themeChanged":"تم تغيير التيمة إلى {name}",
  "toast.gradeCap":"تم تحديد العلامة بـ 20/20","toast.gradesReset":"تمت إعادة ضبط العلامات","toast.welcome":"مرحباً بك في بكالوريا 2027 — لنبدأ!","toast.levelUp":"ترقية! أصبحت {t} — المستوى {n}","toast.badge":"شارة جديدة: {t} {i}","toast.streakReset":"انقطعت السلسلة — فاتك يوم. لنعيد البناء!","toast.enterName":"الرجاء إدخال اسمك","toast.fillCard":"املأ وجهي البطاقة","toast.taskTitle":"أدخل عنوان المهمة","toast.fillError":"املأ الموضوع والوصف","toast.errorLogged":"تم تسجيل الخطأ","toast.paperSaved":"تم حفظ الموضوع","toast.paperSavedNoFile":"تم حفظ الموضوع، لكن الملف كان كبيرًا جدًا ولم يُحفظ","toast.fileTooBig":"الملف كبير جدًا (الحد الأقصى 5 ميغابايت)","toast.fileType":"الرجاء إرفاق ملف PDF أو صورة","toast.storageFull":"التخزين ممتلئ — جرّب حذف ملف مرفق قديم","toast.moodSaved":"تم حفظ المزاج","toast.profileSaved":"تم حفظ الملف","toast.exported":"تم تصدير البيانات","toast.invalidFile":"ملف غير صالح","toast.sessionDone":"انتهت جلسة المراجعة!","toast.focusDone":"انتهت جلسة التركيز! +25 نقطة","toast.breakDone":"انتهت الاستراحة — جاهز للتركيز؟","toast.noCards":"لا توجد بطاقات للمراجعة",
@@ -1804,13 +1852,23 @@ function renderNav(){
   const active=currentView===it.id;
   const tb=document.createElement("button");tb.dataset.view=it.id;
   tb.className="tabbtn flex flex-col items-center justify-center gap-0.5 py-2.5 "+(active?"tab-active":"text-[var(--text-faint)]");
-  tb.innerHTML='<span class="text-[19px] leading-none">'+it.icon+'</span><span class="text-[10px] font-bold leading-none mt-1 truncate max-w-[64px]">'+t("nav."+it.id)+'</span><span class="tabdot w-1 h-1 rounded-full bg-[var(--primary)] mt-0.5 '+(active?"opacity-100":"opacity-0")+'"></span>';
+  tb.innerHTML='<span class="tabicon text-[19px] leading-none">'+it.icon+'</span><span class="text-[10px] font-bold leading-none mt-1 truncate max-w-[64px]">'+t("nav."+it.id)+'</span><span class="tabdot w-1 h-1 rounded-full bg-[var(--primary)] mt-0.5 '+(active?"opacity-100":"opacity-0")+'"></span>';
   tb.onclick=()=>switchView(it.id);
   tabs.appendChild(tb)})}
+function updateNavActive(){
+ document.querySelectorAll("#navList .navbtn").forEach(b=>b.classList.toggle("nav-active",b.dataset.view===currentView));
+ document.querySelectorAll("#mobTabList .tabbtn").forEach(tb=>{
+  const active=tb.dataset.view===currentView;
+  tb.classList.toggle("tab-active",active);
+  tb.classList.toggle("text-[var(--text-faint)]",!active);
+  const dot=tb.querySelector(".tabdot");
+  if(dot){dot.classList.toggle("opacity-100",active);dot.classList.toggle("opacity-0",!active)}
+ });
+}
 function switchView(id){currentView=id;
  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
  const el=document.getElementById("view-"+id);if(el)el.classList.add("active");
- renderNav();
+ updateNavActive();
  window.scrollTo({top:0,behavior:"smooth"});
  // ✅ FIX: checkStreak() أُزيلت من هنا — كانت تُستدعى عند كل تبديل تبويبة،
  // فتكتب على السحابة (وأحياناً تضيف XP بالخطأ) لمجرد تنقّل المستخدم بين
@@ -4171,7 +4229,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
   const lgBtn        = document.getElementById("lgGoogleBtn");
   const lgError      = document.getElementById("lgError");
   const blEmail      = document.getElementById("blEmail");
-  const blBack       = document.getElementById("blBackBtn");
   const blRefresh    = document.getElementById("blRefreshBtn");
   const blChecking   = document.getElementById("blCheckingMsg");
 
@@ -4517,13 +4574,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
         showError(t("auth.errRedirect"));
       }
     });
-
-  blBack.addEventListener("click", ()=>{
-    _blockedSignOut = false;
-    _clearAccessCache(fbAuth.currentUser&&fbAuth.currentUser.email);
-    fbAuth.signOut();
-    showLogin();
-  });
 
   blRefresh.addEventListener("click", async ()=>{
     const user = fbAuth.currentUser;
