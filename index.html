@@ -50,8 +50,6 @@
                https://accounts.google.com
                https://apis.google.com
                https://www.gstatic.com
-               https://cdn.jsdelivr.net
-               https://cdnjs.cloudflare.com
                wss://*.firebaseio.com;
 
   img-src      'self'
@@ -82,25 +80,6 @@
     if (typeof args[0] === 'string' && args[0].includes('cdn.tailwindcss.com')) return;
     _warn.apply(console, args);
   };
-</script>
-<script>
-  // ⚡ تطبيق اللغة المحفوظة فوراً قبل رسم الصفحة — يمنع "وميض" اللغة الخاطئة
-  // هذا السكريبت يعمل قبل أي CSS أو HTML آخر، وقبل Firebase بالطبع.
-  // الأولوية: 1) localStorage → 2) الافتراضي "ar"
-  (function(){
-    try{
-      var lang = localStorage.getItem('bac2027_lang');
-      if(lang !== 'ar' && lang !== 'en') lang = 'ar';
-      var html = document.documentElement;
-      html.setAttribute('lang', lang);
-      html.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-      // نضع data-lang حتى يستخدمه باقي الكود مباشرةً عند التهيئة
-      html.setAttribute('data-initial-lang', lang);
-      if(lang === 'ar'){
-        document.body && document.body.classList.add('lang-ar');
-      }
-    }catch(e){}
-  })();
 </script>
 <style>
 :root{
@@ -474,35 +453,6 @@ table td,table th{white-space:nowrap}
   <span id="offlineMsg">يرجى الاتصال بالإنترنت</span>
 </div>
 <div id="xpRoot" class="fixed inset-0 pointer-events-none z-[90]"></div>
-
-<!-- ===== LEVEL UP MODAL ===== -->
-<div id="levelUpModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
-  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
-    <div id="luStars" class="text-5xl mb-2 animate-bounce">🌟</div>
-    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--primary)">LEVEL UP!</div>
-    <div id="luLevel" class="text-4xl font-black mb-1" style="color:var(--text)"></div>
-    <div id="luTitle" class="text-lg font-bold mb-4" style="color:var(--primary)"></div>
-    <div id="luQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
-    <button onclick="closeLevelUpModal()" class="w-full py-3 rounded-2xl font-black text-base transition hover:scale-105 active:scale-95" style="background:var(--primary);color:#fff" id="luBtn">
-      🚀 Let's go!
-    </button>
-  </div>
-</div>
-
-<!-- ===== POMODORO DONE MODAL ===== -->
-<div id="pomoDoneModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.6);backdrop-filter:blur(8px)">
-  <div class="relative w-full max-w-sm rounded-3xl p-7 text-center shadow-2xl" style="background:var(--card);border:1px solid var(--border)">
-    <div class="text-5xl mb-3">🍅</div>
-    <div class="text-xs font-bold tracking-widest uppercase mb-1" style="color:var(--accent)">FOCUS COMPLETE!</div>
-    <div id="pdTitle" class="text-2xl font-black mb-3" style="color:var(--text)"></div>
-    <div id="pdQuote" class="text-sm italic mb-6 px-2 leading-relaxed" style="color:var(--text-muted)"></div>
-    <div class="flex gap-3">
-      <button onclick="closePomoDoneModal(true)" class="flex-1 py-3 rounded-2xl font-bold text-sm transition hover:scale-105" style="background:var(--bg-soft);color:var(--text);border:1px solid var(--border)" id="pdBreakBtn">☕ Break</button>
-      <button onclick="closePomoDoneModal(false)" class="flex-1 py-3 rounded-2xl font-black text-sm transition hover:scale-105 active:scale-95" style="background:var(--accent);color:#fff" id="pdContinueBtn">⚡ Keep going!</button>
-    </div>
-  </div>
-</div>
-
 <div id="fileViewer" class="fixed inset-0 z-[95] hidden bg-black/70 backdrop-blur-sm p-4 overflow-y-auto" onclick="if(event.target===this)closePaperFile()">
   <div class="min-h-full w-full flex items-start justify-center py-8">
     <div class="w-full max-w-[900px] my-auto card rounded-[22px] overflow-hidden">
@@ -664,7 +614,7 @@ table td,table th{white-space:nowrap}
       <section id="view-dashboard" class="view active">
         <div class="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]"></h1>
+            <h1 id="greetTitle" class="text-[28px] md:text-[38px] font-black tracking-tight leading-[1]">Good morning</h1>
             <p id="greetSub" class="text-[14px] text-[var(--text-muted)] mt-2 max-w-[600px]"></p>
           </div>
           <div class="flex gap-2">
@@ -853,12 +803,7 @@ table td,table th{white-space:nowrap}
                 <button onclick="togglePomodoro()" id="pomoStart" class="h-[50px] px-8 rounded-full bg-[var(--text)] text-[var(--bg)] font-bold" data-i18n="pomo.startFocus">Start Focus</button>
                 <button onclick="resetPomodoro()" class="h-[50px] w-[50px] rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">↺</button>
               </div>
-              <!-- Cycle dots -->
-              <div class="mt-5 flex flex-col items-center gap-2">
-                <div id="pomoCycleDots" class="flex gap-2"></div>
-                <div id="pomoCycleLabel" class="text-[11px] font-bold tracking-widest uppercase text-[var(--text-muted)]"></div>
-              </div>
-              <div class="mt-4 flex flex-wrap justify-center gap-6 text-sm">
+              <div class="mt-6 flex flex-wrap justify-center gap-6 text-sm">
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.sessionsToday">Sessions today</span> <span id="pomoCount" class="font-black">0</span></div>
                 <div><span class="text-[var(--text-muted)]" data-i18n="pomo.totalFocus">Total focus</span> <span id="pomoTotal" class="font-black">0h 0m</span></div>
               </div>
@@ -869,8 +814,6 @@ table td,table th{white-space:nowrap}
                 <div class="mt-4 grid grid-cols-2 gap-3">
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.focusLen">Focus (min)</label><input id="pomoFocusLen" type="number" value="25" min="5" max="90" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                   <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.breakLen">Break (min)</label><input id="pomoBreakLen" type="number" value="5" min="1" max="30" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
-                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.cyclesLen">Cycles before long break</label><input id="pomoCyclesLen" type="number" value="4" min="2" max="8" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
-                  <div><label class="text-[10px] font-bold uppercase tracking-widest text-[var(--text-faint)]" data-i18n="pomo.longBreakLen">Long break (min)</label><input id="pomoLongBreakLen" type="number" value="30" min="10" max="60" class="mt-1 w-full h-11 rounded-xl bg-[var(--bg-soft)] border border-[var(--border)] px-3 font-bold"></div>
                 </div>
                 <div class="mt-4 p-3 rounded-xl bg-[var(--primary-soft)] text-sm" data-i18n="pomo.tip">Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.</div>
               </div>
@@ -1410,7 +1353,7 @@ en:{
  "sc.normal":"To reach <b>{target}/20</b> you need an average of <b>{need}/20</b> across the remaining <b>{coeff}</b> coefficient points.",
  "mention.excellent":"Excellent","mention.vgood":"Very Good","mention.good":"Good","mention.pass":"Pass","mention.work":"Work needed",
  "tools.title":"Study Tools","tools.pomodoro":"Pomodoro","tools.flashcards":"Flashcards","tools.planner":"Planner","tools.papers":"Past Papers","tools.errors":"Error Log","tools.wellness":"Well-being",
- "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.cyclesLen":"Cycles before long break","pomo.longBreakLen":"Long break (min)","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
+ "pomo.focus":"Focus","pomo.break":"Break","pomo.deepWork":"Deep Work","pomo.breakTime":"Break Time","pomo.startFocus":"Start Focus","pomo.startBreak":"Start Break","pomo.pause":"Pause","pomo.resume":"Resume","pomo.sessionsToday":"Sessions today","pomo.totalFocus":"Total focus","pomo.settings":"Focus Settings","pomo.focusLen":"Focus (min)","pomo.breakLen":"Break (min)","pomo.tip":"Tip: complete 4 pomodoros to earn +100 XP and unlock the Focus Master badge.","pomo.linkTask":"Link to task","pomo.noTask":"No task linked",
  "fc.title":"My Flashcards","fc.due":"{n} due","fc.frontPh":"Front (question)","fc.backPh":"Back (answer)","fc.emptyTitle":"Ready to review","fc.emptyDesc":"Add cards or start a session. Spaced repetition schedules them for you.","fc.studyAll":"Study now","fc.reveal":"Tap card to reveal answer","fc.again":"Again","fc.hard":"Hard","fc.good":"Good","fc.easy":"Easy","fc.none":"No flashcards yet.",
  "fc.sideQ":"QUESTION","fc.sideA":"ANSWER",
  "fc.tutTitle":"How spaced repetition works",
@@ -1479,7 +1422,7 @@ ar:{
  "sc.normal":"لبلوغ <b>{target}/20</b> تحتاج معدل <b>{need}/20</b> على <b>{coeff}</b> نقطة معامل متبقية.",
  "mention.excellent":"امتياز","mention.vgood":"جيد جداً","mention.good":"جيد","mention.pass":"مقبول","mention.work":"يحتاج مجهوداً",
  "tools.title":"أدوات الدراسة","tools.pomodoro":"بومودورو","tools.flashcards":"البطاقات","tools.planner":"المخطط","tools.papers":"مواضيع سابقة","tools.errors":"سجل الأخطاء","tools.wellness":"الصحة النفسية",
- "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.cyclesLen":"الدورات قبل الاستراحة الطويلة","pomo.longBreakLen":"الاستراحة الطويلة (دقيقة)","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
+ "pomo.focus":"تركيز","pomo.break":"استراحة","pomo.deepWork":"عمل عميق","pomo.breakTime":"وقت الراحة","pomo.startFocus":"ابدأ التركيز","pomo.startBreak":"ابدأ الاستراحة","pomo.pause":"إيقاف مؤقت","pomo.resume":"استئناف","pomo.sessionsToday":"جلسات اليوم","pomo.totalFocus":"إجمالي التركيز","pomo.settings":"إعدادات التركيز","pomo.focusLen":"التركيز (دقيقة)","pomo.breakLen":"الاستراحة (دقيقة)","pomo.tip":"نصيحة: أكمل 4 جلسات لتربح +100 نقطة وتفتح شارة سيد التركيز.","pomo.linkTask":"اربط بمهمة","pomo.noTask":"بدون مهمة",
  "fc.title":"بطاقاتي","fc.due":"{n} للمراجعة","fc.frontPh":"الوجه (السؤال)","fc.backPh":"الخلف (الجواب)","fc.emptyTitle":"جاهز للمراجعة","fc.emptyDesc":"أضف بطاقات أو ابدأ جلسة. التكرار المتباعد يجدولها لك.","fc.studyAll":"ابدأ المراجعة","fc.reveal":"اضغط على البطاقة لرؤية الجواب","fc.again":"إعادة","fc.hard":"صعب","fc.good":"جيد","fc.easy":"سهل","fc.none":"لا توجد بطاقات بعد.",
  "fc.sideQ":"السؤال","fc.sideA":"الجواب",
  "fc.tutTitle":"كيف يعمل التكرار المتباعد",
@@ -1517,18 +1460,7 @@ ar:{
  "auth.errRedirect":"تعذر استكمال تسجيل الدخول. حاول مرة أخرى.",
  "bl.checking":"⏳ جارٍ التحقق...","bl.refresh":"🔄 تحديث وإعادة المحاولة","bl.notActive":"⛔ لا يزال الحساب غير مفعّل"
 }};
-// flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
-let _userLangOverride = false;
-// قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
-let LANG=(function(){
-  try{
-    var il=document.documentElement.getAttribute('data-initial-lang');
-    if(il==='ar'||il==='en')return il;
-    var ls=localStorage.getItem('bac2027_lang');
-    if(ls==='ar'||ls==='en')return ls;
-  }catch(e){}
-  return 'ar';
-}());
+let LANG="ar";
 function t(k,vars){let s=(I18N[LANG]&&I18N[LANG][k])!==undefined?I18N[LANG][k]:(I18N.en[k]!==undefined?I18N.en[k]:k);if(vars)Object.keys(vars).forEach(v=>{s=s.split("{"+v+"}").join(vars[v])});return s}
 
 /* ============ HELPERS ============ */
@@ -1555,7 +1487,7 @@ let state=null;
 function defaultState(){return{
  profile:{name:"",streamId:"sci_exp",targetAvg:15,createdAt:todayISO()},
  grades:{},
- settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:LANG||"ar"},
+ settings:{amazighExempt:true,epsExempt:true,theme:"light",themeName:"default",lang:"ar"},
  gamification:{xp:0,level:1,streak:0,lastActive:"",streakHistory:{},badges:[]},
  tasks:[
   {id:"t1",title_en:"Revise Mathematics — Functions",title_ar:"مراجعة الرياضيات — الدوال",title:"Revise Mathematics — Functions",priority:"high",subject:"math",dueDate:todayISO(),completed:false},
@@ -1570,11 +1502,8 @@ function defaultState(){return{
  moods:[],
  meta:{updatedAt:0}}}
 // habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
-// إطلاقاً. saveState() لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
+// إطلاقاً. saveState() الآن لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
 // queueCloudSync() (انظر التغليف أسفل الملف) الذي يكتب إلى Firestore فقط.
-// الحماية ضد فقدان البيانات تتم بإعادة تأكيد الخادم مرتين قبل اعتبار الحساب
-// "جديداً" (انظر attachCloudListener → _confirmNoDocOnServer) — وليس عبر أي
-// تخزين محلي، حرصاً على أن يكون Firebase هو المصدر الوحيد للبيانات.
 function loadState(){return null}
 function saveState(){return true}
 
@@ -1587,7 +1516,7 @@ function showXPToast(text){const root=document.getElementById("xpRoot");const el
  el.style.left=(48+(Math.random()*16-8))+"%";el.style.top=(58+(Math.random()*12))+"%";root.appendChild(el);setTimeout(()=>el.remove(),1250)}
 function addXP(a,reason){if(a>0){state.gamification.xp+=a;showXPToast("+"+a+" XP")}
  const old=state.gamification.level;const nl=Math.floor(state.gamification.xp/150)+1;state.gamification.level=nl;
- if(nl>old){launchConfetti();const _lvlTitlesArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en;const _lvlTitle=_lvlTitlesArr[Math.min(nl-1,_lvlTitlesArr.length-1)];showLevelUpModal(nl,_lvlTitle);}
+ if(nl>old){launchConfetti();toast(t("toast.levelUp",{t:LEVEL_TITLES[LANG][Math.min(nl-1,LEVEL_TITLES[LANG].length-1)],n:nl}))}
  saveState();renderGamification();checkBadges()}
 
 /* ============ STREAK ============ */
@@ -1649,9 +1578,7 @@ function applyStaticI18n(){
  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.getAttribute("data-i18n-ph"))});
  document.title=LANG==="ar"?"بكالوريا 2027 — دليلي للدراسة":"BAC 2027 — My Study Guide"}
 function applyLang(lang){
- LANG=lang;state.settings.lang=lang;
- try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
- saveState();
+ LANG=lang;state.settings.lang=lang;saveState();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -1659,38 +1586,21 @@ function applyLang(lang){
  const other=lang==="ar"?"English":"العربية";
  ["langLabel","langLabelSet","langLabelOnb"].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=other});
  const m=document.getElementById("langLabelMob");if(m)m.textContent=lang==="ar"?"EN":"ع";
- // 🛡️ نحدّث كل نصوص الواجهة فوراً، بمعزل تام عن أي خطوة تالية قد تفشل —
- // هذا يمنع بالضبط مشكلة "الاتجاه يتغيّر والنص لا يتغيّر": كل خطوة أدناه معزولة
- // بـ try/catch خاص بها، فلو فشلت واحدة (مثلاً بيانات ناقصة في مهمة أو بطاقة)،
- // لا تمنع باقي الخطوات ولا تُبقي النصوص القديمة ظاهرة.
- try{updateDOMTranslations()}catch(e){console.error('[BAC-I18N] updateDOMTranslations failed:',e)}
- try{applyTheme(state.settings.theme)}catch(e){console.error('[BAC-I18N] applyTheme failed:',e)}
- try{_syncDefaultDataLang(lang)}catch(e){console.error('[BAC-I18N] _syncDefaultDataLang failed:',e)}
- try{renderStreamGrid()}catch(e){console.error('[BAC-I18N] renderStreamGrid failed:',e)}
- try{if(onbVisible())updateOnb()}catch(e){console.error('[BAC-I18N] updateOnb failed:',e)}
- try{renderAllViews()}catch(e){console.error('[BAC-I18N] renderAllViews failed:',e)}
- // تحديث صريح للعناصر التي لا تعتمد على data-i18n وتحتاج LANG محدثاً
- try{renderDashboard()}catch(e){}
- try{renderQuote()}catch(e){}
- // نعيد تطبيق الترجمات الثابتة مرة أخيرة بعد renderAllViews، لأن بعض الواجهات
- // الديناميكية تُعيد بناء عناصر data-i18n جديدة لم تكن موجودة في المرة الأولى.
- try{applyStaticI18n()}catch(e){console.error('[BAC-I18N] applyStaticI18n (2nd pass) failed:',e)}
- if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
+ applyStaticI18n();applyTheme(state.settings.theme);
+ _syncDefaultDataLang(lang);
+ renderNav();renderStreamGrid();if(onbVisible())updateOnb();
+ renderAllViews();if(typeof updateCloudUI==="function"){try{updateCloudUI()}catch(e){}}}
 function _syncDefaultDataLang(lang){
  if(!state)return;
- (state.tasks||[]).forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
- (state.flashcards||[]).forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
- (state.errors||[]).forEach(er=>{
+ state.tasks.forEach(tk=>{if(tk.title_en&&tk.title_ar)tk.title=lang==="ar"?tk.title_ar:tk.title_en});
+ state.flashcards.forEach(fc=>{if(fc.front_en&&fc.front_ar)fc.front=lang==="ar"?fc.front_ar:fc.front_en});
+ state.errors.forEach(er=>{
   if(er.topic_en&&er.topic_ar)er.topic=lang==="ar"?er.topic_ar:er.topic_en;
   if(er.description_en&&er.description_ar)er.description=lang==="ar"?er.description_ar:er.description_en;
   if(er.solution_en&&er.solution_ar)er.solution=lang==="ar"?er.solution_ar:er.solution_en;
  });
 }
-function toggleLang(){_userLangOverride=true;applyLang(LANG==="ar"?"en":"ar")}
-/* دوال مساعدة بنفس الأسماء المطلوبة — تُغلّف محرك الترجمة الحالي (renderNav/applyStaticI18n)
-   حتى يكون التحديث الفوري صريحًا وسهل الصيانة دون تكرار المنطق. */
-function updateDOMTranslations(){applyStaticI18n();renderNavigation()}
-function renderNavigation(){renderNav()}
+function toggleLang(){applyLang(LANG==="ar"?"en":"ar")}
 
 /* ============ NAV / VIEWS ============ */
 let currentView="dashboard";
@@ -1726,7 +1636,7 @@ function renderAllViews(){renderGamification();renderDashboard();renderSubjects(
 
 /* ============ GAMIFICATION UI ============ */
 function renderGamification(){
- const g=state.gamification,lvl=g.level,_ltArr=LEVEL_TITLES[LANG]||LEVEL_TITLES.en,title=_ltArr[Math.min(lvl-1,_ltArr.length-1)];
+ const g=state.gamification,lvl=g.level,title=LEVEL_TITLES[LANG][Math.min(lvl-1,LEVEL_TITLES[LANG].length-1)];
  document.getElementById("streakNum").textContent=g.streak;
  document.getElementById("levelNum").textContent=lvl;
  document.getElementById("levelTitle").textContent=title;
@@ -1939,9 +1849,7 @@ function renderTools(){
  document.querySelectorAll(".tool-tab").forEach(b=>{
   const on=b.dataset.tool===currentTool;
   b.classList.toggle("chip-active",on);
-  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()};
-  // re-apply i18n text so language change is reflected immediately
-  const key=b.getAttribute("data-i18n");if(key)b.textContent=t(key);});
+  b.onclick=()=>{currentTool=b.dataset.tool;renderTools()}});
  document.querySelectorAll(".tool-view").forEach(v=>v.classList.add("hidden"));
  const cur=document.getElementById("tool-"+currentTool);cur.classList.remove("hidden");cur.classList.add("fade-in-up");
  fillSubjectSelects();
@@ -1964,7 +1872,6 @@ function fillSubjectSelects(){
 let pomoInterval=null,pomoTimeLeft=25*60,pomoMode="focus",pomoRunning=false;
 let _pomoStartedAt=null;   // Date.now() لحظة الضغط على Start
 let _pomoTotalSecs=25*60;  // المدة الكاملة للجلسة الحالية بالثواني
-let pomoCycleCount=0;      // عدد جلسات التركيز في الدورة الحالية
 
 // حساب الوقت المتبقي الحقيقي من الـ timestamp
 function _pomoCalcLeft(){
@@ -1979,7 +1886,7 @@ function renderPomodoro(){
  document.getElementById("pomoTotal").textContent=Math.floor(state.pomodoro.totalMinutes/60)+"h "+(state.pomodoro.totalMinutes%60)+"m";
  document.getElementById("pomoLabel").textContent=pomoMode==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
  document.getElementById("pomoStart").textContent=pomoRunning?t("pomo.pause"):(pomoMode==="focus"?t("pomo.startFocus"):t("pomo.startBreak"));
- updatePomoDisplay();renderCycleDots();}
+ updatePomoDisplay();}
 
 function setPomodoroMode(m){
  if(pomoRunning){clearInterval(pomoInterval);pomoRunning=false;_pomoStartedAt=null;}
@@ -1988,23 +1895,15 @@ function setPomodoroMode(m){
   f.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   b.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoFocusLen").value)||25)*60;
-  document.getElementById("pomoLabel").textContent=t("pomo.deepWork");
-  document.getElementById("pomoStart").textContent=t("pomo.startFocus");
- }else if(m==="longbreak"){
-  b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
-  f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
-  pomoTimeLeft=_getLongBreak()*60;
-  document.getElementById("pomoLabel").textContent=LANG==="ar"?"☕ استراحة طويلة":"☕ Long Break";
-  document.getElementById("pomoStart").textContent=LANG==="ar"?"ابدأ الاستراحة الطويلة":"Start Long Break";
  }else{
   b.className="px-5 h-9 rounded-full bg-[var(--card)] border border-[var(--border)] font-bold text-sm shadow";
   f.className="px-5 h-9 rounded-full font-bold text-sm text-[var(--text-muted)]";
   pomoTimeLeft=(parseInt(document.getElementById("pomoBreakLen").value)||5)*60;
-  document.getElementById("pomoLabel").textContent=t("pomo.breakTime");
-  document.getElementById("pomoStart").textContent=t("pomo.startBreak");
  }
  _pomoTotalSecs=pomoTimeLeft;
- updatePomoDisplay();renderCycleDots();}
+ document.getElementById("pomoLabel").textContent=m==="focus"?t("pomo.deepWork"):t("pomo.breakTime");
+ document.getElementById("pomoStart").textContent=m==="focus"?t("pomo.startFocus"):t("pomo.startBreak");
+ updatePomoDisplay();}
 
 function updatePomoDisplay(){
  const left=_pomoCalcLeft();
@@ -2015,37 +1914,6 @@ function updatePomoDisplay(){
  ring.style.strokeDasharray=circ;ring.style.strokeDashoffset=circ-prog*circ;
  ring.setAttribute("stroke",pomoMode==="focus"?"var(--primary)":"var(--accent)");}
 
-function _getPomoCycles(){return parseInt(document.getElementById("pomoCyclesLen").value)||4;}
-function _getLongBreak(){return parseInt(document.getElementById("pomoLongBreakLen").value)||30;}
-
-function renderCycleDots(){
- const total=_getPomoCycles();
- const dots=document.getElementById("pomoCycleDots");
- const label=document.getElementById("pomoCycleLabel");
- if(!dots||!label)return;
- dots.innerHTML="";
- for(let i=0;i<total;i++){
-  const d=document.createElement("div");
-  const done=i<pomoCycleCount;
-  const active=(i===pomoCycleCount)&&pomoMode==="focus"&&pomoRunning;
-  d.style.cssText="width:14px;height:14px;border-radius:50%;transition:all .3s ease;"
-   +(done?"background:var(--primary);box-shadow:0 0 6px var(--primary);"
-   :active?"background:var(--primary);opacity:0.5;animation:pulse 1s infinite;"
-   :"background:var(--bg-soft);border:2px solid var(--border);");
-  dots.appendChild(d);
- }
- const remaining=total-pomoCycleCount;
- if(LANG==="ar"){
-  label.textContent=pomoCycleCount===0?"ابدأ الدورة 1"
-   :pomoCycleCount>=total?"🎉 دورة مكتملة — استراحة طويلة!"
-   :remaining+" جلسة حتى الاستراحة الطويلة";
- }else{
-  label.textContent=pomoCycleCount===0?"Start round 1"
-   :pomoCycleCount>=total?"🎉 Round complete — long break!"
-   :remaining+" session"+(remaining>1?"s":"")+" until long break";
- }
-}
-
 function _pomoTick(){
  const left=_pomoCalcLeft();
  pomoTimeLeft=left;
@@ -2054,29 +1922,10 @@ function _pomoTick(){
   clearInterval(pomoInterval);pomoInterval=null;pomoRunning=false;_pomoStartedAt=null;
   if(pomoMode==="focus"){
    state.pomodoro.sessionsCompleted++;
-   pomoCycleCount++;
    state.pomodoro.totalMinutes+=(parseInt(document.getElementById("pomoFocusLen").value)||25);
-   saveState();addXP(25);
-   renderCycleDots();
-   const maxCycles=_getPomoCycles();
-   if(pomoCycleCount>=maxCycles){
-    // Long break time!
-    showPomoDoneModal(true);
-   }else{
-    showPomoDoneModal(false);
-   }
-   renderDashboard();
-  }else{
-   // Break done
-   if(pomoMode==="longbreak"){
-    pomoCycleCount=0; // reset cycle after long break
-    launchConfetti();
-   }
-   renderCycleDots();
-   toast(t("toast.breakDone"));setPomodoroMode("focus");
-  }
- }
-}
+   saveState();addXP(25);toast(t("toast.focusDone"));
+   setPomodoroMode("break");renderPomodoro();renderDashboard();
+  }else{toast(t("toast.breakDone"));setPomodoroMode("focus");}}}
 
 function togglePomodoro(){
  if(pomoRunning){
@@ -2138,7 +1987,7 @@ function startFlashStudy(){
  document.getElementById("fcEmpty").classList.add("hidden");
  const s=document.getElementById("fcStudy");s.classList.remove("hidden");s.classList.add("flex");
  // show tutorial first time
- fcShowTutorial();
+ if(!localStorage.getItem("fcTutSeen")){fcShowTutorial();localStorage.setItem("fcTutSeen","1")}
  showFlash()}
 
 function showFlash(){
@@ -2174,13 +2023,9 @@ function flipFlashcard(){
   fcAnimating=false;
  },300)}
 
-let _lastRateTime=0;let _ratingLocked=false;
 function rateFlash(r){
  if(!fcFlipped)return;
- // XP anti-spam: ignore clicks faster than 400ms (animation duration)
- const now=Date.now();if(_ratingLocked||now-_lastRateTime<400)return;
- _ratingLocked=true;_lastRateTime=now;
- const f=fcQueue[fcIndex];if(!f){_ratingLocked=false;return;}
+ const f=fcQueue[fcIndex];if(!f)return;
  let ease=f.ease||2.5,iv=f.interval||0;
  // simplified: ✗ = again (repeat today), ✓ = good (schedule later)
  if(r==="again"){iv=0;ease=Math.max(1.3,ease-0.2)}
@@ -2200,7 +2045,6 @@ function rateFlash(r){
   inner.style.opacity="1";
   fcIndex++;
   if(fcIndex>=fcQueue.length){toast(t("toast.sessionDone"));exitFlashStudy();renderFlashcards();return}
-  _ratingLocked=false;
   showFlash();renderFlashcards();
  },320)}
 
@@ -2836,120 +2680,6 @@ function finishOnboarding(){
  saveState();hideOnboarding();initApp();toast(t("toast.welcome"));addXP(20)}
 
 /* ============ CONFETTI ============ */
-
-/* ============ MOTIVATIONAL QUOTES ============ */
-const LEVEL_QUOTES={
-  en:[
-    "Every expert was once a beginner. Keep climbing! 💪",
-    "Success is the sum of small efforts, repeated day in and day out. 🔥",
-    "The harder you work for something, the greater you'll feel when you achieve it. ⭐",
-    "Don't watch the clock; do what it does. Keep going. 🕐",
-    "Education is the most powerful weapon you can use to change the world. 📚",
-    "Believe you can and you're halfway there. 🌟",
-    "You are braver than you believe, stronger than you seem. 💎",
-    "The secret of getting ahead is getting started. 🚀",
-    "It always seems impossible until it's done. 🏆",
-    "Push yourself, because no one else is going to do it for you. ⚡",
-    "Great things never come from comfort zones. 🌍",
-    "Dream big. Work hard. Stay focused. 👑"
-  ],
-  ar:[
-    "كل خبير كان يوماً مبتدئاً. واصل الصعود! 💪",
-    "النجاح هو مجموع جهود صغيرة تُكرَّر يوماً بعد يوم. 🔥",
-    "كلما كافحت أكثر، كلما شعرت بعظمة إنجازك. ⭐",
-    "لا تراقب الساعة، افعل ما تفعله: لا تتوقف. 🕐",
-    "التعليم هو أقوى سلاح يمكنك استخدامه لتغيير العالم. 📚",
-    "آمن بنفسك وستكون في منتصف الطريق. 🌟",
-    "أنت أشجع مما تعتقد وأقوى مما تبدو. 💎",
-    "سر النجاح هو البداية. 🚀",
-    "يبدو كل شيء مستحيلاً حتى يتحقق. 🏆",
-    "ادفع نفسك للأمام، فلن يفعل ذلك أحد عنك. ⚡",
-    "الأشياء العظيمة لا تأتي من مناطق الراحة. 🌍",
-    "احلم بكبر. اعمل بجد. ابقَ مركّزاً. 👑"
-  ]
-};
-
-const POMO_QUOTES={
-  en:[
-    "Focus session crushed! Your brain is getting stronger. 🧠",
-    "25 minutes of pure focus — that's how champions are made. 🏆",
-    "Deep work done! You're building momentum. ⚡",
-    "Session complete! Every minute invested counts. 📈",
-    "You showed up and stayed focused. That's everything. 💪",
-    "Brain fueled, goals one step closer. Rest, then conquer! 🚀",
-    "Consistency is key — and you just proved it. 🔑",
-    "One pomodoro at a time, you're building your future. 🌟"
-  ],
-  ar:[
-    "جلسة تركيز مكتملة! عقلك يصبح أقوى. 🧠",
-    "25 دقيقة من التركيز الكامل — هكذا يُصنع الأبطال. 🏆",
-    "عمل عميق منجز! أنت تبني زخماً رائعاً. ⚡",
-    "الجلسة اكتملت! كل دقيقة تستثمرها تُحسَب. 📈",
-    "حضرت وبقيت مركّزاً. هذا هو كل شيء. 💪",
-    "العقل مشحون والهدف أقرب خطوة. استرح ثم افتح! 🚀",
-    "الاستمرارية هي المفتاح — وأنت أثبتت ذلك للتو. 🔑",
-    "بومودورو واحد في كل مرة، أنت تبني مستقبلك. 🌟"
-  ]
-};
-
-function _randQuote(pool){const arr=pool[LANG]||pool.ar;return arr[Math.floor(Math.random()*arr.length)];}
-
-function showLevelUpModal(level,titleStr){
-  const m=document.getElementById("levelUpModal");if(!m)return;
-  const stars=["🌟","⭐","🔥","💎","🏆","👑","🚀","💫"];
-  document.getElementById("luStars").textContent=stars[Math.min(level-1,stars.length-1)];
-  const lvlLabels={en:"Level ",ar:"المستوى "};
-  document.getElementById("luLevel").textContent=(lvlLabels[LANG]||lvlLabels.ar)+level;
-  document.getElementById("luTitle").textContent=titleStr;
-  document.getElementById("luQuote").textContent=_randQuote(LEVEL_QUOTES);
-  const btnLabels={en:"🚀 Let's go!",ar:"🚀 هيا بنا!"};
-  document.getElementById("luBtn").textContent=btnLabels[LANG]||btnLabels.ar;
-  m.classList.remove("hidden");m.style.display="flex";
-}
-function closeLevelUpModal(){
-  const m=document.getElementById("levelUpModal");if(!m)return;
-  m.style.display="none";m.classList.add("hidden");
-}
-
-function showPomoDoneModal(isLongBreak){
-  const m=document.getElementById("pomoDoneModal");if(!m)return;
-  const cyclesLen=_getPomoCycles();
-  const longMin=_getLongBreak();
-  let title,breakLabel,goLabel,emoji;
-  if(isLongBreak){
-    emoji="🏆";
-    title=LANG==="ar"
-     ?"أكملت "+cyclesLen+" دورات! استراحة "+longMin+" دقيقة 🎉"
-     :"Round of "+cyclesLen+" done! "+longMin+" min long break 🎉";
-    breakLabel=LANG==="ar"?"☕ ابدأ الاستراحة الطويلة":"☕ Take long break ("+longMin+"m)";
-    goLabel=LANG==="ar"?"⚡ تجاهل والمتابعة":"⚡ Skip & keep going";
-    launchConfetti();
-  }else{
-    emoji="🍅";
-    title=LANG==="ar"?"جلسة تركيز مكتملة! +25 نقطة":"Focus session done! +25 XP";
-    breakLabel=LANG==="ar"?"☕ خذ استراحة":"☕ Take a break";
-    goLabel=LANG==="ar"?"⚡ واصل!":"⚡ Keep going!";
-  }
-  document.getElementById("pdTitle").textContent=title;
-  document.getElementById("pdQuote").textContent=_randQuote(POMO_QUOTES);
-  document.getElementById("pdBreakBtn").textContent=breakLabel;
-  document.getElementById("pdContinueBtn").textContent=goLabel;
-  // store whether it's long break for close handler
-  m.dataset.longBreak=isLongBreak?"1":"0";
-  m.classList.remove("hidden");m.style.display="flex";
-}
-function closePomoDoneModal(startBreak){
-  const m=document.getElementById("pomoDoneModal");if(!m)return;
-  const isLong=m.dataset.longBreak==="1";
-  m.style.display="none";m.classList.add("hidden");
-  if(startBreak){
-    setPomodoroMode(isLong?"longbreak":"break");renderPomodoro();
-  }else{
-    if(isLong){pomoCycleCount=0;renderCycleDots();}
-    setPomodoroMode("focus");renderPomodoro();
-  }
-}
-
 function launchConfetti(){
  // Use canvas-confetti library if available
  if(typeof confetti==="function"){
@@ -2974,16 +2704,10 @@ function launchConfetti(){
 
 /* ============ INIT ============ */
 function initApp(){
- // نعيد مزامنة كل نصوص الواجهة مع اللغة الحالية أولاً (يمنع بقاء نصوص بلغة قديمة
- // مختلطة مع محتوى جديد عند إعادة التهيئة بعد تسجيل الدخول أو استلام بيانات السحابة).
- updateDOMTranslations();
- applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
+ renderNav();applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
  state=defaultState();
- // LANG تم تحديده مبكراً من localStorage (قبل هذه الدالة)، نُزامنه مع state
- // (defaultState يستخدم LANG مباشرةً الآن، لكن نُضيف هذا كحماية مضاعفة)
- state.settings.lang=LANG;
  LANG=state.settings.lang||"ar";
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
@@ -3203,19 +2927,6 @@ try{
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
 let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
-// 🛡️ نتذكّر (لمدة الجلسة الحالية فقط، بلا أي تخزين محلي) هل آخر نسخة حقيقية
-// وصلتنا من Firestore كانت تحتوي بيانات فعلية (اسم/علامات/مهام حقيقية). إن كانت
-// كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
-// البيانات: لن يُسمح لأي خلل عابر أن يمسح حساباً معروفاً أنه يحتوي بيانات.
-let _remoteHadRealData=false;
-function _stateLooksMeaningful(s){
- if(!s)return false;
- const hasName=!!(s.profile&&s.profile.name);
- const hasGrades=!!(s.grades&&Object.keys(s.grades).length>0);
- const hasRealTasks=!!(s.tasks&&s.tasks.some(tk=>!["t1","t2","t3"].includes(tk.id)));
- const hasXP=!!(s.gamification&&s.gamification.xp>0);
- return hasName||hasGrades||hasRealTasks||hasXP;
-}
 
 function signInGoogle(){
  fbAuth.signInWithPopup(googleProvider).catch(e=>{
@@ -3239,12 +2950,7 @@ function confirmLogout(){
  clearTimeout(_saveDebounceTimer);
  _saveDebounceTimer=null;
  _pendingLocalEdit=false;
- _remoteHadRealData=false;
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
- // تصفير state فوراً قبل signOut لمنع أي كتابة خاطئة لاحقة
- _lastAttachedUid = null;
- try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
- state=defaultState();
  fbAuth.signOut();
  toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
 }
@@ -3295,16 +3001,8 @@ function mergeRemoteState(remote){
 function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
- if(_stateLooksMeaningful(state))_remoteHadRealData=true;
- // إذا غيّر المستخدم اللغة يدوياً في هذه الجلسة — لا نتجاوزها بقيمة Firebase
- if(!_userLangOverride){
-  LANG=state.settings.lang||LANG;
-  try{localStorage.setItem('bac2027_lang',LANG);}catch(e){}
-  applyLang(LANG);
- } else {
-  // نُزامن اللغة المختارة إلى state فقط بدون استدعاء applyLang مجدداً
-  state.settings.lang=LANG;
- }
+ LANG=state.settings.lang||LANG;
+ applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
  // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
@@ -3340,7 +3038,7 @@ const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','inter
 
 const _PAYLOAD_SCHEMA = {
   // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
-  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak','flashcards','papers','errors','moods','pomodoro','wellness'],
+  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak'],
 
   // الحقول المسموح بها داخل كل قسم فرعي
   meta:         ['updatedAt','version','onboarded'],
@@ -3438,33 +3136,6 @@ function sanitizeFirestorePayload(rawPayload) {
     }
   });
 
-  // ③-b للأقسام ذات البنية الديناميكية من نوع Object بسيط (pomodoro):
-  ['pomodoro'].forEach(section => {
-    if (topLevel[section] !== undefined) {
-      if (typeof topLevel[section] !== 'object' || Array.isArray(topLevel[section])) {
-        console.warn('[BAC-SANITIZE]', section, 'expected object, got:', typeof topLevel[section], '— resetting to {}');
-        topLevel[section] = {};
-      } else {
-        topLevel[section] = _sanitizeObject(topLevel[section]);
-      }
-    }
-  });
-
-  // ③-c للأقسام ذات البنية الديناميكية من نوع Array (flashcards, papers, moods, wellness):
-  ['flashcards', 'papers', 'moods', 'wellness'].forEach(section => {
-    if (topLevel[section] !== undefined) {
-      if (!Array.isArray(topLevel[section])) {
-        // إذا كان object أو نوع آخر — نحوّله لمصفوفة فارغة بدل حذفه
-        console.warn('[BAC-SANITIZE]', section, 'expected array, got:', typeof topLevel[section], '— resetting to []');
-        topLevel[section] = [];
-      } else {
-        topLevel[section] = topLevel[section].map(item =>
-          (item && typeof item === 'object') ? _sanitizeObject(item) : item
-        ).filter(item => item !== null && item !== undefined);
-      }
-    }
-  });
-
   // ④ نظيف شامل نهائي لكامل الـ payload (يلتقط أي شيء فات)
   const finalPayload = _sanitizeObject(topLevel);
 
@@ -3530,18 +3201,6 @@ async function _doCloudWrite(uid,retryCount){
 
  // 🔒 تنظيف وتحقق شامل من الـ payload قبل الرفع لـ Firestore
  const payload = sanitizeFirestorePayload(rawPayload);
-
- // 🛡️ حارس حاسم ضد تكرار حادثة فقدان البيانات: إن كنا نعلم أن هذا الحساب
- // يحتوي فعلاً بيانات حقيقية على السحابة (وصلتنا سابقاً في نفس الجلسة)، لكن
- // الحالة الحالية المطلوب رفعها فارغة/افتراضية — نرفض الكتابة فوراً. هذا يمنع
- // أي خلل عابر (LANG غير متزامن، state أُعيد ضبطه بالخطأ...) من محو بيانات
- // حقيقية على الخادم.
- if(_remoteHadRealData && !_stateLooksMeaningful(state)){
-  console.error('[BAC-CLOUD] blocked write: current state looks empty but the cloud account is known to hold real data. Refusing to overwrite.');
-  setCloudStatus('error');
-  toast(LANG==="ar"?"⚠️ تم إيقاف الحفظ وقائياً: بياناتك المحلية فارغة وحسابك يحتوي بيانات محفوظة — أعد تحميل الصفحة قبل المتابعة":"⚠️ Save blocked as a precaution: your local data looks empty but your account has saved data — please reload the page","warn");
-  return;
- }
 
  payload._savedAt=Date.now();
  payload._writerId=_sessionId;
@@ -3652,21 +3311,8 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden)_checkDay
 window.addEventListener('focus',_checkDayRollover);
 
 // ── مستمع Firestore الكامل: server-first + real-time sync + session guard ──
-let _lastAttachedUid = null;
-
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
-
- // 🔒 تصفير كامل عند تغيير المستخدم
- if(_lastAttachedUid && _lastAttachedUid !== uid){
-   clearTimeout(_saveDebounceTimer);
-   _saveDebounceTimer = null;
-   _pendingLocalEdit = false;
-   _remoteHadRealData = false;
-   _saveQueue = Promise.resolve();
-   state = defaultState();
- }
- _lastAttachedUid = uid;
 
  // 🔒 تجديد الـ Token فوراً عند بدء الاستماع — يضمن أن أول طلب للخادم يستخدم
  // token صالحاً حتى لو مضت فترة طويلة منذ تسجيل الدخول
@@ -3680,44 +3326,18 @@ async function attachCloudListener(uid){
  let serverCheckDone=false;
  let serverConfirmedNew=false;
 
- // 🛡️ حماية ضد فقدان البيانات (كل شيء يبقى داخل Firebase — بلا أي تخزين محلي):
- // عدم وجود مستند عند أول فحص قد يكون بسبب مشكلة اتصال/Token مؤقتة وليس لأن
- // الحساب جديد فعلاً. لذلك لا نحسم القرار من فحص واحد: إن جاء الفحص الأول
- // بدون مستند، نعيد المحاولة من الخادم مرة أخرى (بعد تأخير قصير) قبل الحسم.
- function _fetchServerDoc(){return fbDb.collection("users").doc(uid).get({source:'server'})}
- function _confirmNoDocOnServer(){
-  return new Promise(resolve=>{
-   setTimeout(()=>{
-    _fetchServerDoc().then(snap2=>resolve(!snap2.exists)).catch(()=>resolve(false));
-   },1500);
-  });
- }
- _fetchServerDoc().then(async serverSnap=>{
+ fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
+  serverCheckDone=true;
   if(!serverSnap.exists){
-   const confirmedTwice=await _confirmNoDocOnServer();
-   serverCheckDone=true;
-   if(!confirmedTwice){
-    // الفحص الثاني وجد مستنداً فعلاً (كان الأول متأخراً/عابراً) — لا نمسح شيئاً،
-    // نطبّق البيانات الحقيقية من الخادم كأي مستخدم موجود.
-    const snap2=await _fetchServerDoc().catch(()=>null);
-    if(snap2&&snap2.exists&&!_pendingLocalEdit){applyRemoteState(snap2.data());}
-    return;
-   }
-   // مستخدم جديد تماماً بتأكيد مزدوج من الخادم —
+   // مستخدم جديد تماماً بتأكيد مباشر من الخادم —
    // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
-   // نحافظ على تفضيل اللغة الحالي بدل الرجوع للّغة الافتراضية للحالة الجديدة —
-   // هذا هو سبب ظهور خليط عربي/إنجليزي: state.settings.lang كان يُعاد ضبطه دون تحديث LANG أو الواجهة.
-   state.settings.lang=LANG;
-   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم (مرتين)
-   if(!state.profile.name){updateDOMTranslations();showOnboarding();}else{hideOnboarding();initApp();}
-  } else {
-   serverCheckDone=true;
-   if(!_pendingLocalEdit){
-    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
-    applyRemoteState(serverSnap.data());
-   }
+   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
+   if(!state.profile.name){showOnboarding();}else{hideOnboarding();initApp();}
+  } else if(!_pendingLocalEdit){
+   // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
+   applyRemoteState(serverSnap.data());
   }
  }).catch(e=>{
   serverCheckDone=true;
@@ -3754,7 +3374,7 @@ async function attachCloudListener(uid){
      pushToCloud();
     } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
      // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
-     const wasOnb=onbVisible();updateDOMTranslations();hideOnboarding();if(wasOnb)initApp();
+     const wasOnb=onbVisible();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
@@ -3942,12 +3562,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
         return;
       }
       if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
-      // 🔒 تصفير كامل عند تسجيل الخروج لمنع تلوث بيانات المستخدم التالي
-      _remoteHadRealData = false;
-      _pendingLocalEdit = false;
-      clearTimeout(_saveDebounceTimer);
-      _saveDebounceTimer = null;
-      state = defaultState();
       showLogin();
       return;
     }
@@ -4022,21 +3636,8 @@ setTimeout(()=>{ _appInitializing=false; },0);
   lgBtn.disabled = false;
   lgBtn.innerHTML = googleLogoHTML;
 
-  // ⏱️ مؤقت أمان: إذا لم يستجب Firebase خلال 6 ثوانٍ، أظهر شاشة تسجيل الدخول
-  let _authReadyFired = false;
-  const _authSafetyTimer = setTimeout(()=>{
-    if(!_authReadyFired) showLogin();
-  }, 6000);
-
-  const _origOnAuthReady = _onAuthReady;
-  async function _wrappedOnAuthReady(user){
-    _authReadyFired = true;
-    clearTimeout(_authSafetyTimer);
-    return _origOnAuthReady(user);
-  }
-
   // نتحقق فقط إن كان هناك مستخدم مسجل دخوله مسبقًا (session قائمة)
-  fbAuth.onAuthStateChanged(_wrappedOnAuthReady);
+  fbAuth.onAuthStateChanged(_onAuthReady);
 
   // ===== زر تسجيل الدخول =====
   // نستخدم popup كطريقة أساسية. عند فشلها لسبب متعلق بحجب النوافذ فعليًا
