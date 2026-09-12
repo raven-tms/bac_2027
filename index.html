@@ -1627,14 +1627,25 @@ function defaultState(){return{
  errors:[{id:"e1",subject:"math",topic_en:"Limits",topic_ar:"النهايات",topic:"Limits",description_en:"Forgot to check the indeterminate form",description_ar:"نسيت التحقق من الشكل غير المحدد",description:"Forgot to check the indeterminate form",solution_en:"Always test 0/0 and apply L'Hôpital when needed",solution_ar:"دائماً تحقق من 0/0 وطبّق قاعدة لوبيتال عند الحاجة",solution:"Always test 0/0 and apply L'Hôpital when needed",status:"open",createdAt:todayISO()}],
  moods:[],
  meta:{updatedAt:0}}}
-// habittck-style: لا نقرأ ولا نكتب بيانات التطبيق الرئيسية من/إلى localStorage
-// إطلاقاً. saveState() لا تفعل شيئاً محلياً — الحفظ الفعلي يتم عبر
-// queueCloudSync() (انظر التغليف أسفل الملف) الذي يكتب إلى Firestore فقط.
-// الحماية ضد فقدان البيانات تتم بإعادة تأكيد الخادم مرتين قبل اعتبار الحساب
-// "جديداً" (انظر attachCloudListener → _confirmNoDocOnServer) — وليس عبر أي
-// تخزين محلي، حرصاً على أن يكون Firebase هو المصدر الوحيد للبيانات.
-function loadState(){return null}
-function saveState(){return true}
+// ✅ FIX v17: أضفنا localStorage كـ fallback محلي لمنع فقدان البيانات عند الرفراش
+// Firebase لا يزال المصدر الأساسي — لكن نحفظ نسخة محلية كـ backup فوري.
+// عند تسجيل الدخول وتحميل Firebase، تُستبدل البيانات المحلية بنسخة السحابة.
+const _LS_STATE_KEY = 'bac2027_state_v1';
+function loadState(){
+ try{
+  const raw=localStorage.getItem(_LS_STATE_KEY);
+  if(!raw)return null;
+  const parsed=JSON.parse(raw);
+  if(parsed&&typeof parsed==='object')return parsed;
+ }catch(e){}
+ return null;
+}
+function saveState(){
+ try{
+  if(state)localStorage.setItem(_LS_STATE_KEY,JSON.stringify(state));
+ }catch(e){}
+ return true;
+}
 
 /* ============ TOASTS / XP ============ */
 function toast(msg,type){const root=document.getElementById("toastRoot");const el=document.createElement("div");
@@ -1995,12 +2006,20 @@ function renderCalculator(){const st=STREAMS[state.profile.streamId];if(!st)retu
    })});
   _calcRowsSignature=sig;
  } else {
-  // تحديث قيم الحقول غير المركّز عليها فقط (مثلاً بعد استيراد بيانات من السحابة)
+  // تحديث قيم الحقول وخلايا الموزون (مثلاً بعد تبديل التبويبة أو استيراد بيانات)
   body.querySelectorAll(".calc-input").forEach(inp=>{
    if(document.activeElement===inp)return;
    const code=inp.dataset.calc,g=state.grades[code];
    const val=g!=null?String(g):"";
-   if(inp.value!==val)inp.value=val;
+   if(inp.value!==val){
+    inp.value=val;
+    // ✅ FIX: تحديث خلية الموزون عند تغيّر القيمة (كان لا يتحدث عند تبديل التبويبة)
+    const wCell=body.querySelector('[data-weight-for="'+code+'"]');
+    if(wCell){
+     const sub=STREAMS[state.profile.streamId].subjects.find(s=>s.code===code);
+     wCell.textContent=(g!=null&&sub)?(g*sub.coeff).toFixed(1):"--";
+    }
+   }
   });
  }
 
@@ -3091,7 +3110,10 @@ function initApp(){
  applyTheme(state.settings.theme);document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");checkStreak();
  fillSubjectSelects();renderAllViews();checkBadges();switchView("dashboard")}
 (function(){
- state=defaultState();
+ // ✅ FIX v17: تحميل البيانات المحلية فوراً كـ fallback حتى يستجيب Firebase
+ // (يمنع اختفاء البيانات عند الرفراش — Firebase سيُحدّثها لاحقاً)
+ const _lsState=loadState();
+ state=(_lsState&&_lsState.profile)?_lsState:defaultState();
  // LANG تم تحديده مبكراً من localStorage (قبل هذه الدالة)، نُزامنه مع state
  // (defaultState يستخدم LANG مباشرةً الآن، لكن نُضيف هذا كحماية مضاعفة)
  state.settings.lang=LANG;
@@ -3360,6 +3382,8 @@ function confirmLogout(){
  // تصفير state فوراً قبل signOut لمنع أي كتابة خاطئة لاحقة
  _lastAttachedUid = null;
  try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
+ // ✅ FIX v17: حذف النسخة المحلية عند تسجيل الخروج (حماية خصوصية الحسابات)
+ try{ localStorage.removeItem(_LS_STATE_KEY); }catch(e){}
  state=defaultState();
  fbAuth.signOut();
  toast(t("sync.signOut"));
@@ -3413,6 +3437,8 @@ function applyRemoteState(remote){
  applyingRemote=true;
  state=mergeRemoteState(remote);
  if(_stateLooksMeaningful(state))_remoteHadRealData=true;
+ // ✅ FIX v17: حفظ نسخة محلية فور استقبال البيانات من Firebase (backup للرفراش)
+ try{if(state)localStorage.setItem(_LS_STATE_KEY,JSON.stringify(state));}catch(e){}
  // إذا غيّر المستخدم اللغة يدوياً في هذه الجلسة — لا نتجاوزها بقيمة Firebase
  if(!_userLangOverride){
   LANG=state.settings.lang||LANG;
@@ -4027,6 +4053,8 @@ function _saveImmediate(fieldName){
  _markDirty(fieldName);
  state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
  const ok=_origSaveState();
+ // ✅ FIX v17: حفظ فوري محلياً أيضاً
+ try{if(state)localStorage.setItem(_LS_STATE_KEY,JSON.stringify(state));}catch(e){}
  // حفظ فوري للسحابة بدون debounce
  if(cloudUser && !applyingRemote){
   _pendingLocalEdit=true;
@@ -4048,6 +4076,8 @@ saveState=function(fieldName){
  _markDirty(fieldName);
  state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
  const ok=_origSaveState();
+ // ✅ FIX v17: حفظ محلي مع كل عملية حفظ
+ try{if(state)localStorage.setItem(_LS_STATE_KEY,JSON.stringify(state));}catch(e){}
  queueCloudSync();
  return ok;
 };
