@@ -49,6 +49,7 @@
                https://securetoken.googleapis.com
                https://accounts.google.com
                https://apis.google.com
+               https://www.gstatic.com
                wss://*.firebaseio.com;
 
   img-src      'self'
@@ -2546,7 +2547,10 @@ function initApp(){
  document.getElementById("onbTarget").addEventListener("input",updateOnbHint);
  ["pomoFocusLen","pomoBreakLen"].forEach(id=>document.getElementById(id).addEventListener("change",()=>{if(!pomoRunning)setPomodoroMode(pomoMode)}));
  window.addEventListener("resize",()=>{const c=document.getElementById("confetti");c.width=window.innerWidth;c.height=window.innerHeight});
- if(!state.profile.name){showOnboarding()}else{hideOnboarding();initApp()}
+ // ⚠️ لا نُظهر الأونبوردينغ هنا — ننتظر Firebase أولاً
+ // (إذا أظهرناه الآن بناء على state المحلي الفارغ، سيظهر عند كل Refresh حتى للمستخدمين القدامى)
+ // showOnboarding/hideOnboarding يُستدعى من _onAuthReady بعد تأكيد الخادم
+ hideOnboarding(); // إخفاء مبدئي، Firebase هو من يقرر
 
  // ===== OFFLINE DETECTION =====
  const offlineBanner=document.getElementById("offlineBanner");
@@ -2613,7 +2617,7 @@ function initApp(){
          allow read, write: if request.auth != null
                             && request.auth.uid == userId
                             && request.resource.data.keys().hasOnly([
-                               'meta','grades','tasks','goals','notes',
+                               'meta','profile','grades','tasks','goals','notes',
                                'gamification','settings','streak',
                                '_savedAt','_writerId'
                             ]);
@@ -2746,7 +2750,7 @@ firebase.initializeApp(firebaseConfig);
 const fbAuth=firebase.auth();
 const fbDb=firebase.firestore();
 try{
-  fbDb.settings({cacheSizeBytes:firebase.firestore.CACHE_SIZE_UNLIMITED});
+  fbDb.settings({cacheSizeBytes:firebase.firestore.CACHE_SIZE_UNLIMITED,merge:true});
   fbDb.enableMultiTabIndexedDbPersistence().catch(e=>{
     if(e.code==='failed-precondition'){
       fbDb.enablePersistence({synchronizeTabs:false}).catch(()=>{});
@@ -2834,6 +2838,11 @@ function applyRemoteState(remote){
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
+ // ✅ المستخدم له بيانات في السحابة — أخفِ الأونبوردينغ دائماً وشغّل التطبيق.
+ // سواء كان له اسم أو لا، البيانات السحابية موجودة = مستخدم قديم لا يحتاج أونبوردينغ.
+ const wasOnboarding = onbVisible();
+ hideOnboarding();
+ if(wasOnboarding){initApp();}
  renderNav();renderAllViews();fillSubjectSelects();checkBadges();
  setCloudStatus("synced");
  applyingRemote=false;
@@ -2862,10 +2871,11 @@ const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','inter
 
 const _PAYLOAD_SCHEMA = {
   // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
-  ALLOWED_TOP_KEYS: ['meta','grades','tasks','goals','notes','gamification','settings','streak'],
+  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak'],
 
   // الحقول المسموح بها داخل كل قسم فرعي
   meta:         ['updatedAt','version','onboarded'],
+  profile:      ['name','streamId','targetAvg','createdAt'],
   gamification: ['xp','level','streak','lastActive','streakHistory','badges','mood'],
   settings:     ['theme','themeName','lang','amazighExempt','epsExempt','targetAvg',
                  'notifyStreak','notifyGoals','weekStart'],
@@ -2940,7 +2950,7 @@ function sanitizeFirestorePayload(rawPayload) {
   const topLevel = _filterKeys(rawPayload, _PAYLOAD_SCHEMA.ALLOWED_TOP_KEYS, 'top-level');
 
   // ② نظّف الأقسام ذات Schema محدد
-  ['meta', 'gamification', 'settings', 'streak'].forEach(section => {
+  ['meta', 'profile', 'gamification', 'settings', 'streak'].forEach(section => {
     if (topLevel[section] && _PAYLOAD_SCHEMA[section]) {
       topLevel[section] = _filterKeys(topLevel[section], _PAYLOAD_SCHEMA[section], section);
     }
@@ -3152,16 +3162,12 @@ async function attachCloudListener(uid){
  fbDb.collection("users").doc(uid).get({source:'server'}).then(serverSnap=>{
   serverCheckDone=true;
   if(!serverSnap.exists){
-   // مستخدم جديد تماماً بتأكيد مباشر من الخادم (وليس من الـ cache المحلي) —
-   // لا نرفع أبداً أي بيانات "state" قد تكون بقايا حساب آخر استُعمل على
-   // نفس الجهاز/المتصفح؛ بل نبدأ بحالة افتراضية نظيفة 100% ونرفعها هي فقط.
-   // هذا يطابق تماماً منطق تطبيق habittck الناجح: "مستخدم جديد مؤكَّد من
-   // الخادم = بيانات افتراضية جديدة، لا بيانات الذاكرة المحلية الحالية".
+   // مستخدم جديد تماماً بتأكيد مباشر من الخادم —
+   // نبدأ بحالة افتراضية نظيفة ونُظهر الأونبوردينغ (المرة الأولى فقط).
    serverConfirmedNew=true;
    state=defaultState();
-   renderAllViews();
-   state.meta=Object.assign({},state.meta,{updatedAt:Date.now()});
-   pushToCloud();
+   // ✅ إظهار الأونبوردينغ هنا فقط: مستخدم جديد مؤكَّد من الخادم
+   if(!state.profile.name){showOnboarding();}else{hideOnboarding();initApp();}
   } else if(!_pendingLocalEdit){
    // مستخدم موجود — طبّق بيانات السحابة فوراً (هذا يحل مشكلة "إدخال بيانات من جديد")
    applyRemoteState(serverSnap.data());
@@ -3199,6 +3205,9 @@ async function attachCloudListener(uid){
      applyRemoteState(d);
     } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
      pushToCloud();
+    } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
+     // offline + cache فيه بيانات — لا نُظهر الأونبوردينغ
+     const wasOnb=onbVisible();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
     // snapshots لاحقة = تحديثات من جهاز آخر — طبّقها فوراً
