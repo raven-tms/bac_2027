@@ -50,6 +50,8 @@
                https://accounts.google.com
                https://apis.google.com
                https://www.gstatic.com
+               https://cdn.jsdelivr.net
+               https://cdnjs.cloudflare.com
                wss://*.firebaseio.com;
 
   img-src      'self'
@@ -1651,7 +1653,7 @@ function applyLang(lang){
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
  // لا نستدعي saveState() هنا لأنها تُشغّل queueCloudSync → applyRemoteState
  // الذي يُعيد ضبط LANG من Firebase ويكسر التغيير — نحفظ اللغة مباشرة
- if(typeof queueCloudSync==="function")queueCloudSync();
+ if(typeof queueCloudSync==="function" && typeof applyingRemote!=="undefined" && !applyingRemote && typeof _appInitializing!=="undefined" && !_appInitializing)queueCloudSync();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -3591,11 +3593,12 @@ function pushToCloud(){
 }
 
 function queueCloudSync(){
- if(applyingRemote||!cloudUser)return;
- if(_appInitializing)return;
+ // 🔒 منع الاستدعاء قبل اكتمال التهيئة أو أثناء تطبيق بيانات السحابة
+ if(typeof applyingRemote === 'undefined' || applyingRemote) return;
+ if(typeof cloudUser === 'undefined' || !cloudUser) return;
+ if(typeof _appInitializing === 'undefined' || _appInitializing) return;
  // 🔒 تحقق إضافي: uid الحالي يجب أن يطابق آخر uid مُعرَّف
- // يمنع إرسال بيانات مستخدم لحساب مختلف في حالة تبديل سريع
- if(_lastAttachedUid && cloudUser.uid !== _lastAttachedUid) return;
+ if(typeof _lastAttachedUid !== 'undefined' && _lastAttachedUid && cloudUser.uid !== _lastAttachedUid) return;
  _pendingLocalEdit=true;
  setCloudStatus("pending");
  clearTimeout(_saveDebounceTimer);
