@@ -4027,51 +4027,51 @@ async function attachCloudListener(uid){
  });
 
  // ✅ STEP 3 — real-time listener: يستقبل تحديثات الأجهزة الأخرى فوراً بدون refresh
+ // المبدأ (مطابق habittck): أي snapshot من جهاز آخر يُطبَّق فوراً بلا استثناء.
+ // الاستثناء الوحيد: snapshot كتبه هذا الجهاز خلال آخر 3 ثوانٍ (لمنع تشويش الكتابة النشطة).
  let isFirstSnapshot=true;
 
  cloudUnsub=fbDb.collection("users").doc(uid).onSnapshot(snap=>{
   try{
    if(!snap.exists){isFirstSnapshot=false;return;}
-   _remoteDocExists=true; // شبكة أمان: حتى لو فشل فحص الخادم الأولي (offline)
+   _remoteDocExists=true;
    const d=snap.data();
 
-   // تجاهل snapshot كتبه هذا الجهاز — الجهاز الآخر يُقبل دائماً بدون حارس زمني
    const fromThisDevice=(d._writerId===_sessionId);
-   if(fromThisDevice){
-    // ✅ FIX: نُصفّر isFirstSnapshot حتى snapshot الجهاز نفسه
-    // لأن "أول snapshot حقيقي من جهاز آخر" لا يجب أن يُعامَل كـ firstSnapshot
+   const timeSinceLocalWrite=Date.now()-_lastLocalWriteTime;
+
+   // تجاهل فقط إذا كتبه هذا الجهاز منذ أقل من 3 ثوانٍ (echo الكتابة الخاصة بنا)
+   // أي حالة أخرى = جهاز آخر أو أول تحميل → طبّق فوراً بلا مقارنة timestamps
+   if(!isFirstSnapshot && fromThisDevice && timeSinceLocalWrite<3000){
     isFirstSnapshot=false;
     return;
    }
 
-   const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
-   const localTime=(state.meta&&state.meta.updatedAt)||0;
-
-   // snapshot من جهاز آخر — نُصفّر _pendingLocalEdit دائماً (الجهاز الآخر كتب فوقنا)
-   _pendingLocalEdit=false;
-
    if(isFirstSnapshot){
+    // أول snapshot: تحقق إذا السيرفر أحدث من المحلي قبل التطبيق
     isFirstSnapshot=false;
-    if(!serverCheckDone&&!_pendingLocalEdit&&remoteTime>localTime){
+    const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
+    const localTime=(state.meta&&state.meta.updatedAt)||0;
+    if(!_pendingLocalEdit&&remoteTime>=localTime){
      applyRemoteState(d);
-    } else if(serverCheckDone&&localTime>remoteTime&&localTime>0&&!serverConfirmedNew){
+    } else if(_pendingLocalEdit||localTime>remoteTime){
      pushToCloud();
-    } else if(!serverCheckDone&&d&&d.profile&&d.profile.name){
-     const wasOnb=onbVisible();updateDOMTranslations();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
-    // تحديث فوري من جهاز آخر — طبّقه إذا كان أحدث أو مساوياً (لتجنب تقارب الـ timestamps)
-    if(remoteTime>=localTime){
-     applyRemoteState(d);
-     toast(t("sync.updated"));
-    }
+    // snapshot لاحق من جهاز آخر — طبّقه مباشرة بلا شروط إضافية
+    _pendingLocalEdit=false;
+    applyRemoteState(d);
+    toast(t("sync.updated"));
    }
   }catch(e){console.error('Snapshot apply error:',e);}
  },err=>{
   setCloudStatus("error");
   console.error('Firestore listener error:',err&&err.code);
-  // ✅ عند انقطاع الـ listener، نُصفّر cloudUnsub حتى يُعاد ربطه عند عودة التطبيق
   cloudUnsub=null;
+  // إعادة المحاولة تلقائياً عند انقطاع الـ listener (مطابق habittck)
+  if(cloudUser&&cloudUser.uid===uid){
+   setTimeout(()=>attachCloudListener(uid),2000);
+  }
  });
 }
 
