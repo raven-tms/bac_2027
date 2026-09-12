@@ -1519,8 +1519,6 @@ ar:{
 }};
 // flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
 let _userLangOverride = false;
-// تعريف مبكر لـ applyingRemote لمنع ReferenceError عند استدعاء applyLang قبل تهيئة Firebase
-let applyingRemote = false;
 // قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
 let LANG=(function(){
   try{
@@ -3206,8 +3204,7 @@ try{
 }catch(e){}
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
-let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,cloudFirstSync=true;
-applyingRemote=false; // مُعرَّف مسبقاً — إعادة ضبط فقط
+let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
 // 🛡️ نتذكّر (لمدة الجلسة الحالية فقط، بلا أي تخزين محلي) هل آخر نسخة حقيقية
 // وصلتنا من Firestore كانت تحتوي بيانات فعلية (اسم/علامات/مهام حقيقية). إن كانت
 // كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
@@ -3246,12 +3243,9 @@ function confirmLogout(){
  _pendingLocalEdit=false;
  _remoteHadRealData=false;
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
- // 🔒 تصفير آخر uid محفوظ — يضمن إعادة ضبط كاملة عند تسجيل دخول مستخدم آخر
- if(typeof _lastAttachedUid !== 'undefined') _lastAttachedUid = null;
- // 🔒 مسح access cache من localStorage عند تسجيل الخروج — يمنع المستخدم التالي
- // من الوراثة الخاطئة لحالة الوصول الخاصة بالمستخدم السابق
- try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
  // تصفير state فوراً قبل signOut لمنع أي كتابة خاطئة لاحقة
+ _lastAttachedUid = null;
+ try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
  state=defaultState();
  fbAuth.signOut();
  toast(LANG==="ar"?"تم تسجيل الخروج بنجاح":"Signed out successfully");
@@ -3598,7 +3592,6 @@ function pushToCloud(){
 function queueCloudSync(){
  if(applyingRemote||!cloudUser)return;
  if(_appInitializing)return;
- if(_lastAttachedUid && cloudUser.uid !== _lastAttachedUid) return;
  _pendingLocalEdit=true;
  setCloudStatus("pending");
  clearTimeout(_saveDebounceTimer);
@@ -3661,26 +3654,19 @@ document.addEventListener('visibilitychange',()=>{ if(!document.hidden)_checkDay
 window.addEventListener('focus',_checkDayRollover);
 
 // ── مستمع Firestore الكامل: server-first + real-time sync + session guard ──
-// 🔒 نتتبع آخر uid استُخدم — لمنع تلوث البيانات بين مستخدمين مختلفين على نفس الجهاز
 let _lastAttachedUid = null;
 
 async function attachCloudListener(uid){
  if(cloudUnsub){cloudUnsub();cloudUnsub=null;}
 
- // 🔒 إذا تغير الـ uid (مستخدم مختلف) — صفّر الـ state تماماً قبل جلب البيانات الجديدة
- // هذا يحل مشكلة تضارب البيانات عند تسجيل دخول شخص مختلف على نفس الجهاز
+ // 🔒 تصفير كامل عند تغيير المستخدم
  if(_lastAttachedUid && _lastAttachedUid !== uid){
-   console.log('[BAC-CLOUD] New user uid detected — full reset to prevent data contamination');
-   // إلغاء أي حفظ معلّق من المستخدم السابق قبل أن يُرسَل للخادم
    clearTimeout(_saveDebounceTimer);
    _saveDebounceTimer = null;
    _pendingLocalEdit = false;
    _remoteHadRealData = false;
-   // تصفير الـ state تماماً — المستخدم الجديد يبدأ من صفحة بيضاء
-   // البيانات الحقيقية ستأتي من Firestore عبر uid الجديد
-   state = defaultState();
-   // مسح أي debounce نشط في _saveQueue أيضاً
    _saveQueue = Promise.resolve();
+   state = defaultState();
  }
  _lastAttachedUid = uid;
 
@@ -3952,10 +3938,9 @@ setTimeout(()=>{ _appInitializing=false; },0);
       }
       if(_authStateFired === 1){
         const fired = _authStateFired;
-        // تأخير قصير للتحقق من عدم وجود redirect جارٍ
         setTimeout(()=>{
           if(_authStateFired === fired && !_redirectPending) showLogin();
-        }, 100);
+        }, 250);
         return;
       }
       if(cloudUnsub){ cloudUnsub(); cloudUnsub=null; }
@@ -3964,10 +3949,6 @@ setTimeout(()=>{ _appInitializing=false; },0);
       _pendingLocalEdit = false;
       clearTimeout(_saveDebounceTimer);
       _saveDebounceTimer = null;
-      // 🔒 تصفير uid المحفوظ لضمان إعادة ضبط كاملة عند دخول مستخدم آخر
-      if(typeof _lastAttachedUid !== 'undefined') _lastAttachedUid = null;
-      // 🔒 مسح access cache لمنع المستخدم التالي من وراثة حالة الوصول القديمة
-      try{ localStorage.removeItem('bac2027_access_cache'); }catch(e){}
       state = defaultState();
       showLogin();
       return;
@@ -4043,14 +4024,10 @@ setTimeout(()=>{ _appInitializing=false; },0);
   lgBtn.disabled = false;
   lgBtn.innerHTML = googleLogoHTML;
 
-  // ⏱️ مؤقت أمان: إذا لم يستجب Firebase خلال 6 ثوانٍ، أظهر شاشة تسجيل الدخول تلقائياً
-  // (يحل مشكلة بقاء شاشة التحميل عالقة عند بطء الشبكة أو حجب Firebase)
+  // ⏱️ مؤقت أمان: إذا لم يستجب Firebase خلال 6 ثوانٍ، أظهر شاشة تسجيل الدخول
   let _authReadyFired = false;
   const _authSafetyTimer = setTimeout(()=>{
-    if(!_authReadyFired){
-      console.warn('[BAC-AUTH] Firebase auth timed out after 6s — showing login screen');
-      showLogin();
-    }
+    if(!_authReadyFired) showLogin();
   }, 6000);
 
   const _origOnAuthReady = _onAuthReady;
