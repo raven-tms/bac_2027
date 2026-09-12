@@ -2613,7 +2613,7 @@ function initApp(){
          allow read, write: if request.auth != null
                             && request.auth.uid == userId
                             && request.resource.data.keys().hasOnly([
-                               'meta','profile','grades','tasks','goals','notes',
+                               'meta','grades','tasks','goals','notes',
                                'gamification','settings','streak',
                                '_savedAt','_writerId'
                             ]);
@@ -2834,12 +2834,6 @@ function applyRemoteState(remote){
  applyLang(LANG);
  document.getElementById("htmlRoot").setAttribute("data-theme",state.settings.themeName||"default");
  applyTheme(state.settings.theme);
- // الحساب موجود مسبقاً وله ملف شخصي محفوظ في السحابة (اسم + شعبة) —
- // لا داعي لإظهار نافذة الإعداد الأولي مجدداً، حتى لو كانت ظاهرة الآن
- // بسبب أن الحالة المحلية الابتدائية (قبل وصول بيانات السحابة) كانت فارغة.
- if(state.profile.name){
-   if(onbVisible()){hideOnboarding();initApp()}
- }
  renderNav();renderAllViews();fillSubjectSelects();checkBadges();
  setCloudStatus("synced");
  applyingRemote=false;
@@ -2868,11 +2862,10 @@ const _TRANSIENT=['unavailable','deadline-exceeded','aborted','cancelled','inter
 
 const _PAYLOAD_SCHEMA = {
   // الحقول الأعلى المستوى المسموح بها فقط (تطابق Firestore Security Rules)
-  ALLOWED_TOP_KEYS: ['meta','profile','grades','tasks','goals','notes','gamification','settings','streak'],
+  ALLOWED_TOP_KEYS: ['meta','grades','tasks','goals','notes','gamification','settings','streak'],
 
   // الحقول المسموح بها داخل كل قسم فرعي
   meta:         ['updatedAt','version','onboarded'],
-  profile:      ['name','streamId','targetAvg','createdAt'],
   gamification: ['xp','level','streak','lastActive','streakHistory','badges','mood'],
   settings:     ['theme','themeName','lang','amazighExempt','epsExempt','targetAvg',
                  'notifyStreak','notifyGoals','weekStart'],
@@ -2947,7 +2940,7 @@ function sanitizeFirestorePayload(rawPayload) {
   const topLevel = _filterKeys(rawPayload, _PAYLOAD_SCHEMA.ALLOWED_TOP_KEYS, 'top-level');
 
   // ② نظّف الأقسام ذات Schema محدد
-  ['meta', 'profile', 'gamification', 'settings', 'streak'].forEach(section => {
+  ['meta', 'gamification', 'settings', 'streak'].forEach(section => {
     if (topLevel[section] && _PAYLOAD_SCHEMA[section]) {
       topLevel[section] = _filterKeys(topLevel[section], _PAYLOAD_SCHEMA[section], section);
     }
