@@ -150,24 +150,24 @@
 .theme-card.theme-active{border-color:var(--text)!important;box-shadow:0 0 0 2px var(--text)}
 .tabbar{padding-bottom:env(safe-area-inset-bottom,0px)}
 .tabbtn{transition:color .25s cubic-bezier(.16,1,.3,1),transform .2s cubic-bezier(.16,1,.3,1)}
-.tabbtn:hover{transform:scale(1.12);color:var(--primary)}
+.tabbtn:hover{color:var(--primary)}
 .tabbtn:active{transform:scale(.92)}
 .tabbtn.tab-active{color:var(--primary)}
 .tabbtn .tabdot{transition:opacity .25s ease,transform .25s cubic-bezier(.16,1,.3,1)}
 .tabbtn:hover .tabdot{opacity:.6;transform:scale(1.3)}
 .tabicon{
   display:flex;align-items:center;justify-content:center;
-  width:40px;height:32px;border-radius:14px;
+  width:38px;height:28px;border-radius:12px;
   background:transparent;box-shadow:none;
   transition:background-color .35s cubic-bezier(.16,1,.3,1),transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s cubic-bezier(.16,1,.3,1);
 }
 .tabbtn.tab-active .tabicon{
   background:var(--primary-soft);
-  transform:translateY(-10px);
-  box-shadow:0 8px 18px -4px color-mix(in srgb, var(--primary) 45%, transparent);
+  transform:translateY(-4px);
+  box-shadow:0 4px 10px -3px color-mix(in srgb, var(--primary) 45%, transparent);
 }
-.tabbtn:hover .tabicon{transform:translateY(-10px) scale(1.08)}
-.tabbtn.tab-active:hover .tabicon{transform:translateY(-10px) scale(1.12)}
+.tabbtn:hover .tabicon{transform:translateY(-4px) scale(1.06)}
+.tabbtn.tab-active:hover .tabicon{transform:translateY(-4px) scale(1.1)}
 @media (max-width:400px){.tabbtn{font-size:10px}}
 #fileViewerBody{touch-action:none}
 #fileViewerBody img{max-width:100%;max-height:70vh;user-select:none;-webkit-user-drag:none;transform-origin:center center;transition:transform .06s linear;cursor:grab}
