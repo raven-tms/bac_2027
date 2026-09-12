@@ -1519,6 +1519,8 @@ ar:{
 }};
 // flag يُسجَّل عندما يغيّر المستخدم اللغة يدوياً — يمنع Firebase من الكتابة فوقها
 let _userLangOverride = false;
+// تعريف مبكر لـ applyingRemote لمنع ReferenceError عند استدعاء applyLang قبل تهيئة Firebase
+let applyingRemote = false;
 // قراءة اللغة من السكريبت المبكر (data-initial-lang) أو localStorage كـ fallback
 let LANG=(function(){
   try{
@@ -1653,7 +1655,7 @@ function applyLang(lang){
  try{localStorage.setItem('bac2027_lang',lang);}catch(e){}
  // لا نستدعي saveState() هنا لأنها تُشغّل queueCloudSync → applyRemoteState
  // الذي يُعيد ضبط LANG من Firebase ويكسر التغيير — نحفظ اللغة مباشرة
- if(typeof queueCloudSync==="function" && typeof applyingRemote!=="undefined" && !applyingRemote && typeof _appInitializing!=="undefined" && !_appInitializing)queueCloudSync();
+ if(typeof queueCloudSync==="function")queueCloudSync();
  const root=document.getElementById("htmlRoot");
  root.setAttribute("lang",lang);root.setAttribute("dir",lang==="ar"?"rtl":"ltr");
  document.body.classList.toggle("lang-ar",lang==="ar");
@@ -3204,7 +3206,8 @@ try{
 }catch(e){}
 const googleProvider=new firebase.auth.GoogleAuthProvider();
 
-let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,applyingRemote=false,cloudFirstSync=true;
+let cloudUser=null,cloudUnsub=null,cloudSyncTimer=null,cloudFirstSync=true;
+applyingRemote=false; // مُعرَّف مسبقاً — إعادة ضبط فقط
 // 🛡️ نتذكّر (لمدة الجلسة الحالية فقط، بلا أي تخزين محلي) هل آخر نسخة حقيقية
 // وصلتنا من Firestore كانت تحتوي بيانات فعلية (اسم/علامات/مهام حقيقية). إن كانت
 // كذلك، نرفض لاحقاً رفع حالة فارغة تكتب فوقها — هذا يمنع تكرار حادثة فقدان
@@ -3593,12 +3596,9 @@ function pushToCloud(){
 }
 
 function queueCloudSync(){
- // 🔒 منع الاستدعاء قبل اكتمال التهيئة أو أثناء تطبيق بيانات السحابة
- if(typeof applyingRemote === 'undefined' || applyingRemote) return;
- if(typeof cloudUser === 'undefined' || !cloudUser) return;
- if(typeof _appInitializing === 'undefined' || _appInitializing) return;
- // 🔒 تحقق إضافي: uid الحالي يجب أن يطابق آخر uid مُعرَّف
- if(typeof _lastAttachedUid !== 'undefined' && _lastAttachedUid && cloudUser.uid !== _lastAttachedUid) return;
+ if(applyingRemote||!cloudUser)return;
+ if(_appInitializing)return;
+ if(_lastAttachedUid && cloudUser.uid !== _lastAttachedUid) return;
  _pendingLocalEdit=true;
  setCloudStatus("pending");
  clearTimeout(_saveDebounceTimer);
