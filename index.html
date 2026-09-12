@@ -3893,6 +3893,34 @@ document.addEventListener('visibilitychange',()=>{
   _saveDebounceTimer=null;
   pushToCloud();
  }
+ // ✅ FIX: لما يرجع المستخدم للتطبيق (من الخلفية أو قفل الشاشة)،
+ // Firestore onSnapshot قد يكون انقطع على iOS/Android — نسحب البيانات يدوياً
+ // لضمان أن الهاتف يرى آخر تحديثات الكمبيوتر بدون الحاجة لرفراش
+ if(!document.hidden&&cloudUser){
+  setTimeout(()=>{
+   if(!cloudUser)return;
+   const uid=cloudUser.uid;
+   // أعِد ربط الـ listener إذا انقطع (cloudUnsub تكون null إذا انقطع)
+   if(!cloudUnsub){
+    console.log('[BAC-CLOUD] re-attaching listener after foreground return');
+    attachCloudListener(uid);
+    return;
+   }
+   // إذا الـ listener لا يزال موجود، اسحب يدوياً للتأكد
+   fbDb.collection("users").doc(uid).get({source:'server'}).then(snap=>{
+    if(!snap.exists)return;
+    const d=snap.data();
+    if(d._writerId===_sessionId)return; // بياناتنا نحن، لا داعي
+    const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
+    const localTime=(state.meta&&state.meta.updatedAt)||0;
+    if(remoteTime>localTime){
+     _pendingLocalEdit=false;
+     applyRemoteState(d);
+     toast(t("sync.updated"));
+    }
+   }).catch(()=>{});
+  },500); // تأخير صغير لضمان اتصال الشبكة بعد العودة للـ foreground
+ }
 });
 
 // ── إعادة فحص "تغيّر اليوم" بدون الحاجة لإعادة تحميل الصفحة يدوياً: إذا
@@ -4010,17 +4038,17 @@ async function attachCloudListener(uid){
    // تجاهل snapshot كتبه هذا الجهاز — الجهاز الآخر يُقبل دائماً بدون حارس زمني
    const fromThisDevice=(d._writerId===_sessionId);
    if(fromThisDevice){
-    if(isFirstSnapshot) isFirstSnapshot=false;
+    // ✅ FIX: نُصفّر isFirstSnapshot حتى snapshot الجهاز نفسه
+    // لأن "أول snapshot حقيقي من جهاز آخر" لا يجب أن يُعامَل كـ firstSnapshot
+    isFirstSnapshot=false;
     return;
    }
 
    const remoteTime=(d.meta&&d.meta.updatedAt)||d._savedAt||0;
    const localTime=(state.meta&&state.meta.updatedAt)||0;
 
-   // snapshot من جهاز آخر — نُصفّر _pendingLocalEdit دائماً إذا كان أحدث
-   if(remoteTime>_lastLocalWriteTime){
-    _pendingLocalEdit=false;
-   }
+   // snapshot من جهاز آخر — نُصفّر _pendingLocalEdit دائماً (الجهاز الآخر كتب فوقنا)
+   _pendingLocalEdit=false;
 
    if(isFirstSnapshot){
     isFirstSnapshot=false;
@@ -4032,8 +4060,8 @@ async function attachCloudListener(uid){
      const wasOnb=onbVisible();updateDOMTranslations();hideOnboarding();if(wasOnb)initApp();
     }
    } else {
-    // تحديث فوري من جهاز آخر — طبّقه مباشرة إذا كان أحدث
-    if(!_pendingLocalEdit&&remoteTime>localTime){
+    // تحديث فوري من جهاز آخر — طبّقه إذا كان أحدث أو مساوياً (لتجنب تقارب الـ timestamps)
+    if(remoteTime>=localTime){
      applyRemoteState(d);
      toast(t("sync.updated"));
     }
@@ -4042,6 +4070,8 @@ async function attachCloudListener(uid){
  },err=>{
   setCloudStatus("error");
   console.error('Firestore listener error:',err&&err.code);
+  // ✅ عند انقطاع الـ listener، نُصفّر cloudUnsub حتى يُعاد ربطه عند عودة التطبيق
+  cloudUnsub=null;
  });
 }
 
